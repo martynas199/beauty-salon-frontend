@@ -1,0 +1,1 @@
+﻿import { api } from "../../lib/apiClient"; export const AvailabilityAPI = { workingHours: async(p)=> (await api.get("/working-hours",{ params:p })).data, slots: async(p)=> (await api.get("/slots",{ params:p })).data?.slots ?? [] };

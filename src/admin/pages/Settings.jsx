@@ -1,0 +1,1 @@
+﻿export default function Settings(){ return (<div><h1 className="text-xl font-semibold mb-4">Settings</h1><ul className="list-disc pl-6"><li>Timezone</li><li>Payment modes</li><li>Email templates</li></ul></div>); }
