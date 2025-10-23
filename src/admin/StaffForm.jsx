@@ -517,7 +517,8 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
                     onChange={(e) =>
                       handleWorkingHoursChange(index, "start", e.target.value)
                     }
-                    className={`w-full px-3 py-2 border rounded-lg ${
+                    style={{ minWidth: 0 }}
+                    className={`w-full max-w-full px-2 py-2 border rounded-lg text-sm ${
                       errors[`workingHours_${index}_start`]
                         ? "border-red-500"
                         : "border-gray-300"
@@ -540,7 +541,8 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
                     onChange={(e) =>
                       handleWorkingHoursChange(index, "end", e.target.value)
                     }
-                    className={`w-full px-3 py-2 border rounded-lg ${
+                    style={{ minWidth: 0 }}
+                    className={`w-full max-w-full px-2 py-2 border rounded-lg text-sm ${
                       errors[`workingHours_${index}_end`]
                         ? "border-red-500"
                         : "border-gray-300"

@@ -163,7 +163,10 @@ export default function ServicesList({
           {/* Mobile Card View */}
           <div className="block md:hidden space-y-4">
             {filteredServices.map((service) => (
-              <div key={service._id} className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+              <div
+                key={service._id}
+                className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden"
+              >
                 <div className="p-4">
                   {/* Service Header with Image */}
                   <div className="flex gap-3 mb-3">
@@ -194,7 +197,7 @@ export default function ServicesList({
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Service Details Grid */}
                   <div className="grid grid-cols-2 gap-3 mb-3 pt-3 border-t border-gray-200">
                     <div>
@@ -233,7 +236,7 @@ export default function ServicesList({
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Action Buttons */}
                   <div className="flex gap-2 pt-3 border-t border-gray-200">
                     <button
@@ -253,7 +256,7 @@ export default function ServicesList({
               </div>
             ))}
           </div>
-          
+
           {/* Desktop Table View */}
           <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
             <div className="overflow-x-auto">

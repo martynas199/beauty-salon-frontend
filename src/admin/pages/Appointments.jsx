@@ -846,16 +846,20 @@ function EditModal({
               </label>
               <input
                 type="datetime-local"
-                className="border rounded w-full px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                className="border rounded w-full max-w-full px-2 py-1.5 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                style={{ minWidth: 0 }}
                 value={appointment.start}
                 onChange={(e) => updateField("start", e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">End Time</label>
+              <label className="block text-sm text-gray-600 mb-1">
+                End Time
+              </label>
               <input
                 type="datetime-local"
-                className="border rounded w-full px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                className="border rounded w-full max-w-full px-2 py-1.5 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                style={{ minWidth: 0 }}
                 value={appointment.end}
                 onChange={(e) => updateField("end", e.target.value)}
               />

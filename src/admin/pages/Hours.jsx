@@ -183,7 +183,8 @@ export default function Hours() {
                             onChange={(e) =>
                               handleTimeChange(day.key, "start", e.target.value)
                             }
-                            className="flex-1 sm:flex-none px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                            style={{ minWidth: 0 }}
+                            className="flex-1 sm:flex-none max-w-full px-2 py-1.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           />
                         </div>
                         <div className="flex items-center gap-2 flex-1">
@@ -196,7 +197,8 @@ export default function Hours() {
                             onChange={(e) =>
                               handleTimeChange(day.key, "end", e.target.value)
                             }
-                            className="flex-1 sm:flex-none px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                            style={{ minWidth: 0 }}
+                            className="flex-1 sm:flex-none max-w-full px-2 py-1.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           />
                         </div>
                         <button

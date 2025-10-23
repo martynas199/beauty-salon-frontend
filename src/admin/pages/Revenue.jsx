@@ -354,11 +354,14 @@ export default function Revenue() {
                   Detailed Breakdown
                 </h2>
               </div>
-              
+
               {/* Mobile Card View */}
               <div className="block md:hidden divide-y divide-gray-200">
                 {filteredBeauticians.map((beautician) => (
-                  <div key={beautician.beauticianId} className="p-4 hover:bg-gray-50 transition-colors">
+                  <div
+                    key={beautician.beauticianId}
+                    className="p-4 hover:bg-gray-50 transition-colors"
+                  >
                     {/* Beautician Header */}
                     <div className="flex items-center gap-3 mb-3">
                       <div className="flex-shrink-0 h-12 w-12 rounded-full bg-brand-100 flex items-center justify-center">
@@ -375,29 +378,39 @@ export default function Revenue() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-gray-50 rounded-lg p-3">
-                        <div className="text-xs text-gray-500 mb-1">Revenue</div>
+                        <div className="text-xs text-gray-500 mb-1">
+                          Revenue
+                        </div>
                         <div className="text-base font-bold text-gray-900">
                           {formatCurrency(beautician.revenue)}
                         </div>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-3">
-                        <div className="text-xs text-gray-500 mb-1">Bookings</div>
+                        <div className="text-xs text-gray-500 mb-1">
+                          Bookings
+                        </div>
                         <div className="text-base font-bold text-gray-900">
                           {beautician.bookings}
                         </div>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-3">
-                        <div className="text-xs text-gray-500 mb-1">Avg/Booking</div>
+                        <div className="text-xs text-gray-500 mb-1">
+                          Avg/Booking
+                        </div>
                         <div className="text-sm font-semibold text-gray-700">
-                          {formatCurrency(beautician.revenue / beautician.bookings)}
+                          {formatCurrency(
+                            beautician.revenue / beautician.bookings
+                          )}
                         </div>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-3">
-                        <div className="text-xs text-gray-500 mb-1">Services</div>
+                        <div className="text-xs text-gray-500 mb-1">
+                          Services
+                        </div>
                         <div className="text-sm font-semibold text-gray-700">
                           {beautician.serviceCount}
                         </div>
@@ -405,7 +418,7 @@ export default function Revenue() {
                     </div>
                   </div>
                 ))}
-                
+
                 {/* Mobile Total */}
                 <div className="p-4 bg-gray-50 border-t-2 border-gray-300">
                   <div className="font-bold text-gray-900 mb-3">Total</div>
@@ -425,7 +438,7 @@ export default function Revenue() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
