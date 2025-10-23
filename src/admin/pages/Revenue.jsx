@@ -145,8 +145,8 @@ export default function Revenue() {
         </div>
 
         {/* Custom Date Inputs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Start Date
             </label>
@@ -155,10 +155,10 @@ export default function Revenue() {
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               max={endDate}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
             />
           </div>
-          <div>
+          <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               End Date
             </label>
@@ -168,7 +168,7 @@ export default function Revenue() {
               onChange={(e) => setEndDate(e.target.value)}
               min={startDate}
               max={dayjs().format("YYYY-MM-DD")}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
             />
           </div>
         </div>
@@ -346,15 +346,88 @@ export default function Revenue() {
             </div>
           )}
 
-          {/* Table */}
+          {/* Table / Cards */}
           {filteredBeauticians.length > 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Detailed Breakdown
                 </h2>
               </div>
-              <div className="overflow-x-auto">
+              
+              {/* Mobile Card View */}
+              <div className="block md:hidden divide-y divide-gray-200">
+                {filteredBeauticians.map((beautician) => (
+                  <div key={beautician.beauticianId} className="p-4 hover:bg-gray-50 transition-colors">
+                    {/* Beautician Header */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="flex-shrink-0 h-12 w-12 rounded-full bg-brand-100 flex items-center justify-center">
+                        <span className="text-brand-700 font-medium text-sm">
+                          {beautician.beautician
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-gray-900 truncate">
+                          {beautician.beautician}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <div className="text-xs text-gray-500 mb-1">Revenue</div>
+                        <div className="text-base font-bold text-gray-900">
+                          {formatCurrency(beautician.revenue)}
+                        </div>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <div className="text-xs text-gray-500 mb-1">Bookings</div>
+                        <div className="text-base font-bold text-gray-900">
+                          {beautician.bookings}
+                        </div>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <div className="text-xs text-gray-500 mb-1">Avg/Booking</div>
+                        <div className="text-sm font-semibold text-gray-700">
+                          {formatCurrency(beautician.revenue / beautician.bookings)}
+                        </div>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <div className="text-xs text-gray-500 mb-1">Services</div>
+                        <div className="text-sm font-semibold text-gray-700">
+                          {beautician.serviceCount}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Mobile Total */}
+                <div className="p-4 bg-gray-50 border-t-2 border-gray-300">
+                  <div className="font-bold text-gray-900 mb-3">Total</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Revenue</div>
+                      <div className="text-base font-bold text-gray-900">
+                        {formatCurrency(filteredTotalRevenue)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Bookings</div>
+                      <div className="text-base font-bold text-gray-900">
+                        {filteredTotalBookings}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>

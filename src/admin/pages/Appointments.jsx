@@ -839,25 +839,27 @@ function EditModal({
               ))}
             </select>
           </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Start Time
-            </label>
-            <input
-              type="datetime-local"
-              className="border rounded w-full px-3 py-2"
-              value={appointment.start}
-              onChange={(e) => updateField("start", e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">End Time</label>
-            <input
-              type="datetime-local"
-              className="border rounded w-full px-3 py-2"
-              value={appointment.end}
-              onChange={(e) => updateField("end", e.target.value)}
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">
+                Start Time
+              </label>
+              <input
+                type="datetime-local"
+                className="border rounded w-full px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                value={appointment.start}
+                onChange={(e) => updateField("start", e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">End Time</label>
+              <input
+                type="datetime-local"
+                className="border rounded w-full px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                value={appointment.end}
+                onChange={(e) => updateField("end", e.target.value)}
+              />
+            </div>
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">

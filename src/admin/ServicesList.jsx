@@ -141,7 +141,7 @@ export default function ServicesList({
         </div>
       </div>
 
-      {/* Services Table */}
+      {/* Services Table / Cards */}
       {filteredServices.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
           <p className="text-gray-500 text-lg mb-4">
@@ -159,82 +159,30 @@ export default function ServicesList({
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Service
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Duration
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Variants
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredServices.map((service) => (
-                  <tr key={service._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        {service.image && (
-                          <img
-                            src={service.image.url}
-                            alt={service.image.alt || service.name}
-                            className="w-12 h-12 rounded object-cover mr-3"
-                          />
-                        )}
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {service.name}
-                          </div>
-                          {service.description && (
-                            <div className="text-sm text-gray-500 line-clamp-1">
-                              {service.description}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {service.category || "—"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {formatPrice(getServicePrice(service))}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {service.durationMin ||
-                        service.variants?.[0]?.durationMin ||
-                        "—"}
-                      {(service.durationMin ||
-                        service.variants?.[0]?.durationMin) &&
-                        " min"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {service.variants?.length > 0 ? (
-                        <span className="text-brand-600">
-                          {service.variants.length} variant(s)
-                        </span>
-                      ) : (
-                        "—"
+        <>
+          {/* Mobile Card View */}
+          <div className="block md:hidden space-y-4">
+            {filteredServices.map((service) => (
+              <div key={service._id} className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+                <div className="p-4">
+                  {/* Service Header with Image */}
+                  <div className="flex gap-3 mb-3">
+                    {service.image && (
+                      <img
+                        src={service.image.url}
+                        alt={service.image.alt || service.name}
+                        className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 mb-1 truncate">
+                        {service.name}
+                      </h3>
+                      {service.description && (
+                        <p className="text-sm text-gray-500 line-clamp-2 mb-2">
+                          {service.description}
+                        </p>
                       )}
-                    </td>
-                    <td className="px-6 py-4">
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                           service.active
@@ -244,27 +192,176 @@ export default function ServicesList({
                       >
                         {service.active ? "Active" : "Inactive"}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-right text-sm">
-                      <button
-                        onClick={() => onEdit(service)}
-                        className="text-brand-600 hover:text-brand-900 mr-3"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(service)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+                  
+                  {/* Service Details Grid */}
+                  <div className="grid grid-cols-2 gap-3 mb-3 pt-3 border-t border-gray-200">
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Category</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {service.category || "—"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Price</div>
+                      <div className="text-sm font-semibold text-brand-600">
+                        {formatPrice(getServicePrice(service))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Duration</div>
+                      <div className="text-sm text-gray-900">
+                        {service.durationMin ||
+                          service.variants?.[0]?.durationMin ||
+                          "—"}
+                        {(service.durationMin ||
+                          service.variants?.[0]?.durationMin) &&
+                          " min"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Variants</div>
+                      <div className="text-sm text-gray-900">
+                        {service.variants?.length > 0 ? (
+                          <span className="text-brand-600 font-medium">
+                            {service.variants.length} variant(s)
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 pt-3 border-t border-gray-200">
+                    <button
+                      onClick={() => onEdit(service)}
+                      className="flex-1 px-4 py-2 bg-brand-50 text-brand-700 rounded-lg hover:bg-brand-100 font-medium text-sm transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(service)}
+                      className="flex-1 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 font-medium text-sm transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+          
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Service
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Price
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Duration
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Variants
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredServices.map((service) => (
+                    <tr key={service._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          {service.image && (
+                            <img
+                              src={service.image.url}
+                              alt={service.image.alt || service.name}
+                              className="w-12 h-12 rounded object-cover mr-3"
+                            />
+                          )}
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              {service.name}
+                            </div>
+                            {service.description && (
+                              <div className="text-sm text-gray-500 line-clamp-1">
+                                {service.description}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {service.category || "—"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {formatPrice(getServicePrice(service))}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {service.durationMin ||
+                          service.variants?.[0]?.durationMin ||
+                          "—"}
+                        {(service.durationMin ||
+                          service.variants?.[0]?.durationMin) &&
+                          " min"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {service.variants?.length > 0 ? (
+                          <span className="text-brand-600">
+                            {service.variants.length} variant(s)
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            service.active
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {service.active ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right text-sm">
+                        <button
+                          onClick={() => onEdit(service)}
+                          className="text-brand-600 hover:text-brand-900 mr-3"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(service)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Delete Confirmation Modal */}

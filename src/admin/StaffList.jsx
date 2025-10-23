@@ -161,7 +161,7 @@ export default function StaffList({
         </div>
       </div>
 
-      {/* Staff Table */}
+      {/* Staff Table / Cards */}
       {filteredStaff.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
           <p className="text-gray-500 text-lg mb-4">
@@ -179,119 +179,42 @@ export default function StaffList({
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Staff Member
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Specialties
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Services
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredStaff.map((member) => {
-                  const assignedServices = getAssignedServices(member._id);
-
-                  return (
-                    <tr key={member._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          {member.image ? (
-                            <img
-                              src={member.image.url}
-                              alt={member.image.alt || member.name}
-                              className="w-12 h-12 rounded-full object-cover mr-3"
-                            />
-                          ) : (
-                            <div
-                              className="w-12 h-12 rounded-full mr-3 flex items-center justify-center text-white font-semibold"
-                              style={{
-                                backgroundColor: member.color || "#3B82F6",
-                              }}
-                            >
-                              {member.name.charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              {member.name}
-                            </div>
-                            {member.bio && (
-                              <div className="text-sm text-gray-500 line-clamp-1 max-w-xs">
-                                {member.bio}
-                              </div>
-                            )}
-                          </div>
+        <>
+          {/* Mobile Card View */}
+          <div className="block md:hidden space-y-4">
+            {filteredStaff.map((member) => {
+              const assignedServices = getAssignedServices(member._id);
+              
+              return (
+                <div key={member._id} className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+                  <div className="p-4">
+                    {/* Staff Header */}
+                    <div className="flex gap-3 mb-3">
+                      {member.image ? (
+                        <img
+                          src={member.image.url}
+                          alt={member.image.alt || member.name}
+                          className="w-16 h-16 rounded-full object-cover flex-shrink-0"
+                        />
+                      ) : (
+                        <div
+                          className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
+                          style={{
+                            backgroundColor: member.color || "#3B82F6",
+                          }}
+                        >
+                          {member.name.charAt(0).toUpperCase()}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <div className="text-gray-900">
-                          {member.email || "—"}
-                        </div>
-                        <div className="text-gray-500">
-                          {member.phone || "—"}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        {member.specialties && member.specialties.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
-                            {member.specialties
-                              .slice(0, 2)
-                              .map((specialty, idx) => (
-                                <span
-                                  key={idx}
-                                  className="inline-flex px-2 py-1 text-xs font-medium bg-brand-50 text-brand-700 rounded"
-                                >
-                                  {specialty}
-                                </span>
-                              ))}
-                            {member.specialties.length > 2 && (
-                              <span className="text-xs text-gray-500">
-                                +{member.specialties.length - 2} more
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-sm text-gray-500">—</span>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 mb-1">
+                          {member.name}
+                        </h3>
+                        {member.bio && (
+                          <p className="text-sm text-gray-500 line-clamp-2 mb-2">
+                            {member.bio}
+                          </p>
                         )}
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        {assignedServices.length > 0 ? (
-                          <div>
-                            <span className="text-brand-600 font-medium">
-                              {assignedServices.length} service
-                              {assignedServices.length !== 1 ? "s" : ""}
-                            </span>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {assignedServices
-                                .slice(0, 2)
-                                .map((s) => s.name)
-                                .join(", ")}
-                              {assignedServices.length > 2 &&
-                                ` +${assignedServices.length - 2} more`}
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-gray-500">None</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             member.active
@@ -301,28 +224,227 @@ export default function StaffList({
                         >
                           {member.active ? "Active" : "Inactive"}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-right text-sm">
-                        <button
-                          onClick={() => onEdit(member)}
-                          className="text-brand-600 hover:text-brand-900 mr-3"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(member)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </div>
+                    </div>
+                    
+                    {/* Contact Info */}
+                    <div className="space-y-2 mb-3 pt-3 border-t border-gray-200">
+                      <div className="flex items-center gap-2 text-sm">
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-gray-900">{member.email || "—"}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        <span className="text-gray-900">{member.phone || "—"}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Specialties & Services */}
+                    <div className="space-y-2 mb-3 pb-3 border-b border-gray-200">
+                      {member.specialties && member.specialties.length > 0 && (
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">Specialties</div>
+                          <div className="flex flex-wrap gap-1">
+                            {member.specialties.map((specialty, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex px-2 py-1 text-xs font-medium bg-brand-50 text-brand-700 rounded"
+                              >
+                                {specialty}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {assignedServices.length > 0 && (
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">Assigned Services</div>
+                          <div className="text-sm text-brand-600 font-medium">
+                            {assignedServices.length} service{assignedServices.length !== 1 ? "s" : ""}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {assignedServices
+                              .slice(0, 2)
+                              .map((s) => s.name)
+                              .join(", ")}
+                            {assignedServices.length > 2 &&
+                              ` +${assignedServices.length - 2} more`}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => onEdit(member)}
+                        className="flex-1 px-4 py-2 bg-brand-50 text-brand-700 rounded-lg hover:bg-brand-100 font-medium text-sm transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(member)}
+                        className="flex-1 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 font-medium text-sm transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        </div>
+          
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Staff Member
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Contact
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Specialties
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Services
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredStaff.map((member) => {
+                    const assignedServices = getAssignedServices(member._id);
+
+                    return (
+                      <tr key={member._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center">
+                            {member.image ? (
+                              <img
+                                src={member.image.url}
+                                alt={member.image.alt || member.name}
+                                className="w-12 h-12 rounded-full object-cover mr-3"
+                              />
+                            ) : (
+                              <div
+                                className="w-12 h-12 rounded-full mr-3 flex items-center justify-center text-white font-semibold"
+                                style={{
+                                  backgroundColor: member.color || "#3B82F6",
+                                }}
+                              >
+                                {member.name.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                            <div>
+                              <div className="font-medium text-gray-900">
+                                {member.name}
+                              </div>
+                              {member.bio && (
+                                <div className="text-sm text-gray-500 line-clamp-1 max-w-xs">
+                                  {member.bio}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="text-gray-900">
+                            {member.email || "—"}
+                          </div>
+                          <div className="text-gray-500">
+                            {member.phone || "—"}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          {member.specialties && member.specialties.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {member.specialties
+                                .slice(0, 2)
+                                .map((specialty, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="inline-flex px-2 py-1 text-xs font-medium bg-brand-50 text-brand-700 rounded"
+                                  >
+                                    {specialty}
+                                  </span>
+                                ))}
+                              {member.specialties.length > 2 && (
+                                <span className="text-xs text-gray-500">
+                                  +{member.specialties.length - 2} more
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-500">—</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          {assignedServices.length > 0 ? (
+                            <div>
+                              <span className="text-brand-600 font-medium">
+                                {assignedServices.length} service
+                                {assignedServices.length !== 1 ? "s" : ""}
+                              </span>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {assignedServices
+                                  .slice(0, 2)
+                                  .map((s) => s.name)
+                                  .join(", ")}
+                                {assignedServices.length > 2 &&
+                                  ` +${assignedServices.length - 2} more`}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-gray-500">None</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              member.active
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {member.active ? "Active" : "Inactive"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right text-sm">
+                          <button
+                            onClick={() => onEdit(member)}
+                            className="text-brand-600 hover:text-brand-900 mr-3"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(member)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Delete Confirmation Modal */}

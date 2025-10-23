@@ -152,15 +152,15 @@ export default function Hours() {
                       : "border-gray-200 bg-gray-50"
                   }`}
                 >
-                  <div className="flex items-center gap-4 flex-wrap">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     {/* Day Toggle */}
-                    <div className="flex items-center gap-3 w-36">
+                    <div className="flex items-center gap-3 min-w-fit">
                       <input
                         type="checkbox"
                         id={`day-${day.key}`}
                         checked={isOpen}
                         onChange={() => handleDayToggle(day.key)}
-                        className="w-5 h-5 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                        className="w-5 h-5 text-brand-600 border-gray-300 rounded focus:ring-brand-500 flex-shrink-0"
                       />
                       <label
                         htmlFor={`day-${day.key}`}
@@ -172,9 +172,9 @@ export default function Hours() {
 
                     {/* Time Inputs */}
                     {isOpen ? (
-                      <>
-                        <div className="flex items-center gap-2">
-                          <label className="text-sm text-gray-600 hidden sm:inline">
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 flex-1">
+                        <div className="flex items-center gap-2 flex-1">
+                          <label className="text-sm text-gray-600 w-16 sm:w-auto">
                             Opens:
                           </label>
                           <input
@@ -183,11 +183,11 @@ export default function Hours() {
                             onChange={(e) =>
                               handleTimeChange(day.key, "start", e.target.value)
                             }
-                            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                            className="flex-1 sm:flex-none px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           />
                         </div>
-                        <div className="flex items-center gap-2">
-                          <label className="text-sm text-gray-600 hidden sm:inline">
+                        <div className="flex items-center gap-2 flex-1">
+                          <label className="text-sm text-gray-600 w-16 sm:w-auto">
                             Closes:
                           </label>
                           <input
@@ -196,17 +196,17 @@ export default function Hours() {
                             onChange={(e) =>
                               handleTimeChange(day.key, "end", e.target.value)
                             }
-                            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                            className="flex-1 sm:flex-none px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           />
                         </div>
                         <button
                           onClick={() => handleCopyToAll(day.key)}
-                          className="px-3 py-2 text-xs font-medium text-brand-700 hover:bg-brand-100 rounded-lg transition-colors"
+                          className="px-3 py-2 text-xs font-medium text-brand-700 hover:bg-brand-100 rounded-lg transition-colors whitespace-nowrap"
                           title="Copy these hours to all days"
                         >
                           📋 Copy to All
                         </button>
-                      </>
+                      </div>
                     ) : (
                       <span className="text-sm text-gray-500 italic font-medium">
                         Closed
