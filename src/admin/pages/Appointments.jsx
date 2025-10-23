@@ -839,8 +839,11 @@ function EditModal({
               ))}
             </select>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            style={{ minWidth: 0 }}
+          >
+            <div style={{ minWidth: 0 }}>
               <label className="block text-sm text-gray-600 mb-1">
                 Start Time
               </label>
@@ -852,7 +855,7 @@ function EditModal({
                 onChange={(e) => updateField("start", e.target.value)}
               />
             </div>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <label className="block text-sm text-gray-600 mb-1">
                 End Time
               </label>
