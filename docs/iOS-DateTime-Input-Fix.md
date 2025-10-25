@@ -1,25 +1,31 @@
 # iOS DateTime Input Overflow Fix
 
 ## Problem Summary
+
 On iPhone 15 Pro (and other iOS devices), `<input type="datetime-local">` inputs were causing horizontal and vertical scrolling in the appointment edit modal. This issue only appeared on **real iOS devices** (Safari and Chrome), not in desktop Chrome DevTools mobile simulation.
 
 ## Root Causes
 
 ### 1. **iOS Safari Default Input Sizing**
+
 iOS Safari applies a default minimum width to datetime-local inputs (approximately 280-300px) that is larger than typical mobile screen widths. This minimum width is part of Safari's native form control styling and cannot be overridden with CSS width alone.
 
 ### 2. **Browser Zoom on Focus**
+
 When font-size is less than 16px, iOS Safari automatically zooms in when the input receives focus, causing layout shifts and potential overflow.
 
 ### 3. **CSS Grid/Flex Minimum Size**
+
 CSS Grid and Flexbox have an implicit `min-width: auto` (or `min-content`) for their children, which means inputs won't shrink below their "natural" width even when `width: 100%` is applied.
 
 ### 4. **Modal Container Constraints**
+
 The modal was using `w-[90vw]` without `overflow-x-hidden`, allowing content to exceed the container.
 
 ## Solution Implemented
 
 ### 1. **Modal Component Updates** (`src/components/ui/Modal.jsx`)
+
 ```jsx
 // BEFORE
 <div className="relative bg-white rounded-2xl shadow-xl w-[90vw] max-w-lg mx-auto">
@@ -30,21 +36,26 @@ The modal was using `w-[90vw]` without `overflow-x-hidden`, allowing content to 
 ```
 
 **Changes:**
+
 - Changed `w-[90vw]` to `w-full` for better flex behavior
 - Added `overflow-hidden` to container
 - Added `overflow-x-hidden` to content wrapper
 - Added `p-4` padding to outer container for breathing room
 
 ### 2. **DateTime Input Restructure** (`src/admin/pages/Appointments.jsx`)
+
 ```jsx
 <div className="w-full max-w-full overflow-hidden">
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-full" style={{ minWidth: 0 }}>
+  <div
+    className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-full"
+    style={{ minWidth: 0 }}
+  >
     <div className="w-full max-w-full" style={{ minWidth: 0 }}>
       <label className="block text-sm text-gray-600 mb-1">Start Time</label>
       <input
         type="datetime-local"
         className="appearance-none box-border w-full max-w-full border rounded px-2 py-1.5 text-[16px] focus:ring-2 focus:ring-brand-500 focus:border-brand-500 overflow-hidden"
-        style={{ minWidth: 0, maxWidth: '100%' }}
+        style={{ minWidth: 0, maxWidth: "100%" }}
         value={appointment.start}
         onChange={(e) => updateField("start", e.target.value)}
       />
@@ -55,6 +66,7 @@ The modal was using `w-[90vw]` without `overflow-x-hidden`, allowing content to 
 ```
 
 **Key Changes:**
+
 - **Wrapper div**: `w-full max-w-full overflow-hidden` - Constrains the entire section
 - **Grid container**: `style={{ minWidth: 0 }}` - Allows grid items to shrink below content size
 - **Column divs**: `w-full max-w-full` + `style={{ minWidth: 0 }}` - Double constraint
@@ -67,6 +79,7 @@ The modal was using `w-[90vw]` without `overflow-x-hidden`, allowing content to 
 - **Input inline styles**: `minWidth: 0, maxWidth: '100%'` - Forces override of browser defaults
 
 ### 3. **Global CSS Rules** (`src/styles.css`)
+
 ```css
 /* Prevent iOS Safari from zooming on focus when font-size < 16px */
 input[type="datetime-local"],
@@ -91,6 +104,7 @@ input[type="date"] {
 ```
 
 **Purpose:**
+
 - **16px font-size**: Prevents iOS Safari auto-zoom on focus
 - **@supports (-webkit-touch-callout: none)**: iOS-specific targeting
 - **appearance: none**: Removes native browser styling
@@ -125,23 +139,27 @@ input[type="date"] {
 ## Testing Checklist
 
 ### ✅ iPhone 15 Pro Safari
+
 - [ ] Open appointment edit modal
 - [ ] Click Start Time input - no horizontal scroll
-- [ ] Click End Time input - no horizontal scroll  
+- [ ] Click End Time input - no horizontal scroll
 - [ ] No zoom on focus (font stays readable)
 - [ ] Input fits within card boundaries
 - [ ] Responsive on portrait and landscape
 
 ### ✅ iPhone 15 Pro Chrome
+
 - [ ] Same tests as Safari
 - [ ] Verify consistent behavior
 
 ### ✅ Desktop Chrome (Responsive Mode)
+
 - [ ] Inputs render at correct size
 - [ ] No visual regressions
 - [ ] Grid layout works on desktop (2 columns at sm+ breakpoint)
 
 ### ✅ Other iOS Devices (Bonus)
+
 - [ ] iPhone SE (smallest screen) - 375px width
 - [ ] iPhone 14 Pro Max - 430px width
 - [ ] iPad (should show 2-column grid)
@@ -157,6 +175,7 @@ input[type="date"] {
 These changes are committed in: `175b8be - fix: comprehensive iOS datetime input overflow fix with Safari-specific CSS`
 
 Push to deploy:
+
 ```bash
 git push
 ```

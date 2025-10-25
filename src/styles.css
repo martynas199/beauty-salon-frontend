@@ -26,6 +26,89 @@
   }
 }
 
+/* React Big Calendar mobile optimizations */
+@layer components {
+  /* Reduce calendar height on mobile devices */
+  @media (max-width: 768px) {
+    .rbc-calendar {
+      min-height: auto !important;
+    }
+
+    /* Reduce day cell height in month view */
+    .rbc-month-view .rbc-month-row {
+      min-height: 60px !important;
+      max-height: 80px !important;
+    }
+
+    .rbc-month-view .rbc-day-bg {
+      min-height: 60px !important;
+    }
+
+    /* Adjust date cell in month view */
+    .rbc-date-cell {
+      padding: 4px !important;
+      font-size: 0.875rem !important;
+    }
+
+    /* Make event text smaller on mobile */
+    .rbc-event {
+      font-size: 0.7rem !important;
+      padding: 2px 4px !important;
+    }
+
+    .rbc-event-content {
+      font-size: 0.7rem !important;
+    }
+
+    /* Reduce header height */
+    .rbc-header {
+      padding: 6px 4px !important;
+      font-size: 0.75rem !important;
+      min-height: 30px !important;
+    }
+
+    /* Adjust toolbar for mobile */
+    .rbc-toolbar {
+      flex-wrap: wrap !important;
+      gap: 8px !important;
+      margin-bottom: 12px !important;
+    }
+
+    .rbc-toolbar button {
+      font-size: 0.875rem !important;
+      padding: 6px 12px !important;
+    }
+  }
+
+  /* Extra small devices */
+  @media (max-width: 480px) {
+    .rbc-month-view .rbc-month-row {
+      min-height: 50px !important;
+      max-height: 70px !important;
+    }
+
+    .rbc-month-view .rbc-day-bg {
+      min-height: 50px !important;
+    }
+
+    .rbc-event {
+      font-size: 0.65rem !important;
+      padding: 1px 3px !important;
+    }
+
+    .rbc-date-cell {
+      padding: 2px !important;
+      font-size: 0.75rem !important;
+    }
+
+    .rbc-header {
+      padding: 4px 2px !important;
+      font-size: 0.7rem !important;
+      min-height: 25px !important;
+    }
+  }
+}
+
 /* Additional utility for preventing overflow in modals and cards */
 @layer utilities {
   .prevent-overflow {

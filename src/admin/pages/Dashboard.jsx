@@ -15,9 +15,18 @@ export default function Dashboard() {
   const [currentView, setCurrentView] = useState("month");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     fetchData();
+
+    // Handle window resize for responsive calendar
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -252,7 +261,7 @@ export default function Dashboard() {
       </div>
 
       {/* Calendar */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
         <Calendar
           localizer={localizer}
           events={events}
@@ -263,7 +272,7 @@ export default function Dashboard() {
           onNavigate={(date) => setCurrentDate(date)}
           onView={(view) => setCurrentView(view)}
           views={["month", "week", "day", "agenda"]}
-          style={{ height: 700 }}
+          style={{ height: isMobile ? 500 : 700 }}
           onSelectEvent={(event) => setSelectedEvent(event)}
           eventPropGetter={(event) => ({ style: event.style })}
           min={new Date(2025, 0, 1, 8, 0)}
