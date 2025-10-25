@@ -1,3 +1,36 @@
 ﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* iOS-specific fixes for datetime-local inputs */
+@layer base {
+  /* Prevent iOS Safari from zooming on focus when font-size < 16px */
+  input[type="datetime-local"],
+  input[type="time"],
+  input[type="date"] {
+    font-size: 16px;
+  }
+
+  /* iOS Safari: Force inputs to respect container width */
+  @supports (-webkit-touch-callout: none) {
+    input[type="datetime-local"],
+    input[type="time"],
+    input[type="date"] {
+      appearance: none;
+      -webkit-appearance: none;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+  }
+}
+
+/* Additional utility for preventing overflow in modals and cards */
+@layer utilities {
+  .prevent-overflow {
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+}

@@ -839,33 +839,35 @@ function EditModal({
               ))}
             </select>
           </div>
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-            style={{ minWidth: 0 }}
-          >
-            <div style={{ minWidth: 0 }}>
-              <label className="block text-sm text-gray-600 mb-1">
-                Start Time
-              </label>
-              <input
-                type="datetime-local"
-                className="border rounded w-full max-w-full px-2 py-1.5 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                style={{ minWidth: 0 }}
-                value={appointment.start}
-                onChange={(e) => updateField("start", e.target.value)}
-              />
-            </div>
-            <div style={{ minWidth: 0 }}>
-              <label className="block text-sm text-gray-600 mb-1">
-                End Time
-              </label>
-              <input
-                type="datetime-local"
-                className="border rounded w-full max-w-full px-2 py-1.5 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                style={{ minWidth: 0 }}
-                value={appointment.end}
-                onChange={(e) => updateField("end", e.target.value)}
-              />
+          <div className="w-full max-w-full overflow-hidden">
+            <div
+              className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-full"
+              style={{ minWidth: 0 }}
+            >
+              <div className="w-full max-w-full" style={{ minWidth: 0 }}>
+                <label className="block text-sm text-gray-600 mb-1">
+                  Start Time
+                </label>
+                <input
+                  type="datetime-local"
+                  className="appearance-none box-border w-full max-w-full border rounded px-2 py-1.5 text-[16px] focus:ring-2 focus:ring-brand-500 focus:border-brand-500 overflow-hidden"
+                  style={{ minWidth: 0, maxWidth: "100%" }}
+                  value={appointment.start}
+                  onChange={(e) => updateField("start", e.target.value)}
+                />
+              </div>
+              <div className="w-full max-w-full" style={{ minWidth: 0 }}>
+                <label className="block text-sm text-gray-600 mb-1">
+                  End Time
+                </label>
+                <input
+                  type="datetime-local"
+                  className="appearance-none box-border w-full max-w-full border rounded px-2 py-1.5 text-[16px] focus:ring-2 focus:ring-brand-500 focus:border-brand-500 overflow-hidden"
+                  style={{ minWidth: 0, maxWidth: "100%" }}
+                  value={appointment.end}
+                  onChange={(e) => updateField("end", e.target.value)}
+                />
+              </div>
             </div>
           </div>
           <div>
