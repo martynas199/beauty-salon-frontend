@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useImageUpload } from "../hooks/useImageUpload";
+import FormField from "../components/forms/FormField";
+import ConfirmDeleteModal from "../components/forms/ConfirmDeleteModal";
+import Button from "../components/ui/Button";
 
 /**
  * ServiceForm - Create or Edit a service
@@ -280,10 +283,12 @@ export default function ServiceForm({
           </h3>
 
           {/* Name */}
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-1">
-              Service Name <span className="text-red-500">*</span>
-            </label>
+          <FormField
+            label="Service Name"
+            error={errors.name}
+            required
+            htmlFor="name"
+          >
             <input
               type="text"
               id="name"
@@ -293,23 +298,16 @@ export default function ServiceForm({
                 errors.name ? "border-red-500" : "border-gray-300"
               }`}
               aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? "name-error" : undefined}
             />
-            {errors.name && (
-              <p id="name-error" className="text-red-500 text-sm mt-1">
-                {errors.name}
-              </p>
-            )}
-          </div>
+          </FormField>
 
           {/* Category */}
-          <div>
-            <label
-              htmlFor="category"
-              className="block text-sm font-medium mb-1"
-            >
-              Category <span className="text-red-500">*</span>
-            </label>
+          <FormField
+            label="Category"
+            error={errors.category}
+            required
+            htmlFor="category"
+          >
             <input
               type="text"
               id="category"
@@ -321,19 +319,10 @@ export default function ServiceForm({
               placeholder="e.g., Hair, Nails, Spa"
               aria-invalid={!!errors.category}
             />
-            {errors.category && (
-              <p className="text-red-500 text-sm mt-1">{errors.category}</p>
-            )}
-          </div>
+          </FormField>
 
           {/* Description */}
-          <div>
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium mb-1"
-            >
-              Description
-            </label>
+          <FormField label="Description" htmlFor="description">
             <textarea
               id="description"
               value={formData.description}
@@ -341,16 +330,15 @@ export default function ServiceForm({
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"
             />
-          </div>
+          </FormField>
 
           {/* Primary Beautician */}
-          <div>
-            <label
-              htmlFor="primaryBeauticianId"
-              className="block text-sm font-medium mb-1"
-            >
-              Primary Beautician <span className="text-red-500">*</span>
-            </label>
+          <FormField
+            label="Primary Beautician"
+            error={errors.primaryBeauticianId}
+            required
+            htmlFor="primaryBeauticianId"
+          >
             <select
               id="primaryBeauticianId"
               value={formData.primaryBeauticianId}
@@ -371,18 +359,15 @@ export default function ServiceForm({
                 </option>
               ))}
             </select>
-            {errors.primaryBeauticianId && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.primaryBeauticianId}
-              </p>
-            )}
-          </div>
+          </FormField>
 
           {/* Image Upload */}
-          <div>
-            <label htmlFor="image" className="block text-sm font-medium mb-1">
-              Service Image
-            </label>
+          <FormField
+            label="Service Image"
+            error={errors.image}
+            htmlFor="image"
+            hint={isUploadingImage ? "Uploading..." : undefined}
+          >
             <input
               type="file"
               id="image"
@@ -391,12 +376,6 @@ export default function ServiceForm({
               disabled={isUploadingImage}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"
             />
-            {isUploadingImage && (
-              <p className="text-sm text-gray-500 mt-1">Uploading...</p>
-            )}
-            {errors.image && (
-              <p className="text-red-500 text-sm mt-1">{errors.image}</p>
-            )}
             {formData.image && (
               <div className="mt-2">
                 <img
@@ -406,7 +385,7 @@ export default function ServiceForm({
                 />
               </div>
             )}
-          </div>
+          </FormField>
 
           {/* Active Status */}
           <div className="flex items-center gap-2">
@@ -432,13 +411,14 @@ export default function ServiceForm({
                 <p className="text-red-500 text-sm mt-1">{errors.variants}</p>
               )}
             </div>
-            <button
+            <Button
               type="button"
               onClick={addVariant}
-              className="px-3 py-1 bg-brand-600 text-white rounded-lg hover:bg-brand-700 text-sm"
+              variant="brand"
+              size="sm"
             >
               + Add Variant
-            </button>
+            </Button>
           </div>
 
           {formData.variants.map((variant, index) => (
@@ -460,12 +440,15 @@ export default function ServiceForm({
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Name <span className="text-red-500">*</span>
-                  </label>
+                <FormField
+                  label="Name"
+                  error={errors[`variant_${index}_name`]}
+                  required
+                  htmlFor={`variant-${index}-name`}
+                >
                   <input
                     type="text"
+                    id={`variant-${index}-name`}
                     value={variant.name}
                     onChange={(e) =>
                       handleVariantChange(index, "name", e.target.value)
@@ -477,19 +460,17 @@ export default function ServiceForm({
                     }`}
                     placeholder="e.g., Standard"
                   />
-                  {errors[`variant_${index}_name`] && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors[`variant_${index}_name`]}
-                    </p>
-                  )}
-                </div>
+                </FormField>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Duration (min) <span className="text-red-500">*</span>
-                  </label>
+                <FormField
+                  label="Duration (min)"
+                  error={errors[`variant_${index}_duration`]}
+                  required
+                  htmlFor={`variant-${index}-duration`}
+                >
                   <input
                     type="number"
+                    id={`variant-${index}-duration`}
                     value={variant.durationMin}
                     onChange={(e) =>
                       handleVariantChange(
@@ -505,19 +486,17 @@ export default function ServiceForm({
                     }`}
                     min="1"
                   />
-                  {errors[`variant_${index}_duration`] && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors[`variant_${index}_duration`]}
-                    </p>
-                  )}
-                </div>
+                </FormField>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Price (£) <span className="text-red-500">*</span>
-                  </label>
+                <FormField
+                  label="Price (£)"
+                  error={errors[`variant_${index}_price`]}
+                  required
+                  htmlFor={`variant-${index}-price`}
+                >
                   <input
                     type="text"
+                    id={`variant-${index}-price`}
                     inputMode="decimal"
                     value={variant.price}
                     onChange={(e) =>
@@ -534,19 +513,15 @@ export default function ServiceForm({
                     }`}
                     placeholder="0.00"
                   />
-                  {errors[`variant_${index}_price`] && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors[`variant_${index}_price`]}
-                    </p>
-                  )}
-                </div>
+                </FormField>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Buffer Before (min)
-                  </label>
+                <FormField
+                  label="Buffer Before (min)"
+                  htmlFor={`variant-${index}-buffer-before`}
+                >
                   <input
                     type="number"
+                    id={`variant-${index}-buffer-before`}
                     value={variant.bufferBeforeMin}
                     onChange={(e) =>
                       handleVariantChange(
@@ -558,25 +533,28 @@ export default function ServiceForm({
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     min="0"
                   />
-                </div>
+                </FormField>
 
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium mb-1">
-                    Buffer After (min)
-                  </label>
-                  <input
-                    type="number"
-                    value={variant.bufferAfterMin}
-                    onChange={(e) =>
-                      handleVariantChange(
-                        index,
-                        "bufferAfterMin",
-                        parseInt(e.target.value) || 0
-                      )
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    min="0"
-                  />
+                  <FormField
+                    label="Buffer After (min)"
+                    htmlFor={`variant-${index}-buffer-after`}
+                  >
+                    <input
+                      type="number"
+                      id={`variant-${index}-buffer-after`}
+                      value={variant.bufferAfterMin}
+                      onChange={(e) =>
+                        handleVariantChange(
+                          index,
+                          "bufferAfterMin",
+                          parseInt(e.target.value) || 0
+                        )
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      min="0"
+                    />
+                  </FormField>
                 </div>
               </div>
             </div>
@@ -591,37 +569,37 @@ export default function ServiceForm({
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-6 border-t gap-4">
           <div>
             {isEditMode && (
-              <button
+              <Button
                 type="button"
                 onClick={handleDeleteClick}
                 disabled={isSubmitting}
-                className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+                variant="danger"
+                className="w-full sm:w-auto"
               >
                 Delete Service
-              </button>
+              </Button>
             )}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-3">
-            <button
+            <Button
               type="button"
               onClick={onCancel}
               disabled={isSubmitting}
-              className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              variant="outline"
+              className="w-full sm:w-auto"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={isSubmitting || isUploadingImage}
-              className="w-full sm:w-auto px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50"
+              loading={isSubmitting}
+              variant="brand"
+              className="w-full sm:w-auto"
             >
-              {isSubmitting
-                ? "Saving..."
-                : isEditMode
-                ? "Update Service"
-                : "Create Service"}
-            </button>
+              {isEditMode ? "Update Service" : "Create Service"}
+            </Button>
           </div>
         </div>
 
@@ -651,33 +629,14 @@ export default function ServiceForm({
       </form>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-bold mb-2">Confirm Deletion</h3>
-            <p className="text-gray-600 mb-4">
-              Are you sure you want to delete "{formData.name}"? This action
-              cannot be undone.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-end">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={isSubmitting}
-                className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 order-2 sm:order-1"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                disabled={isSubmitting}
-                className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 order-1 sm:order-2"
-              >
-                {isSubmitting ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDeleteModal
+        isOpen={showDeleteConfirm}
+        itemName={formData.name}
+        itemType="service"
+        onConfirm={confirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+        isDeleting={isSubmitting}
+      />
     </div>
   );
 }

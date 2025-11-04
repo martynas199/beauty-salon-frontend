@@ -47,8 +47,12 @@ export default function SalonDetails() {
 
       <div className="max-w-6xl mx-auto px-4 -mt-8 space-y-6">
         <div className="bg-white rounded-2xl border p-5">
-          <h1 className="text-2xl font-semibold">{data?.name || "Salon"}</h1>
-          {data?.about && <p className="text-gray-700 mt-2">{data.about}</p>}
+          <h1 className="text-2xl font-serif font-semibold tracking-wide">
+            {data?.name || "Salon"}
+          </h1>
+          {data?.about && (
+            <p className="text-gray-700 mt-2 leading-relaxed">{data.about}</p>
+          )}
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">

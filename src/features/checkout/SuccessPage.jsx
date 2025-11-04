@@ -17,33 +17,42 @@ export default function SuccessPage() {
   useEffect(() => {
     let mounted = true;
     let attempts = 0;
+    let timeoutId = null;
+
     async function fetchAppt() {
       if (!appointmentId) {
         setStatus("error");
         return;
       }
       try {
-        if (sessionId) {
+        // Only call confirm endpoint once on first attempt
+        if (attempts === 0 && sessionId) {
           try {
+            const apiUrl =
+              import.meta.env.VITE_API_URL || "http://localhost:4000";
             await fetch(
-              `/api/checkout/confirm?session_id=${encodeURIComponent(
+              `${apiUrl}/api/checkout/confirm?session_id=${encodeURIComponent(
                 sessionId
               )}`
             );
           } catch {}
         }
+
         const a = await BookingAPI.getOne(appointmentId);
         if (!mounted) return;
         setAppt(a);
+
         if (a?.status === "confirmed") {
           setStatus("confirmed");
           return;
         }
-        // Wait for webhook to confirm; poll for up to ~20s
+
+        // Wait for webhook to confirm; poll with increasing intervals up to 10 attempts
         attempts++;
-        if (attempts < 20) {
+        if (attempts < 10) {
           setStatus("pending");
-          setTimeout(fetchAppt, 1000);
+          // Increase delay: 1s, 2s, 3s, etc.
+          timeoutId = setTimeout(fetchAppt, attempts * 1000);
         } else {
           setStatus("pending"); // still pending; show message
         }
@@ -52,11 +61,14 @@ export default function SuccessPage() {
         setStatus("error");
       }
     }
+
     fetchAppt();
+
     return () => {
       mounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [appointmentId]);
+  }, [appointmentId, sessionId]);
 
   const title =
     status === "confirmed"

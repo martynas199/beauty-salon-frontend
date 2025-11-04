@@ -2,8 +2,108 @@
 @tailwind components;
 @tailwind utilities;
 
-/* iOS-specific fixes for datetime-local inputs */
+/* Typography Base Styles */
 @layer base {
+  /* Body text: Poppins with optimized readability */
+  body {
+    font-family: "Poppins", system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Headings: Playfair Display with elegant spacing */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Playfair Display", Georgia, serif;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    color: theme("colors.gray.900");
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: 0.015em;
+  }
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  /* Mobile-optimized heading sizes */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 2rem;
+      letter-spacing: 0.01em;
+    }
+
+    h2 {
+      font-size: 1.75rem;
+    }
+
+    h3 {
+      font-size: 1.375rem;
+    }
+
+    h4 {
+      font-size: 1.125rem;
+    }
+  }
+
+  /* Paragraphs: Optimized for readability */
+  p {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+    margin-bottom: 1rem;
+  }
+
+  /* Buttons and form elements: Poppins medium weight */
+  button,
+  input,
+  select,
+  textarea {
+    font-family: "Poppins", sans-serif;
+    letter-spacing: 0.01em;
+  }
+
+  button {
+    font-weight: 500;
+  }
+
+  /* Accessibility: Focus-visible styles for keyboard navigation */
+  *:focus-visible {
+    outline: 2px solid theme("colors.brand.500");
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Remove default focus outline for mouse users */
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+
   /* Prevent iOS Safari from zooming on focus when font-size < 16px */
   input[type="datetime-local"],
   input[type="time"],
@@ -109,11 +209,187 @@
   }
 }
 
-/* Additional utility for preventing overflow in modals and cards */
+/* Typography Utilities */
 @layer utilities {
+  /* Display headings for hero sections */
+  .heading-display {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0.015em;
+    color: theme("colors.gray.900");
+  }
+
+  /* Elegant subheadings */
+  .heading-elegant {
+    font-family: "Playfair Display", Georgia, serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: theme("colors.gray.800");
+  }
+
+  /* Script headings for decorative sections */
+  .heading-script {
+    font-family: "Dancing Script", cursive;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: theme("colors.brand.900");
+  }
+
+  /* Body text optimized for luxury brand */
+  .text-luxury {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+    color: theme("colors.gray.700");
+  }
+
+  /* Button text styling */
+  .text-button {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+  }
+
+  /* Tagline/subtitle styling */
+  .text-tagline {
+    font-family: "Poppins", sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    color: theme("colors.gray.600");
+  }
+
+  /* Additional utility for preventing overflow in modals and cards */
   .prevent-overflow {
     max-width: 100%;
     overflow-x: hidden;
     box-sizing: border-box;
+  }
+
+  /* Fade-in animation for expandable content */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  /* Slide in animations for hero sections */
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInBottom {
+    from {
+      opacity: 0;
+      transform: translateY(100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slideInLeft {
+    animation: slideInLeft 0.8s ease-out;
+  }
+
+  .animate-slideInBottom {
+    animation: slideInBottom 0.8s ease-out;
+    animation-delay: 0.2s;
+    animation-fill-mode: backwards;
+  }
+
+  .animate-slideInRight {
+    animation: slideInRight 0.8s ease-out;
+    animation-delay: 0.4s;
+    animation-fill-mode: backwards;
+  }
+
+  /* Staggered fade-in animation for product cards */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(50px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-fadeInUp {
+    animation: fadeInUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation-fill-mode: backwards;
+  }
+
+  /* Staggered delays for grid items */
+  .stagger-1 {
+    animation-delay: 0.15s;
+  }
+  .stagger-2 {
+    animation-delay: 0.25s;
+  }
+  .stagger-3 {
+    animation-delay: 0.35s;
+  }
+  .stagger-4 {
+    animation-delay: 0.45s;
+  }
+  .stagger-5 {
+    animation-delay: 0.55s;
+  }
+  .stagger-6 {
+    animation-delay: 0.65s;
+  }
+  .stagger-7 {
+    animation-delay: 0.75s;
+  }
+  .stagger-8 {
+    animation-delay: 0.85s;
+  }
+  .stagger-9 {
+    animation-delay: 0.95s;
+  }
+  .stagger-10 {
+    animation-delay: 1.05s;
+  }
+  .stagger-11 {
+    animation-delay: 1.15s;
+  }
+  .stagger-12 {
+    animation-delay: 1.25s;
   }
 }

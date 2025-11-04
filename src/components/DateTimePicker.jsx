@@ -6,6 +6,7 @@ import timezone from "dayjs/plugin/timezone";
 import "react-day-picker/dist/style.css";
 import { useAvailableDates } from "../hooks/useAvailableDates";
 import { api } from "../lib/apiClient";
+import { StaggerContainer, StaggerItem } from "./ui/PageTransition";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -527,7 +528,7 @@ export default function DateTimePicker({
             )}
 
           {selectedDate && !loadingSlots && !slotsError && slots.length > 0 && (
-            <div
+            <StaggerContainer
               className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[400px] overflow-y-auto"
               role="listbox"
               aria-label="Available time slots"
@@ -535,29 +536,31 @@ export default function DateTimePicker({
               {slots.map((slot, index) => {
                 const isSelected = selectedSlot?.startISO === slot.startISO;
                 return (
-                  <button
-                    key={`${slot.startISO}-${index}`}
-                    onClick={() => handleSlotSelect(slot)}
-                    disabled={isSelected}
-                    className={`
-                      px-3 py-3 rounded-lg font-medium text-sm transition-all
-                      ${
-                        isSelected
-                          ? "bg-brand-600 text-white ring-2 ring-brand-400 ring-offset-2"
-                          : "bg-gray-100 text-gray-900 hover:bg-brand-50 hover:text-brand-700 hover:ring-2 hover:ring-brand-200"
-                      }
-                      disabled:cursor-not-allowed
-                      focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2
-                    `}
-                    role="option"
-                    aria-selected={isSelected}
-                    aria-label={`Time slot ${formatSlotTime(slot.startISO)}`}
-                  >
-                    {formatSlotTime(slot.startISO)}
-                  </button>
+                  <StaggerItem key={`${slot.startISO}-${index}`}>
+                    <button
+                      onClick={() => handleSlotSelect(slot)}
+                      disabled={isSelected}
+                      className={`
+                        px-3 py-3 rounded-lg font-medium text-sm transition-all duration-250
+                        hover:scale-105 active:scale-95
+                        ${
+                          isSelected
+                            ? "bg-brand-600 text-white ring-2 ring-brand-400 ring-offset-2"
+                            : "bg-gray-100 text-gray-900 hover:bg-brand-50 hover:text-brand-700 hover:ring-2 hover:ring-brand-200"
+                        }
+                        disabled:cursor-not-allowed
+                        focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2
+                      `}
+                      role="option"
+                      aria-selected={isSelected}
+                      aria-label={`Time slot ${formatSlotTime(slot.startISO)}`}
+                    >
+                      {formatSlotTime(slot.startISO)}
+                    </button>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </StaggerContainer>
           )}
         </div>
       </div>

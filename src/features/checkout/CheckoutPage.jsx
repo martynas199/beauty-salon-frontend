@@ -3,17 +3,23 @@ import { useEffect, useState } from "react";
 import { CheckoutAPI } from "./checkout.api";
 import { BookingAPI } from "../booking/booking.api";
 import { setClient, setMode, setAppointmentId } from "../booking/bookingSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import { Input, Textarea } from "../../components/ui/Input";
 import Card from "../../components/ui/Card";
 import { ServicesAPI } from "../services/services.api";
 import BackBar from "../../components/ui/BackBar";
+import FormField from "../../components/forms/FormField";
+import { useAuth } from "../../app/AuthContext";
+import PageTransition from "../../components/ui/PageTransition";
+import toast from "react-hot-toast";
 
 export default function CheckoutPage() {
   const booking = useSelector((s) => s.booking);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -30,6 +36,18 @@ export default function CheckoutPage() {
       setErrors({ ...errors, [k]: "" });
     }
   };
+
+  // Pre-fill form with user data if logged in
+  useEffect(() => {
+    if (user) {
+      setForm({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        notes: "",
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (booking.serviceId) ServicesAPI.get(booking.serviceId).then(setService);
@@ -76,90 +94,138 @@ export default function CheckoutPage() {
     dispatch(setClient(form));
     setLoading(true);
     try {
+      // Prepare booking data with userId if user is logged in
+      const bookingData = {
+        beauticianId: booking.any ? undefined : booking.beauticianId,
+        any: booking.any,
+        serviceId: booking.serviceId,
+        variantName: booking.variantName,
+        startISO: booking.startISO,
+        client: form,
+        mode: mode === "pay_in_salon" ? "pay_in_salon" : mode,
+        ...(user ? { userId: user._id } : {}), // Add userId if logged in
+      };
+
       if (mode === "pay_in_salon") {
-        const res = await BookingAPI.reserveWithoutPayment({
-          beauticianId: booking.any ? undefined : booking.beauticianId,
-          any: booking.any,
-          serviceId: booking.serviceId,
-          variantName: booking.variantName,
-          startISO: booking.startISO,
-          client: form,
-          mode: "pay_in_salon",
-        });
+        const res = await BookingAPI.reserveWithoutPayment(bookingData);
         if (res?.appointmentId) dispatch(setAppointmentId(res.appointmentId));
         navigate("/confirmation");
       } else {
-        const res = await CheckoutAPI.createSession({
-          beauticianId: booking.any ? undefined : booking.beauticianId,
-          any: booking.any,
-          serviceId: booking.serviceId,
-          variantName: booking.variantName,
-          startISO: booking.startISO,
-          client: form,
-          mode,
-        });
+        const res = await CheckoutAPI.createSession(bookingData);
         if (res?.url) window.location.href = res.url;
       }
     } catch (e) {
-      alert(e.message);
+      toast.error(e.message || "Booking failed. Please try again.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10 space-y-10">
+    <PageTransition className="max-w-2xl mx-auto px-4 py-10 space-y-10">
       <BackBar onBack={() => navigate(-1)} />
-      <div className="bg-white rounded-2xl shadow-md p-6 space-y-6">
-        <h1 className="text-3xl font-bold text-center mb-2">Checkout</h1>
+      <Card className="shadow-md p-6 space-y-6">
+        <h1 className="text-3xl font-serif font-bold text-center mb-2 tracking-wide">
+          Checkout
+        </h1>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <div className="font-semibold text-lg mb-2">Your Details</div>
-            <div>
+            <FormField label="Name" error={errors.name} required htmlFor="name">
               <Input
-                placeholder="Name *"
+                id="name"
+                placeholder="Name"
                 value={form.name}
                 onChange={update("name")}
                 className={errors.name ? "border-red-500" : ""}
               />
-              {errors.name && (
-                <p className="text-red-500 text-xs mt-1">{errors.name}</p>
-              )}
-            </div>
-            <div>
+            </FormField>
+            <FormField
+              label="Email"
+              error={errors.email}
+              required
+              htmlFor="email"
+            >
               <Input
+                id="email"
                 type="email"
-                placeholder="Email *"
+                placeholder="Email"
                 value={form.email}
                 onChange={update("email")}
                 className={errors.email ? "border-red-500" : ""}
               />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-              )}
-            </div>
-            <div>
+            </FormField>
+            <FormField
+              label="Phone"
+              error={errors.phone}
+              required
+              htmlFor="phone"
+            >
               <Input
+                id="phone"
                 type="tel"
-                placeholder="Phone *"
+                placeholder="Phone"
                 value={form.phone}
                 onChange={update("phone")}
                 className={errors.phone ? "border-red-500" : ""}
               />
-              {errors.phone && (
-                <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
-              )}
-            </div>
-            <div>
+            </FormField>
+            <FormField label="Notes" htmlFor="notes" hint="Optional">
               <Textarea
-                placeholder="Notes (optional)"
+                id="notes"
+                placeholder="Any special requests or notes"
                 value={form.notes}
                 onChange={update("notes")}
               />
+            </FormField>
+
+            {/* Sign-in prompt for guests */}
+            {!user && (
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm">
+                <div className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5">ℹ️</span>
+                  <div>
+                    <span className="text-gray-700">
+                      <Link
+                        to="/login"
+                        state={{ from: location.pathname }}
+                        className="text-brand-600 hover:text-brand-700 font-medium underline"
+                      >
+                        Sign in
+                      </Link>{" "}
+                      or{" "}
+                      <Link
+                        to="/register"
+                        state={{ from: location.pathname }}
+                        className="text-brand-600 hover:text-brand-700 font-medium underline"
+                      >
+                        create an account
+                      </Link>{" "}
+                      to track your bookings and easily rebook in the future.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Cancellation Policy Link */}
+            <div className="mt-3 text-xs text-gray-600 flex items-center gap-1.5">
+              <span>📋</span>
+              <span>Review our</span>
+              <Link
+                to="/faq"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-600 hover:text-brand-700 underline font-medium"
+              >
+                cancellation policy
+              </Link>
             </div>
+
             <div className="flex flex-col gap-2 pt-2">
               <Button
                 disabled={loading}
+                loading={loading}
                 onClick={() => submit("pay_now")}
                 variant="brand"
                 className="w-full"
@@ -205,7 +271,7 @@ export default function CheckoutPage() {
             </Card>
           </div>
         </div>
-      </div>
-    </div>
+      </Card>
+    </PageTransition>
   );
 }

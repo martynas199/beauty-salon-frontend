@@ -19,7 +19,9 @@ export default function ServiceCard({ service, onClick }) {
 
   return (
     <Card
-      className="p-0 overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group border border-gray-200 hover:border-brand-300"
+      hoverable
+      clickable
+      className="p-0 overflow-hidden cursor-pointer group border border-gray-200 hover:border-brand-300"
       onClick={onClick}
     >
       <div className="flex flex-row">
@@ -29,7 +31,7 @@ export default function ServiceCard({ service, onClick }) {
               src={imageUrl}
               alt={imageAlt}
               loading="lazy"
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
             />
             {/* Gradient overlay for better aesthetics */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -116,7 +118,7 @@ export default function ServiceCard({ service, onClick }) {
                 e.stopPropagation();
                 onClick?.();
               }}
-              className="px-3 sm:px-6 py-1.5 sm:py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-[11px] sm:text-sm font-semibold rounded-full shadow-md hover:shadow-lg transform group-hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              className="px-3 sm:px-6 py-1.5 sm:py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-[11px] sm:text-sm font-semibold rounded-full shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-250 whitespace-nowrap"
             >
               Book Now
             </button>

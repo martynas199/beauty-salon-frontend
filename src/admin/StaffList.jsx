@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Button from "../components/ui/Button";
+import ConfirmDeleteModal from "../components/forms/ConfirmDeleteModal";
 
 /**
  * StaffList - Display and manage staff/beauticians in admin panel
@@ -108,12 +110,9 @@ export default function StaffList({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Staff</h2>
-        <button
-          onClick={onCreate}
-          className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700"
-        >
+        <Button onClick={onCreate} variant="brand">
           + Add Staff Member
-        </button>
+        </Button>
       </div>
 
       {/* Filters */}
@@ -170,12 +169,9 @@ export default function StaffList({
               : "No staff match your filters"}
           </p>
           {staff.length === 0 && (
-            <button
-              onClick={onCreate}
-              className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700"
-            >
+            <Button onClick={onCreate} variant="brand">
               Add Your First Staff Member
-            </button>
+            </Button>
           )}
         </div>
       ) : (
@@ -312,18 +308,22 @@ export default function StaffList({
 
                     {/* Action Buttons */}
                     <div className="flex gap-2">
-                      <button
+                      <Button
                         onClick={() => onEdit(member)}
-                        className="flex-1 px-4 py-2 bg-brand-50 text-brand-700 rounded-lg hover:bg-brand-100 font-medium text-sm transition-colors"
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
                       >
                         Edit
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => handleDeleteClick(member)}
-                        className="flex-1 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 font-medium text-sm transition-colors"
+                        variant="danger"
+                        size="sm"
+                        className="flex-1"
                       >
                         Delete
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -481,53 +481,33 @@ export default function StaffList({
       )}
 
       {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
-            <h3 className="text-lg font-bold mb-2">Delete Staff Member</h3>
-
-            {deleteConfirm.assignedServices.length > 0 ? (
-              <>
-                <p className="text-gray-600 mb-4">
-                  "{deleteConfirm.member.name}" is currently assigned to{" "}
-                  {deleteConfirm.assignedServices.length} service(s):
-                </p>
-                <ul className="list-disc list-inside mb-4 text-sm text-gray-700">
-                  {deleteConfirm.assignedServices.map((service) => (
-                    <li key={service._id}>{service.name}</li>
-                  ))}
-                </ul>
-                <p className="text-orange-600 font-medium mb-4">
-                  Please reassign these services before deleting this staff
-                  member, or the backend will prevent deletion.
-                </p>
-              </>
-            ) : (
-              <p className="text-gray-600 mb-4">
-                Are you sure you want to delete "{deleteConfirm.member.name}"?
-                This action cannot be undone.
+      <ConfirmDeleteModal
+        isOpen={!!deleteConfirm}
+        itemName={deleteConfirm?.member?.name}
+        itemType="staff member"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm(null)}
+        message={
+          deleteConfirm?.assignedServices?.length > 0 ? (
+            <>
+              <p className="mb-3">
+                This staff member is currently assigned to{" "}
+                {deleteConfirm.assignedServices.length} service(s):
               </p>
-            )}
-
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              {deleteConfirm.assignedServices.length === 0 && (
-                <button
-                  onClick={confirmDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                >
-                  Delete
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+              <ul className="list-disc list-inside mb-3 text-sm">
+                {deleteConfirm.assignedServices.map((service) => (
+                  <li key={service._id}>{service.name}</li>
+                ))}
+              </ul>
+              <p className="text-orange-600 font-medium">
+                Please reassign these services before deleting this staff
+                member.
+              </p>
+            </>
+          ) : undefined
+        }
+        disabled={deleteConfirm?.assignedServices?.length > 0}
+      />
     </div>
   );
 }

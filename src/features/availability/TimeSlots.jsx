@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import BackBar from "../../components/ui/BackBar";
 import DateTimePicker from "../../components/DateTimePicker";
 import { api } from "../../lib/apiClient";
+import PageTransition from "../../components/ui/PageTransition";
+import toast from "react-hot-toast";
 
 export default function TimeSlots() {
   const { serviceId, variantName, beauticianId, any } = useSelector(
@@ -109,12 +111,13 @@ export default function TimeSlots() {
       })
       .catch((err) => {
         console.error("Failed to load service/beautician:", err);
-        setError(
+        const errorMsg =
           err.response?.data?.error ||
-            err.response?.data?.message ||
-            err.message ||
-            "Failed to load availability"
-        );
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to load availability";
+        setError(errorMsg);
+        toast.error(errorMsg);
       })
       .finally(() => {
         setLoading(false);
@@ -157,7 +160,7 @@ export default function TimeSlots() {
   }
 
   return (
-    <div className="space-y-8">
+    <PageTransition className="space-y-8">
       <BackBar onBack={() => navigate(-1)} />
 
       <div className="max-w-2xl mx-auto px-4">
@@ -172,7 +175,10 @@ export default function TimeSlots() {
       <div className="px-4 pb-8">
         {loading ? (
           <div className="text-gray-600 text-center py-12">
-            Loading availability...
+            <div className="animate-pulse space-y-3">
+              <div className="h-4 bg-gray-200 rounded w-48 mx-auto"></div>
+              <div className="h-4 bg-gray-200 rounded w-36 mx-auto"></div>
+            </div>
           </div>
         ) : beautician ? (
           <DateTimePicker
@@ -190,6 +196,6 @@ export default function TimeSlots() {
           </div>
         )}
       </div>
-    </div>
+    </PageTransition>
   );
 }

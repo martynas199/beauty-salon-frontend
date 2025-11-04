@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { api } from "../../lib/apiClient";
-import { Calendar, momentLocalizer } from "react-big-calendar";
-import moment from "moment";
+import { Calendar, dayjsLocalizer } from "react-big-calendar";
+import dayjs from "dayjs";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
-const localizer = momentLocalizer(moment);
+const localizer = dayjsLocalizer(dayjs);
 
 export default function Dashboard() {
-  const [events, setEvents] = useState([]);
   const [allAppointments, setAllAppointments] = useState([]);
   const [beauticians, setBeauticians] = useState([]);
   const [selectedBeautician, setSelectedBeautician] = useState("all");
@@ -16,22 +15,6 @@ export default function Dashboard() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    fetchData();
-
-    // Handle window resize for responsive calendar
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
-    filterAppointments();
-  }, [selectedBeautician, allAppointments]);
 
   async function fetchData() {
     try {
@@ -55,7 +38,20 @@ export default function Dashboard() {
     }
   }
 
-  function filterAppointments() {
+  useEffect(() => {
+    fetchData();
+
+    // Handle window resize for responsive calendar
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Memoize filtered events to prevent unnecessary recalculations
+  const events = useMemo(() => {
     let filtered = allAppointments;
 
     // Filter by beautician if selected
@@ -66,7 +62,7 @@ export default function Dashboard() {
     }
 
     // Format for calendar
-    const formattedEvents = filtered.map((appointment) => {
+    return filtered.map((appointment) => {
       const startDate = new Date(appointment.start);
       const endDate = new Date(appointment.end);
 
@@ -94,9 +90,7 @@ export default function Dashboard() {
         style: { backgroundColor },
       };
     });
-
-    setEvents(formattedEvents);
-  }
+  }, [selectedBeautician, allAppointments]);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-GB", {
@@ -159,10 +153,10 @@ export default function Dashboard() {
 
       {/* Today's Appointments Widget */}
       {(() => {
-        const today = moment().startOf("day");
+        const today = dayjs().startOf("day");
         const todaysAppointments = allAppointments
           .filter((apt) => {
-            const aptDate = moment(apt.start).startOf("day");
+            const aptDate = dayjs(apt.start).startOf("day");
             return (
               aptDate.isSame(today) &&
               (selectedBeautician === "all" ||
@@ -205,7 +199,7 @@ export default function Dashboard() {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-semibold text-gray-900">
-                      {moment(apt.start).format("h:mm A")}
+                      {dayjs(apt.start).format("h:mm A")}
                     </span>
                     <span
                       className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
@@ -299,7 +293,7 @@ export default function Dashboard() {
                     Appointment Details
                   </h3>
                   <p className="text-sm text-gray-500 mt-1">
-                    {moment(selectedEvent.start).format("MMMM Do YYYY")}
+                    {dayjs(selectedEvent.start).format("MMMM Do YYYY")}
                   </p>
                 </div>
                 <button
@@ -465,15 +459,15 @@ export default function Dashboard() {
                     Time
                   </h4>
                   <p className="text-gray-900 font-medium">
-                    {moment(selectedEvent.start).format("h:mm A")}
+                    {dayjs(selectedEvent.start).format("h:mm A")}
                   </p>
                   <p className="text-sm text-gray-600">
-                    to {moment(selectedEvent.end).format("h:mm A")}
+                    to {dayjs(selectedEvent.end).format("h:mm A")}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     Duration:{" "}
-                    {moment(selectedEvent.end).diff(
-                      moment(selectedEvent.start),
+                    {dayjs(selectedEvent.end).diff(
+                      dayjs(selectedEvent.start),
                       "minutes"
                     )}{" "}
                     min

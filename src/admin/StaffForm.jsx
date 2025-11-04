@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useImageUpload } from "../hooks/useImageUpload";
+import FormField from "../components/forms/FormField";
+import ConfirmDeleteModal from "../components/forms/ConfirmDeleteModal";
+import Button from "../components/ui/Button";
 
 /**
  * StaffForm - Create or Edit a beautician/staff member
@@ -259,10 +262,12 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
           </h3>
 
           {/* Name */}
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-1">
-              Full Name <span className="text-red-500">*</span>
-            </label>
+          <FormField
+            label="Full Name"
+            error={errors.name}
+            required
+            htmlFor="name"
+          >
             <input
               type="text"
               id="name"
@@ -272,20 +277,11 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
                 errors.name ? "border-red-500" : "border-gray-300"
               }`}
               aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? "name-error" : undefined}
             />
-            {errors.name && (
-              <p id="name-error" className="text-red-500 text-sm mt-1">
-                {errors.name}
-              </p>
-            )}
-          </div>
+          </FormField>
 
           {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">
-              Email
-            </label>
+          <FormField label="Email" error={errors.email} htmlFor="email">
             <input
               type="email"
               id="email"
@@ -297,16 +293,10 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
               placeholder="staff@example.com"
               aria-invalid={!!errors.email}
             />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-            )}
-          </div>
+          </FormField>
 
           {/* Phone */}
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium mb-1">
-              Phone Number
-            </label>
+          <FormField label="Phone Number" htmlFor="phone">
             <input
               type="tel"
               id="phone"
@@ -315,13 +305,10 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"
               placeholder="+44 20 1234 5678"
             />
-          </div>
+          </FormField>
 
           {/* Bio */}
-          <div>
-            <label htmlFor="bio" className="block text-sm font-medium mb-1">
-              Bio / Description
-            </label>
+          <FormField label="Bio / Description" htmlFor="bio">
             <textarea
               id="bio"
               value={formData.bio}
@@ -330,13 +317,14 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"
               placeholder="Tell us about this staff member..."
             />
-          </div>
+          </FormField>
 
           {/* Color */}
-          <div>
-            <label htmlFor="color" className="block text-sm font-medium mb-1">
-              Calendar Color
-            </label>
+          <FormField
+            label="Calendar Color"
+            error={errors.color}
+            htmlFor="color"
+          >
             <div className="flex gap-2 items-center">
               <input
                 type="color"
@@ -355,16 +343,15 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
                 placeholder="#3B82F6"
               />
             </div>
-            {errors.color && (
-              <p className="text-red-500 text-sm mt-1">{errors.color}</p>
-            )}
-          </div>
+          </FormField>
 
           {/* Image Upload */}
-          <div>
-            <label htmlFor="image" className="block text-sm font-medium mb-1">
-              Profile Photo
-            </label>
+          <FormField
+            label="Profile Photo"
+            error={errors.image}
+            htmlFor="image"
+            hint={isUploadingImage ? "Uploading..." : undefined}
+          >
             <input
               type="file"
               id="image"
@@ -373,12 +360,6 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
               disabled={isUploadingImage}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"
             />
-            {isUploadingImage && (
-              <p className="text-sm text-gray-500 mt-1">Uploading...</p>
-            )}
-            {errors.image && (
-              <p className="text-red-500 text-sm mt-1">{errors.image}</p>
-            )}
             {formData.image && (
               <div className="mt-2">
                 <img
@@ -388,7 +369,7 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
                 />
               </div>
             )}
-          </div>
+          </FormField>
 
           {/* Active Status */}
           <div className="flex items-center gap-2">
@@ -420,13 +401,9 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"
               placeholder="e.g., Haircuts, Coloring, Styling"
             />
-            <button
-              type="button"
-              onClick={addSpecialty}
-              className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700"
-            >
+            <Button type="button" onClick={addSpecialty} variant="brand">
               Add
-            </button>
+            </Button>
           </div>
 
           {formData.specialties.length > 0 && (
@@ -455,13 +432,14 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
             <h3 className="text-lg font-semibold">Working Hours</h3>
-            <button
+            <Button
               type="button"
               onClick={addWorkingHours}
-              className="px-3 py-1 bg-brand-600 text-white rounded-lg hover:bg-brand-700 text-sm"
+              variant="brand"
+              size="sm"
             >
               + Add Hours
-            </button>
+            </Button>
           </div>
 
           {formData.workingHours.length === 0 && (
@@ -568,37 +546,37 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-6 border-t gap-4">
           <div>
             {isEditMode && (
-              <button
+              <Button
                 type="button"
                 onClick={handleDeleteClick}
                 disabled={isSubmitting}
-                className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+                variant="danger"
+                className="w-full sm:w-auto"
               >
                 Delete Staff Member
-              </button>
+              </Button>
             )}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-3">
-            <button
+            <Button
               type="button"
               onClick={onCancel}
               disabled={isSubmitting}
-              className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              variant="outline"
+              className="w-full sm:w-auto"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={isSubmitting || isUploadingImage}
-              className="w-full sm:w-auto px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50"
+              loading={isSubmitting}
+              variant="brand"
+              className="w-full sm:w-auto"
             >
-              {isSubmitting
-                ? "Saving..."
-                : isEditMode
-                ? "Update Staff"
-                : "Add Staff"}
-            </button>
+              {isEditMode ? "Update Staff" : "Add Staff"}
+            </Button>
           </div>
         </div>
 
@@ -628,33 +606,14 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
       </form>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-bold mb-2">Confirm Deletion</h3>
-            <p className="text-gray-600 mb-4">
-              Are you sure you want to delete "{formData.name}"? This action
-              cannot be undone.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-end">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={isSubmitting}
-                className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 order-2 sm:order-1"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                disabled={isSubmitting}
-                className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 order-1 sm:order-2"
-              >
-                {isSubmitting ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDeleteModal
+        isOpen={showDeleteConfirm}
+        itemName={formData.name}
+        itemType="staff member"
+        onConfirm={confirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+        isDeleting={isSubmitting}
+      />
     </div>
   );
 }

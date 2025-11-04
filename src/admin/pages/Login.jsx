@@ -1,0 +1,156 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { api } from "../../lib/apiClient";
+import { setAuth } from "../../features/auth/authSlice";
+import logo from "../../assets/logo.svg";
+import Button from "../../components/ui/Button";
+import FormField from "../../components/forms/FormField";
+
+export default function AdminLogin() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await api.post("/auth/login", {
+        email,
+        password,
+      });
+
+      if (response.data.success && response.data.token) {
+        // Store token and admin data
+        const { token, admin } = response.data;
+
+        // Dispatch to Redux store
+        dispatch(setAuth({ token, admin }));
+
+        // Redirect to admin dashboard
+        navigate("/admin");
+      } else {
+        setError("Login failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(
+        err.response?.data?.error ||
+          err.message ||
+          "Login failed. Please check your credentials."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-white px-4">
+      <div className="max-w-md w-full">
+        {/* Logo/Title */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <img
+              src={logo}
+              alt="Beauty Salon Logo"
+              className="h-20 w-20 object-contain"
+            />
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent mb-2">
+            Beauty Salon
+          </h1>
+          <p className="text-gray-600">Admin Portal</p>
+        </div>
+
+        {/* Login Card */}
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+            Sign In
+          </h2>
+
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <FormField label="Email Address" htmlFor="email" required>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@example.com"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                required
+                autoComplete="email"
+                autoFocus
+                disabled={loading}
+              />
+            </FormField>
+
+            <FormField label="Password" htmlFor="password" required>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                required
+                autoComplete="current-password"
+                disabled={loading}
+              />
+            </FormField>
+
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                />
+                <span className="ml-2 text-gray-600">Remember me</span>
+              </label>
+              <a
+                href="#"
+                className="text-purple-600 hover:text-purple-700 font-medium"
+              >
+                Forgot password?
+              </a>
+            </div>
+
+            <Button
+              type="submit"
+              variant="brand"
+              size="lg"
+              className="w-full"
+              loading={loading}
+              disabled={loading}
+            >
+              Sign In
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center text-sm text-gray-600">
+            <p>
+              Secure login powered by JWT authentication{" "}
+              <span className="text-green-600">🔒</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-6 text-center text-sm text-gray-500">
+          <p>Protected by rate limiting and security headers</p>
+        </div>
+      </div>
+    </div>
+  );
+}

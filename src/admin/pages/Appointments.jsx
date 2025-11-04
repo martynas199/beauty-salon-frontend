@@ -1,9 +1,19 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/apiClient";
 import Modal from "../../components/ui/Modal";
+import FormField from "../../components/forms/FormField";
+import Button from "../../components/ui/Button";
 
 export default function Appointments() {
   const [rows, setRows] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 50,
+    total: 0,
+    totalPages: 0,
+    hasMore: false,
+  });
+  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [activeId, setActiveId] = useState("");
   const [preview, setPreview] = useState(null);
@@ -27,11 +37,29 @@ export default function Appointments() {
   const [customEndDate, setCustomEndDate] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const fetchAppointments = async (page = 1) => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/appointments?page=${page}&limit=50`);
+
+      if (response.data.data) {
+        // Paginated response
+        setRows(response.data.data || []);
+        setPagination(response.data.pagination || pagination);
+      } else {
+        // Legacy response (array)
+        setRows(response.data || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch appointments:", error);
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    api
-      .get("/appointments")
-      .then((r) => setRows(r.data || []))
-      .catch(() => setRows([]));
+    fetchAppointments(pagination.page);
 
     // Load services and beauticians for edit modal
     api
@@ -348,13 +376,11 @@ export default function Appointments() {
 
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Beautician Filter */}
-          <div className="flex-1">
-            <label
-              htmlFor="beautician-filter"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Beautician
-            </label>
+          <FormField
+            label="Beautician"
+            htmlFor="beautician-filter"
+            className="flex-1"
+          >
             <select
               id="beautician-filter"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -368,16 +394,14 @@ export default function Appointments() {
                 </option>
               ))}
             </select>
-          </div>
+          </FormField>
 
           {/* Date Filter */}
-          <div className="flex-1">
-            <label
-              htmlFor="date-filter"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Date Range
-            </label>
+          <FormField
+            label="Date Range"
+            htmlFor="date-filter"
+            className="flex-1"
+          >
             <select
               id="date-filter"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -390,19 +414,17 @@ export default function Appointments() {
               <option value="month">This Month</option>
               <option value="custom">Custom Range</option>
             </select>
-          </div>
+          </FormField>
         </div>
 
         {/* Custom Date Range */}
         {dateFilter === "custom" && (
           <div className="flex flex-col sm:flex-row gap-4 pt-2 border-t">
-            <div className="flex-1">
-              <label
-                htmlFor="start-date"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Start Date
-              </label>
+            <FormField
+              label="Start Date"
+              htmlFor="start-date"
+              className="flex-1"
+            >
               <input
                 id="start-date"
                 type="date"
@@ -410,14 +432,8 @@ export default function Appointments() {
                 value={customStartDate}
                 onChange={(e) => setCustomStartDate(e.target.value)}
               />
-            </div>
-            <div className="flex-1">
-              <label
-                htmlFor="end-date"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                End Date
-              </label>
+            </FormField>
+            <FormField label="End Date" htmlFor="end-date" className="flex-1">
               <input
                 id="end-date"
                 type="date"
@@ -425,7 +441,7 @@ export default function Appointments() {
                 value={customEndDate}
                 onChange={(e) => setCustomEndDate(e.target.value)}
               />
-            </div>
+            </FormField>
           </div>
         )}
       </div>
@@ -640,6 +656,38 @@ export default function Appointments() {
         )}
       </div>
 
+      {/* Pagination Controls */}
+      {pagination.totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between border-t pt-4">
+          <div className="text-sm text-gray-600">
+            Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+            {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
+            {pagination.total} appointments
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchAppointments(pagination.page - 1)}
+              disabled={pagination.page === 1 || loading}
+            >
+              ← Previous
+            </Button>
+            <span className="text-sm text-gray-600">
+              Page {pagination.page} of {pagination.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchAppointments(pagination.page + 1)}
+              disabled={!pagination.hasMore || loading}
+            >
+              Next →
+            </Button>
+          </div>
+        </div>
+      )}
+
       <CancelModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -747,52 +795,50 @@ function EditModal({
         {/* Client Information */}
         <div className="space-y-3">
           <h3 className="font-semibold text-gray-900">Client Information</h3>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Name</label>
+          <FormField label="Name" htmlFor="client-name">
             <input
               type="text"
+              id="client-name"
               className="border rounded w-full px-3 py-2"
               value={appointment.clientName}
               onChange={(e) => updateField("clientName", e.target.value)}
             />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Email</label>
+          </FormField>
+          <FormField label="Email" htmlFor="client-email">
             <input
               type="email"
+              id="client-email"
               className="border rounded w-full px-3 py-2"
               value={appointment.clientEmail}
               onChange={(e) => updateField("clientEmail", e.target.value)}
             />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Phone</label>
+          </FormField>
+          <FormField label="Phone" htmlFor="client-phone">
             <input
               type="tel"
+              id="client-phone"
               className="border rounded w-full px-3 py-2"
               value={appointment.clientPhone}
               onChange={(e) => updateField("clientPhone", e.target.value)}
             />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Notes</label>
+          </FormField>
+          <FormField label="Notes" htmlFor="client-notes">
             <textarea
+              id="client-notes"
               className="border rounded w-full px-3 py-2"
               rows="2"
               value={appointment.clientNotes}
               onChange={(e) => updateField("clientNotes", e.target.value)}
             />
-          </div>
+          </FormField>
         </div>
 
         {/* Appointment Details */}
         <div className="space-y-3 pt-3 border-t">
           <h3 className="font-semibold text-gray-900">Appointment Details</h3>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Beautician
-            </label>
+          <FormField label="Beautician" htmlFor="beautician-select">
             <select
+              id="beautician-select"
               className="border rounded w-full px-3 py-2"
               value={appointment.beauticianId}
               onChange={(e) => updateField("beauticianId", e.target.value)}
@@ -804,10 +850,10 @@ function EditModal({
                 </option>
               ))}
             </select>
-          </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Service</label>
+          </FormField>
+          <FormField label="Service" htmlFor="service-select">
             <select
+              id="service-select"
               className="border rounded w-full px-3 py-2"
               value={appointment.serviceId}
               onChange={(e) => {
@@ -822,10 +868,10 @@ function EditModal({
                 </option>
               ))}
             </select>
-          </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Variant</label>
+          </FormField>
+          <FormField label="Variant" htmlFor="variant-select">
             <select
+              id="variant-select"
               className="border rounded w-full px-3 py-2"
               value={appointment.variantName}
               onChange={(e) => updateField("variantName", e.target.value)}
@@ -838,68 +884,59 @@ function EditModal({
                 </option>
               ))}
             </select>
-          </div>
+          </FormField>
           <div className="w-full max-w-full overflow-hidden">
             <div
               className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-full"
               style={{ minWidth: 0 }}
             >
-              <div className="w-full max-w-full" style={{ minWidth: 0 }}>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Start Time
-                </label>
+              <FormField label="Start Time" htmlFor="start-time">
                 <input
                   type="datetime-local"
+                  id="start-time"
                   className="appearance-none box-border w-full max-w-full border rounded px-2 py-1.5 text-[16px] focus:ring-2 focus:ring-brand-500 focus:border-brand-500 overflow-hidden"
                   style={{ minWidth: 0, maxWidth: "100%" }}
                   value={appointment.start}
                   onChange={(e) => updateField("start", e.target.value)}
                 />
-              </div>
-              <div className="w-full max-w-full" style={{ minWidth: 0 }}>
-                <label className="block text-sm text-gray-600 mb-1">
-                  End Time
-                </label>
+              </FormField>
+              <FormField label="End Time" htmlFor="end-time">
                 <input
                   type="datetime-local"
+                  id="end-time"
                   className="appearance-none box-border w-full max-w-full border rounded px-2 py-1.5 text-[16px] focus:ring-2 focus:ring-brand-500 focus:border-brand-500 overflow-hidden"
                   style={{ minWidth: 0, maxWidth: "100%" }}
                   value={appointment.end}
                   onChange={(e) => updateField("end", e.target.value)}
                 />
-              </div>
+              </FormField>
             </div>
           </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Price (£)
-            </label>
+          <FormField label="Price (£)" htmlFor="price">
             <input
               type="number"
+              id="price"
               step="0.01"
               className="border rounded w-full px-3 py-2"
               value={appointment.price}
               onChange={(e) => updateField("price", e.target.value)}
             />
-          </div>
+          </FormField>
         </div>
       </div>
 
       <div className="flex items-center justify-end gap-2 pt-4 border-t mt-4">
-        <button
-          className="border rounded px-4 py-2 hover:bg-gray-50"
-          onClick={onClose}
-          disabled={submitting}
-        >
+        <Button variant="outline" onClick={onClose} disabled={submitting}>
           Cancel
-        </button>
-        <button
-          className="border rounded px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+        </Button>
+        <Button
+          variant="brand"
           onClick={onSave}
           disabled={submitting}
+          loading={submitting}
         >
-          {submitting ? "Saving..." : "Save Changes"}
-        </button>
+          Save Changes
+        </Button>
       </div>
     </Modal>
   );

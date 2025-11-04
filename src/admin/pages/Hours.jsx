@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import { api } from "../../lib/apiClient";
+import Button from "../../components/ui/Button";
 
 const DAYS = [
   { key: "mon", label: "Monday" },
@@ -253,20 +254,21 @@ export default function Hours() {
 
         {/* Save Button */}
         <div className="mt-6 flex justify-end gap-3">
-          <button
+          <Button
             onClick={loadSettings}
-            className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            variant="outline"
             disabled={saving || loading}
           >
             Reset
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSave}
             disabled={saving || loading}
-            className="px-6 py-2.5 bg-gradient-to-r from-brand-600 to-brand-700 text-white rounded-lg font-medium hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            loading={saving}
+            variant="brand"
           >
-            {saving ? "Saving..." : "💾 Save Working Hours"}
-          </button>
+            💾 Save Working Hours
+          </Button>
         </div>
       </div>
     </div>
