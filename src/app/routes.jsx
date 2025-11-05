@@ -30,6 +30,7 @@ import AdminLayout from "../admin/AdminLayout";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminLogin from "../admin/pages/Login";
+import ScrollToTop from "../components/ScrollToTop";
 
 // Lazy load admin pages for better performance (code splitting)
 const Dashboard = lazy(() => import("../admin/pages/Dashboard"));
@@ -413,170 +414,173 @@ function CustomerLayout() {
 
 export default function AppRoutes() {
   return (
-    <Routes>
-      {/* OAuth Success Page (must be before CustomerLayout catch-all) */}
-      <Route path="/auth/success" element={<AuthSuccessPage />} />
+    <>
+      <ScrollToTop />
+      <Routes>
+        {/* OAuth Success Page (must be before CustomerLayout catch-all) */}
+        <Route path="/auth/success" element={<AuthSuccessPage />} />
 
-      {/* Admin Login (public) */}
-      <Route path="/admin/login" element={<AdminLogin />} />
+        {/* Admin Login (public) */}
+        <Route path="/admin/login" element={<AdminLogin />} />
 
-      {/* Protected Admin Routes */}
-      <Route
-        path="/admin/*"
-        element={
-          <ProtectedRoute>
-            <AdminLayout />
-          </ProtectedRoute>
-        }
-      >
+        {/* Protected Admin Routes */}
         <Route
-          index
+          path="/admin/*"
           element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <Dashboard />
-            </Suspense>
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
           }
-        />
-        <Route
-          path="appointments"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <AdminAppointments />
-            </Suspense>
-          }
-        />
-        <Route
-          path="orders"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <AdminOrders />
-            </Suspense>
-          }
-        />
-        <Route
-          path="revenue"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <Revenue />
-            </Suspense>
-          }
-        />
-        <Route
-          path="services"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <AdminServices />
-            </Suspense>
-          }
-        />
-        <Route
-          path="staff"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <AdminStaff />
-            </Suspense>
-          }
-        />
-        <Route
-          path="hours"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <Hours />
-            </Suspense>
-          }
-        />
-        <Route
-          path="timeoff"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <TimeOff />
-            </Suspense>
-          }
-        />
-        <Route
-          path="hero-sections"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <HeroSections />
-            </Suspense>
-          }
-        />
-        <Route
-          path="products"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <Products />
-            </Suspense>
-          }
-        />
-        <Route
-          path="products-hero"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <ProductsHero />
-            </Suspense>
-          }
-        />
-        <Route
-          path="admin-links"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <AdminBeauticianLink />
-            </Suspense>
-          }
-        />
-        <Route
-          path="stripe-connect"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <StripeConnect />
-            </Suspense>
-          }
-        />
-        <Route
-          path="settings"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <Settings />
-            </Suspense>
-          }
-        />
-        <Route
-          path="settings/onboarding-complete"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <OnboardingComplete />
-            </Suspense>
-          }
-        />
-        <Route
-          path="settings/reauth"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <ReauthOnboarding />
-            </Suspense>
-          }
-        />
-        <Route
-          path="cancellation"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <CancellationPolicy />
-            </Suspense>
-          }
-        />
-        <Route
-          path="profile"
-          element={
-            <Suspense fallback={<LoadingSpinner center size="lg" />}>
-              <Profile />
-            </Suspense>
-          }
-        />
-      </Route>
+        >
+          <Route
+            index
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <Dashboard />
+              </Suspense>
+            }
+          />
+          <Route
+            path="appointments"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <AdminAppointments />
+              </Suspense>
+            }
+          />
+          <Route
+            path="orders"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <AdminOrders />
+              </Suspense>
+            }
+          />
+          <Route
+            path="revenue"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <Revenue />
+              </Suspense>
+            }
+          />
+          <Route
+            path="services"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <AdminServices />
+              </Suspense>
+            }
+          />
+          <Route
+            path="staff"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <AdminStaff />
+              </Suspense>
+            }
+          />
+          <Route
+            path="hours"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <Hours />
+              </Suspense>
+            }
+          />
+          <Route
+            path="timeoff"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <TimeOff />
+              </Suspense>
+            }
+          />
+          <Route
+            path="hero-sections"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <HeroSections />
+              </Suspense>
+            }
+          />
+          <Route
+            path="products"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <Products />
+              </Suspense>
+            }
+          />
+          <Route
+            path="products-hero"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <ProductsHero />
+              </Suspense>
+            }
+          />
+          <Route
+            path="admin-links"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <AdminBeauticianLink />
+              </Suspense>
+            }
+          />
+          <Route
+            path="stripe-connect"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <StripeConnect />
+              </Suspense>
+            }
+          />
+          <Route
+            path="settings"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <Settings />
+              </Suspense>
+            }
+          />
+          <Route
+            path="settings/onboarding-complete"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <OnboardingComplete />
+              </Suspense>
+            }
+          />
+          <Route
+            path="settings/reauth"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <ReauthOnboarding />
+              </Suspense>
+            }
+          />
+          <Route
+            path="cancellation"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <CancellationPolicy />
+              </Suspense>
+            }
+          />
+          <Route
+            path="profile"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <Profile />
+              </Suspense>
+            }
+          />
+        </Route>
 
-      {/* Customer Routes */}
-      <Route path="*" element={<CustomerLayout />} />
-    </Routes>
+        {/* Customer Routes */}
+        <Route path="*" element={<CustomerLayout />} />
+      </Routes>
+    </>
   );
 }

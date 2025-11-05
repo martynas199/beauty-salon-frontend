@@ -37,7 +37,7 @@ export default function FAQPage() {
         },
         {
           q: "How do I cancel my appointment?",
-          a: "You can cancel your appointment from your confirmation email. Click the 'Cancel Appointment' button and follow the instructions. Refunds (if applicable) are processed automatically to your original payment method.",
+          a: "If you booked as a registered user, you can cancel your appointment from your profile page. If you booked as a guest, please contact the salon directly to cancel. Refunds (if applicable) are processed automatically to your original payment method.",
         },
         {
           q: "When will I receive my refund?",

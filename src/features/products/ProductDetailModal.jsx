@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useDispatch } from "react-redux";
 import { addToCart, openCart } from "../cart/cartSlice";
 
@@ -74,16 +75,16 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
 
   if (!isOpen || !product) return null;
 
-  return (
+  return createPortal(
     <>
-      {/* Backdrop */}
+      {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/50 z-[9999] backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 overflow-y-auto" onClick={onClose}>
+      <div className="fixed inset-0 z-[9999] overflow-y-auto" onClick={onClose}>
         <div
           className="flex min-h-full items-center justify-center p-4"
           onClick={onClose}
@@ -664,6 +665,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }
