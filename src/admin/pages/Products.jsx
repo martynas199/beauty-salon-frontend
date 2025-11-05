@@ -9,6 +9,7 @@ export default function Products() {
   const [products, setProducts] = useState([]);
   const [beauticians, setBeauticians] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -185,6 +186,7 @@ export default function Products() {
 
   const handleEdit = (product) => {
     setEditingId(product._id);
+    setShowForm(true);
     setFormData({
       title: product.title || "",
       description: product.description || "",
@@ -243,6 +245,7 @@ export default function Products() {
 
   const resetForm = () => {
     setEditingId(null);
+    setShowForm(false);
     setFormData({
       title: "",
       description: "",
@@ -320,506 +323,522 @@ export default function Products() {
   return (
     <div className="space-y-6 sm:space-y-8 p-4 sm:p-6">
       {/* Header */}
-      <div>
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-2 tracking-wide break-words">
-          Products
-        </h1>
-        <p className="text-sm sm:text-base text-gray-600 font-light">
-          Manage your product catalog and popular collections
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-2 tracking-wide break-words">
+            Products
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600 font-light">
+            Manage your product catalog and popular collections
+          </p>
+        </div>
+        {!showForm && (
+          <Button
+            onClick={() => setShowForm(true)}
+            variant="primary"
+            className="flex items-center gap-2"
+          >
+            <span className="text-xl">+</span>
+            <span className="hidden sm:inline">Add New Product</span>
+          </Button>
+        )}
       </div>
 
       {/* Form */}
-      <div className="bg-white rounded-xl shadow-lg border-4 border-brand-400 p-4 sm:p-6 md:p-8 overflow-hidden">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-serif font-semibold text-gray-900 mb-4 sm:mb-6 tracking-wide break-words">
-          {editingId ? "Edit Product" : "Add New Product"}
-        </h2>
+      {showForm && (
+        <div className="bg-white rounded-xl shadow-lg border-4 border-brand-400 p-4 sm:p-6 md:p-8 overflow-hidden">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-serif font-semibold text-gray-900 mb-4 sm:mb-6 tracking-wide break-words">
+            {editingId ? "Edit Product" : "Add New Product"}
+          </h2>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 sm:space-y-6 overflow-x-hidden"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Title */}
-            <FormField label="Product Title" htmlFor="title" required>
-              <input
-                type="text"
-                id="title"
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                placeholder="Chanel Perfume"
-                required
-              />
-            </FormField>
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 sm:space-y-6 overflow-x-hidden"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Title */}
+              <FormField label="Product Title" htmlFor="title" required>
+                <input
+                  type="text"
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  placeholder="Chanel Perfume"
+                  required
+                />
+              </FormField>
 
-            {/* Category */}
-            <FormField label="Category" htmlFor="category" required>
-              <select
-                id="category"
-                value={formData.category}
-                onChange={(e) =>
-                  setFormData({ ...formData, category: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                required
-              >
-                <option value="Skincare">Skincare</option>
-                <option value="Makeup">Makeup</option>
-                <option value="Fragrance">Fragrance</option>
-                <option value="Haircare">Haircare</option>
-                <option value="Body Care">Body Care</option>
-                <option value="Tools">Tools & Accessories</option>
-              </select>
-            </FormField>
-
-            {/* Beautician (Product Owner) */}
-            <FormField
-              label="Product Owner"
-              htmlFor="beauticianId"
-              help="Leave empty for platform-owned products. Select beautician for Stripe Connect payments."
-            >
-              <select
-                id="beauticianId"
-                value={formData.beauticianId}
-                onChange={(e) =>
-                  setFormData({ ...formData, beauticianId: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-              >
-                <option value="">Platform (No Beautician)</option>
-                {beauticians
-                  .filter((b) => b.active)
-                  .map((beautician) => (
-                    <option key={beautician._id} value={beautician._id}>
-                      {beautician.name}
-                      {beautician.stripeStatus === "connected"
-                        ? " ✓"
-                        : " (Not connected to Stripe)"}
-                    </option>
-                  ))}
-              </select>
-            </FormField>
-
-            {/* Order */}
-            <FormField
-              label="Display Order"
-              htmlFor="order"
-              help="Lower numbers appear first"
-            >
-              <input
-                type="number"
-                id="order"
-                value={formData.order}
-                onChange={(e) =>
-                  setFormData({ ...formData, order: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                placeholder="0"
-              />
-            </FormField>
-          </div>
-
-          {/* Variants Section */}
-          <div className="border border-gray-200 rounded-lg p-3 sm:p-4 overflow-hidden">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4">
-              <div className="min-w-0 flex-1">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">
-                  Product Variants
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-500">
-                  Add different sizes with their own prices and stock levels
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addVariant}
-                className="w-full sm:w-auto flex-shrink-0"
-              >
-                + Add Variant
-              </Button>
-            </div>
-
-            <div className="space-y-3 sm:space-y-4">
-              {formData.variants.map((variant, index) => (
-                <div
-                  key={index}
-                  className="p-3 sm:p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 hover:border-brand-300 transition-colors overflow-hidden"
+              {/* Category */}
+              <FormField label="Category" htmlFor="category" required>
+                <select
+                  id="category"
+                  value={formData.category}
+                  onChange={(e) =>
+                    setFormData({ ...formData, category: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  required
                 >
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <h4 className="text-sm font-semibold text-gray-700 break-words">
-                      Variant #{index + 1}
-                    </h4>
-                    <button
-                      type="button"
-                      onClick={() => removeVariant(index)}
-                      className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Remove variant"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Size */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Size <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={variant.size}
-                        onChange={(e) =>
-                          updateVariant(index, "size", e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
-                        placeholder="50ml"
-                        required
-                      />
-                    </div>
+                  <option value="Skincare">Skincare</option>
+                  <option value="Makeup">Makeup</option>
+                  <option value="Fragrance">Fragrance</option>
+                  <option value="Haircare">Haircare</option>
+                  <option value="Body Care">Body Care</option>
+                  <option value="Tools">Tools & Accessories</option>
+                </select>
+              </FormField>
 
-                    {/* Price */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Price (£) <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={variant.price}
-                        onChange={(e) =>
-                          updateVariant(index, "price", e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
-                        placeholder="99.99"
-                        required
-                      />
-                    </div>
-
-                    {/* Original Price */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Original Price (£)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={variant.originalPrice}
-                        onChange={(e) =>
-                          updateVariant(index, "originalPrice", e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
-                        placeholder="149.99"
-                      />
-                    </div>
-
-                    {/* Stock */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Stock Quantity
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={variant.stock}
-                        onChange={(e) =>
-                          updateVariant(index, "stock", e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
-                        placeholder="0"
-                      />
-                    </div>
-
-                    {/* Weight */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Weight (g)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.1"
-                        min="0"
-                        value={variant.weight}
-                        onChange={(e) =>
-                          updateVariant(index, "weight", e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
-                        placeholder="100"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        For shipping calculations
-                      </p>
-                    </div>
-
-                    {/* SKU */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        SKU
-                      </label>
-                      <input
-                        type="text"
-                        value={variant.sku}
-                        onChange={(e) =>
-                          updateVariant(index, "sku", e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
-                        placeholder="SKU123"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Description */}
-          <FormField label="Description" htmlFor="description" required>
-            <textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-              placeholder="Detailed product description..."
-              required
-            />
-          </FormField>
-
-          {/* Key Benefits */}
-          <FormField
-            label="Key Benefits"
-            htmlFor="keyBenefits"
-            help="One benefit per line"
-          >
-            <textarea
-              id="keyBenefits"
-              value={formData.keyBenefits}
-              onChange={(e) =>
-                setFormData({ ...formData, keyBenefits: e.target.value })
-              }
-              rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-              placeholder="Hydrates skin&#10;Reduces wrinkles&#10;Brightens complexion"
-            />
-          </FormField>
-
-          {/* Ingredients */}
-          <FormField label="Ingredients" htmlFor="ingredients">
-            <textarea
-              id="ingredients"
-              value={formData.ingredients}
-              onChange={(e) =>
-                setFormData({ ...formData, ingredients: e.target.value })
-              }
-              rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-              placeholder="List all ingredients..."
-            />
-          </FormField>
-
-          {/* How to Apply */}
-          <FormField label="How to Apply" htmlFor="howToApply">
-            <textarea
-              id="howToApply"
-              value={formData.howToApply}
-              onChange={(e) =>
-                setFormData({ ...formData, howToApply: e.target.value })
-              }
-              rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-              placeholder="Step-by-step application instructions..."
-            />
-          </FormField>
-
-          {/* Main Image Upload */}
-          <FormField label="Main Product Image" htmlFor="image">
-            <div className="space-y-4">
-              <input
-                type="file"
-                id="image"
-                accept="image/*"
-                onChange={handleImageSelect}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
-              />
-              {imagePreview && (
-                <div className="relative w-32 h-32 border-2 border-gray-200 rounded-lg overflow-hidden">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-            </div>
-          </FormField>
-
-          {/* Gallery Images Upload */}
-          <FormField
-            label="Gallery Images"
-            htmlFor="gallery"
-            help="Upload multiple images to create a product gallery"
-          >
-            <div className="space-y-4">
-              <input
-                type="file"
-                id="gallery"
-                accept="image/*"
-                multiple
-                onChange={handleGallerySelect}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
-              />
-
-              {/* Existing Gallery Images (when editing) */}
-              {existingGalleryImages.length > 0 && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-2 font-medium">
-                    Current Gallery Images:
-                  </p>
-                  <div className="grid grid-cols-4 gap-3">
-                    {existingGalleryImages.map((img, index) => (
-                      <div
-                        key={index}
-                        className="relative group border-2 border-gray-200 rounded-lg overflow-hidden aspect-square"
-                      >
-                        <img
-                          src={img.url}
-                          alt={`Gallery ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeExistingGalleryImage(index)}
-                          className="absolute top-1 right-1 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                          title="Delete image"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      </div>
+              {/* Beautician (Product Owner) */}
+              <FormField
+                label="Product Owner"
+                htmlFor="beauticianId"
+                help="Leave empty for platform-owned products. Select beautician for Stripe Connect payments."
+              >
+                <select
+                  id="beauticianId"
+                  value={formData.beauticianId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, beauticianId: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                >
+                  <option value="">Platform (No Beautician)</option>
+                  {beauticians
+                    .filter((b) => b.active)
+                    .map((beautician) => (
+                      <option key={beautician._id} value={beautician._id}>
+                        {beautician.name}
+                        {beautician.stripeStatus === "connected"
+                          ? " ✓"
+                          : " (Not connected to Stripe)"}
+                      </option>
                     ))}
-                  </div>
-                </div>
-              )}
+                </select>
+              </FormField>
 
-              {/* New Gallery Images Preview */}
-              {galleryPreviews.length > 0 && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-2 font-medium">
-                    New Images to Upload:
-                  </p>
-                  <div className="grid grid-cols-4 gap-3">
-                    {galleryPreviews.map((preview, index) => (
-                      <div
-                        key={index}
-                        className="relative group border-2 border-brand-200 rounded-lg overflow-hidden aspect-square"
-                      >
-                        <img
-                          src={preview}
-                          alt={`New ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeGalleryPreview(index)}
-                          className="absolute top-1 right-1 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                          title="Remove image"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Order */}
+              <FormField
+                label="Display Order"
+                htmlFor="order"
+                help="Lower numbers appear first"
+              >
+                <input
+                  type="number"
+                  id="order"
+                  value={formData.order}
+                  onChange={(e) =>
+                    setFormData({ ...formData, order: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  placeholder="0"
+                />
+              </FormField>
             </div>
-          </FormField>
 
-          {/* Checkboxes */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.featured}
+            {/* Variants Section */}
+            <div className="border border-gray-200 rounded-lg p-3 sm:p-4 overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">
+                    Product Variants
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    Add different sizes with their own prices and stock levels
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addVariant}
+                  className="w-full sm:w-auto flex-shrink-0"
+                >
+                  + Add Variant
+                </Button>
+              </div>
+
+              <div className="space-y-3 sm:space-y-4">
+                {formData.variants.map((variant, index) => (
+                  <div
+                    key={index}
+                    className="p-3 sm:p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 hover:border-brand-300 transition-colors overflow-hidden"
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <h4 className="text-sm font-semibold text-gray-700 break-words">
+                        Variant #{index + 1}
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => removeVariant(index)}
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Remove variant"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {/* Size */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Size <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={variant.size}
+                          onChange={(e) =>
+                            updateVariant(index, "size", e.target.value)
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
+                          placeholder="50ml"
+                          required
+                        />
+                      </div>
+
+                      {/* Price */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Price (£) <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={variant.price}
+                          onChange={(e) =>
+                            updateVariant(index, "price", e.target.value)
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
+                          placeholder="99.99"
+                          required
+                        />
+                      </div>
+
+                      {/* Original Price */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Original Price (£)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={variant.originalPrice}
+                          onChange={(e) =>
+                            updateVariant(
+                              index,
+                              "originalPrice",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
+                          placeholder="149.99"
+                        />
+                      </div>
+
+                      {/* Stock */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Stock Quantity
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={variant.stock}
+                          onChange={(e) =>
+                            updateVariant(index, "stock", e.target.value)
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
+                          placeholder="0"
+                        />
+                      </div>
+
+                      {/* Weight */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Weight (g)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          value={variant.weight}
+                          onChange={(e) =>
+                            updateVariant(index, "weight", e.target.value)
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
+                          placeholder="100"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          For shipping calculations
+                        </p>
+                      </div>
+
+                      {/* SKU */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          SKU
+                        </label>
+                        <input
+                          type="text"
+                          value={variant.sku}
+                          onChange={(e) =>
+                            updateVariant(index, "sku", e.target.value)
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
+                          placeholder="SKU123"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Description */}
+            <FormField label="Description" htmlFor="description" required>
+              <textarea
+                id="description"
+                value={formData.description}
                 onChange={(e) =>
-                  setFormData({ ...formData, featured: e.target.checked })
+                  setFormData({ ...formData, description: e.target.value })
                 }
-                className="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500 flex-shrink-0"
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                placeholder="Detailed product description..."
+                required
               />
-              <span className="text-sm font-medium text-gray-700">
-                Featured in Popular Collections
-              </span>
-            </label>
+            </FormField>
 
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.active}
-                onChange={(e) =>
-                  setFormData({ ...formData, active: e.target.checked })
-                }
-                className="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500 flex-shrink-0"
-              />
-              <span className="text-sm font-medium text-gray-700">
-                Active (visible to customers)
-              </span>
-            </label>
-          </div>
-
-          {/* Form Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button
-              type="submit"
-              variant="brand"
-              size="lg"
-              loading={submitting}
-              disabled={submitting}
-              className="w-full sm:w-auto"
+            {/* Key Benefits */}
+            <FormField
+              label="Key Benefits"
+              htmlFor="keyBenefits"
+              help="One benefit per line"
             >
-              {editingId ? "Update Product" : "Create Product"}
-            </Button>
-            {editingId && (
+              <textarea
+                id="keyBenefits"
+                value={formData.keyBenefits}
+                onChange={(e) =>
+                  setFormData({ ...formData, keyBenefits: e.target.value })
+                }
+                rows={4}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                placeholder="Hydrates skin&#10;Reduces wrinkles&#10;Brightens complexion"
+              />
+            </FormField>
+
+            {/* Ingredients */}
+            <FormField label="Ingredients" htmlFor="ingredients">
+              <textarea
+                id="ingredients"
+                value={formData.ingredients}
+                onChange={(e) =>
+                  setFormData({ ...formData, ingredients: e.target.value })
+                }
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                placeholder="List all ingredients..."
+              />
+            </FormField>
+
+            {/* How to Apply */}
+            <FormField label="How to Apply" htmlFor="howToApply">
+              <textarea
+                id="howToApply"
+                value={formData.howToApply}
+                onChange={(e) =>
+                  setFormData({ ...formData, howToApply: e.target.value })
+                }
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                placeholder="Step-by-step application instructions..."
+              />
+            </FormField>
+
+            {/* Main Image Upload */}
+            <FormField label="Main Product Image" htmlFor="image">
+              <div className="space-y-4">
+                <input
+                  type="file"
+                  id="image"
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
+                />
+                {imagePreview && (
+                  <div className="relative w-32 h-32 border-2 border-gray-200 rounded-lg overflow-hidden">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+              </div>
+            </FormField>
+
+            {/* Gallery Images Upload */}
+            <FormField
+              label="Gallery Images"
+              htmlFor="gallery"
+              help="Upload multiple images to create a product gallery"
+            >
+              <div className="space-y-4">
+                <input
+                  type="file"
+                  id="gallery"
+                  accept="image/*"
+                  multiple
+                  onChange={handleGallerySelect}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
+                />
+
+                {/* Existing Gallery Images (when editing) */}
+                {existingGalleryImages.length > 0 && (
+                  <div>
+                    <p className="text-sm text-gray-600 mb-2 font-medium">
+                      Current Gallery Images:
+                    </p>
+                    <div className="grid grid-cols-4 gap-3">
+                      {existingGalleryImages.map((img, index) => (
+                        <div
+                          key={index}
+                          className="relative group border-2 border-gray-200 rounded-lg overflow-hidden aspect-square"
+                        >
+                          <img
+                            src={img.url}
+                            alt={`Gallery ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeExistingGalleryImage(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                            title="Delete image"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* New Gallery Images Preview */}
+                {galleryPreviews.length > 0 && (
+                  <div>
+                    <p className="text-sm text-gray-600 mb-2 font-medium">
+                      New Images to Upload:
+                    </p>
+                    <div className="grid grid-cols-4 gap-3">
+                      {galleryPreviews.map((preview, index) => (
+                        <div
+                          key={index}
+                          className="relative group border-2 border-brand-200 rounded-lg overflow-hidden aspect-square"
+                        >
+                          <img
+                            src={preview}
+                            alt={`New ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeGalleryPreview(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                            title="Remove image"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </FormField>
+
+            {/* Checkboxes */}
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.featured}
+                  onChange={(e) =>
+                    setFormData({ ...formData, featured: e.target.checked })
+                  }
+                  className="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500 flex-shrink-0"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Featured in Popular Collections
+                </span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.active}
+                  onChange={(e) =>
+                    setFormData({ ...formData, active: e.target.checked })
+                  }
+                  className="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500 flex-shrink-0"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Active (visible to customers)
+                </span>
+              </label>
+            </div>
+
+            {/* Form Actions */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <Button
+                type="submit"
+                variant="brand"
+                size="lg"
+                loading={submitting}
+                disabled={submitting}
+                className="w-full sm:w-auto"
+              >
+                {editingId ? "Update Product" : "Create Product"}
+              </Button>
               <Button
                 type="button"
                 variant="outline"
@@ -829,10 +848,10 @@ export default function Products() {
               >
                 Cancel
               </Button>
-            )}
-          </div>
-        </form>
-      </div>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Products List */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 overflow-hidden">
