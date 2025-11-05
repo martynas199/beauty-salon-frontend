@@ -157,9 +157,9 @@ export default function ProductsPage() {
         className="relative text-white py-16 md:py-20 overflow-hidden"
         style={{
           backgroundImage: heroImage
-            ? `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${heroImage})`
+            ? `url(${heroImage})`
             : "linear-gradient(to right, rgb(168, 85, 247), rgb(147, 51, 234))",
-          backgroundSize: heroImage ? `${heroZoom}%` : "cover",
+          backgroundSize: heroImage ? "cover" : "cover",
           backgroundPosition: heroPosition,
           backgroundRepeat: "no-repeat",
         }}
