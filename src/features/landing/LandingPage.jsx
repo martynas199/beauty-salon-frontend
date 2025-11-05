@@ -243,7 +243,7 @@ export default function LandingPage() {
             hidden: {},
             show: {
               transition: {
-                staggerChildren: 0.3,
+                staggerChildren: 0.4,
               },
             },
           }}
@@ -261,7 +261,7 @@ export default function LandingPage() {
                   opacity: 1,
                   y: 0,
                   transition: {
-                    duration: 1.4,
+                    duration: 1.8,
                     ease: "easeOut",
                   },
                 },

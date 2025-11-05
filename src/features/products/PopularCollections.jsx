@@ -56,7 +56,7 @@ export default function PopularCollections() {
           hidden: {},
           show: {
             transition: {
-              staggerChildren: 0.15,
+              staggerChildren: 0.2,
             },
           },
         }}
@@ -74,7 +74,7 @@ export default function PopularCollections() {
                 opacity: 1,
                 y: 0,
                 transition: {
-                  duration: 1.2,
+                  duration: 1.6,
                   ease: "easeOut",
                 },
               },
