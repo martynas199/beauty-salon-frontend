@@ -154,17 +154,19 @@ export default function ProductCheckoutPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8">
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-8">Checkout</h1>
+    <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8 overflow-x-hidden">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-8 break-words">
+        Checkout
+      </h1>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="overflow-x-hidden">
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Left: Shipping Form */}
           <div className="lg:col-span-2">
             <div className="space-y-6">
               {/* Shipping Information */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 overflow-hidden">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 break-words">
                   Shipping Information
                 </h2>
 
@@ -373,10 +375,12 @@ export default function ProductCheckoutPage() {
                   disabled={loading}
                   className="w-full py-4 text-lg"
                 >
-                  {loading ? "Processing..." : `Place Order • £${total.toFixed(2)}`}
+                  {loading
+                    ? "Processing..."
+                    : `Place Order • £${total.toFixed(2)}`}
                 </Button>
               </div>
-              
+
               {/* Spacer for mobile button */}
               <div className="lg:hidden h-20"></div>
             </div>
@@ -384,13 +388,13 @@ export default function ProductCheckoutPage() {
 
           {/* Right: Order Summary */}
           <div className="lg:col-span-1 order-first lg:order-last mb-4 lg:mb-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-8">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-8 overflow-hidden">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 break-words">
                 Order Summary
               </h2>
 
               {/* Items */}
-              <div className="space-y-3 mb-4 sm:mb-6 max-h-60 sm:max-h-80 overflow-y-auto">
+              <div className="space-y-3 mb-4 sm:mb-6 max-h-60 sm:max-h-80 overflow-y-auto overflow-x-hidden">
                 {cartItems.map((item) => (
                   <div
                     key={`${item.productId}-${item.variantId}`}
@@ -423,11 +427,11 @@ export default function ProductCheckoutPage() {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium text-gray-900 truncate">
+                      <h3 className="text-sm font-medium text-gray-900 break-words line-clamp-2">
                         {item.product?.title}
                       </h3>
                       {item.product?.size && (
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 break-words">
                           {item.product.size}
                         </p>
                       )}
@@ -436,7 +440,7 @@ export default function ProductCheckoutPage() {
                       </p>
                     </div>
 
-                    <div className="text-right">
+                    <div className="text-right flex-shrink-0">
                       <p className="text-sm font-semibold text-gray-900">
                         £
                         {((item.product?.price || 0) * item.quantity).toFixed(

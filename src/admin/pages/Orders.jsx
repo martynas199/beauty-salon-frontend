@@ -318,15 +318,15 @@ export default function Orders() {
       {/* Order Detail Modal */}
       {selectedOrder && (
         <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-2 sm:p-4"
           onClick={() => setSelectedOrder(null)}
         >
           <div
-            className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-4 sm:p-6 flex items-center justify-between">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 break-words">
                 Order {selectedOrder.orderNumber}
               </h2>
               <button
@@ -349,11 +349,13 @@ export default function Orders() {
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               {/* Status */}
               <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Status</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
+                  Status
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Order Status</p>
                     <span
@@ -379,14 +381,14 @@ export default function Orders() {
 
               {/* Items */}
               <div>
-                <h3 className="font-semibold text-gray-900 mb-3">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
                   Order Items
                 </h3>
                 <div className="space-y-3">
                   {selectedOrder.items.map((item, index) => (
                     <div
                       key={index}
-                      className="flex gap-4 p-4 bg-gray-50 rounded-lg"
+                      className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg overflow-hidden"
                     >
                       <div className="w-16 h-16 rounded bg-gray-200 overflow-hidden flex-shrink-0">
                         {item.image ? (
@@ -413,21 +415,21 @@ export default function Orders() {
                           </div>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm sm:text-base font-medium text-gray-900 break-words">
                           {item.title}
                         </h4>
                         {item.size && (
-                          <p className="text-sm text-gray-500">
+                          <p className="text-xs sm:text-sm text-gray-500">
                             Size: {item.size}
                           </p>
                         )}
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1">
                           Qty: {item.quantity} × £{item.price.toFixed(2)}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-900">
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-sm sm:text-base font-semibold text-gray-900">
                           £{(item.price * item.quantity).toFixed(2)}
                         </p>
                       </div>
@@ -468,42 +470,50 @@ export default function Orders() {
 
               {/* Shipping Address */}
               <div>
-                <h3 className="font-semibold text-gray-900 mb-3">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
                   Shipping Address
                 </h3>
-                <div className="text-sm text-gray-600 space-y-1">
-                  <p className="font-medium text-gray-900">
+                <div className="text-xs sm:text-sm text-gray-600 space-y-1">
+                  <p className="font-medium text-gray-900 break-words">
                     {selectedOrder.shippingAddress.firstName}{" "}
                     {selectedOrder.shippingAddress.lastName}
                   </p>
-                  <p>{selectedOrder.shippingAddress.address}</p>
-                  <p>
+                  <p className="break-words">
+                    {selectedOrder.shippingAddress.address}
+                  </p>
+                  <p className="break-words">
                     {selectedOrder.shippingAddress.city},{" "}
                     {selectedOrder.shippingAddress.postalCode}
                   </p>
-                  <p>{selectedOrder.shippingAddress.country}</p>
+                  <p className="break-words">
+                    {selectedOrder.shippingAddress.country}
+                  </p>
                   <p className="pt-2">
                     <span className="text-gray-500">Email:</span>{" "}
-                    {selectedOrder.shippingAddress.email}
+                    <span className="break-all">
+                      {selectedOrder.shippingAddress.email}
+                    </span>
                   </p>
                   <p>
                     <span className="text-gray-500">Phone:</span>{" "}
-                    {selectedOrder.shippingAddress.phone}
+                    <span className="break-all">
+                      {selectedOrder.shippingAddress.phone}
+                    </span>
                   </p>
                 </div>
               </div>
 
               {/* Tracking Number */}
               <div>
-                <h3 className="font-semibold text-gray-900 mb-3">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
                   Tracking Information
                 </h3>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <input
                     type="text"
                     defaultValue={selectedOrder.trackingNumber || ""}
                     placeholder="Enter tracking number"
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                    className="flex-1 min-w-0 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleUpdateTracking(selectedOrder._id, e.target.value);
@@ -519,6 +529,7 @@ export default function Orders() {
                       handleUpdateTracking(selectedOrder._id, input.value);
                     }}
                     disabled={updating}
+                    className="w-full sm:w-auto flex-shrink-0"
                   >
                     Update
                   </Button>
@@ -528,10 +539,10 @@ export default function Orders() {
               {/* Notes */}
               {selectedOrder.notes && (
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
                     Order Notes
                   </h3>
-                  <p className="text-sm text-gray-600 bg-blue-50 p-4 rounded-lg">
+                  <p className="text-xs sm:text-sm text-gray-600 bg-blue-50 p-3 sm:p-4 rounded-lg break-words">
                     {selectedOrder.notes}
                   </p>
                 </div>
@@ -539,20 +550,22 @@ export default function Orders() {
 
               {/* Timestamps */}
               <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Timeline</h3>
-                <div className="space-y-2 text-sm">
-                  <p className="text-gray-600">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
+                  Timeline
+                </h3>
+                <div className="space-y-2 text-xs sm:text-sm">
+                  <p className="text-gray-600 break-words">
                     <span className="font-medium">Placed:</span>{" "}
                     {new Date(selectedOrder.createdAt).toLocaleString()}
                   </p>
                   {selectedOrder.shippedAt && (
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 break-words">
                       <span className="font-medium">Shipped:</span>{" "}
                       {new Date(selectedOrder.shippedAt).toLocaleString()}
                     </p>
                   )}
                   {selectedOrder.deliveredAt && (
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 break-words">
                       <span className="font-medium">Delivered:</span>{" "}
                       {new Date(selectedOrder.deliveredAt).toLocaleString()}
                     </p>
