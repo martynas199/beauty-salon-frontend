@@ -145,21 +145,23 @@ export default function LandingPage() {
   }
 
   return (
-    <PageTransition className="-mt-8 relative">
-      {/* Fixed Background Logo with Parallax Effect */}
+    <>
+      {/* Fixed Background Logo with Parallax Effect - Behind all content */}
       <motion.div
-        className="fixed inset-0 flex items-center justify-center pointer-events-none z-0"
-        style={{ y }}
+        className="fixed inset-0 flex items-center justify-center pointer-events-none"
+        style={{
+          y,
+          zIndex: -1,
+        }}
       >
         <img
           src={logo}
           alt="Logo"
-          className="w-64 h-64 md:w-96 md:h-96 opacity-5"
+          className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] opacity-40"
         />
       </motion.div>
 
-      {/* Content wrapper with relative positioning */}
-      <div className="relative z-10">
+      <PageTransition className="-mt-8 relative z-0">
         {/* Hero Section - Full width on mobile */}
         {/* <div
         className="relative rounded-b-3xl sm:rounded-3xl overflow-hidden h-[280px] md:h-[350px] bg-gray-900 mb-6 sm:mb-8 sm:mx-4 md:mx-6 lg:mx-8 sm:mt-8"
@@ -175,7 +177,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/20"></div>
 
         {/* Hero Content */}
-      {/* <div className="relative h-full flex items-end p-5 sm:p-8 md:p-10">
+        {/* <div className="relative h-full flex items-end p-5 sm:p-8 md:p-10">
           <div className="max-w-3xl">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-lg">
               {salon?.name || "Beauty Salon"}
@@ -231,114 +233,118 @@ export default function LandingPage() {
         </div>
       </div> */}
 
-      {/* Hero Section Display */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-12">
-        <HeroSectionDisplay />
-      </div>
-
-      {/* Popular Collections Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <PopularCollections />
-      </div>
-
-      {/* Beauticians Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        {/* Section Header */}
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-2 tracking-wide">
-            Our Beauticians
-          </h2>
-          <p className="text-gray-600 font-light">
-            Choose your preferred beauty professional
-          </p>
+        {/* Hero Section Display */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-12">
+          <HeroSectionDisplay />
         </div>
-        {/* Beauticians Grid with scroll-in and parallax animations */}
-        <motion.div
-          variants={{
-            hidden: {},
-            show: {
-              transition: {
-                staggerChildren: 0.4,
-              },
-            },
-          }}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.1 }}
-          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          {beauticians.map((beautician) => (
-            <motion.div
-              key={beautician._id}
-              variants={{
-                hidden: { opacity: 0, y: 80 },
-                show: {
-                  opacity: 1,
-                  y: 0,
-                  transition: {
-                    duration: 1.8,
-                    ease: "easeOut",
-                  },
-                },
-              }}
-              whileHover={{ scale: 1.03, y: -4, transition: { duration: 0.3 } }}
-            >
-              <motion.div style={{ y }}>
-                <Card
-                  hoverable
-                  className="cursor-pointer overflow-hidden p-0 h-96"
-                  onClick={() =>
-                    navigate(`/beauticians?selected=${beautician._id}`)
-                  }
-                >
-                  {/* Full Card Image with Name Overlay */}
-                  <div className="relative h-full w-full bg-gray-200">
-                    {beautician.image?.url ? (
-                      <img
-                        src={beautician.image.url}
-                        alt={beautician.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <svg
-                          className="w-20 h-20"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                          />
-                        </svg>
-                      </div>
-                    )}
-                    {/* Strong gradient overlay for text readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
 
-                    {/* Name at bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <h3 className="text-2xl font-semibold text-white mb-1">
-                        {beautician.name}
-                      </h3>
-                      {beautician.specialties &&
-                        beautician.specialties.length > 0 && (
-                          <p className="text-white/90 text-sm">
-                            {beautician.specialties.slice(0, 2).join(" • ")}
-                          </p>
-                        )}
+        {/* Popular Collections Section */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+          <PopularCollections />
+        </div>
+
+        {/* Beauticians Section */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+          {/* Section Header */}
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-2 tracking-wide">
+              Our Beauticians
+            </h2>
+            <p className="text-gray-600 font-light">
+              Choose your preferred beauty professional
+            </p>
+          </div>
+          {/* Beauticians Grid with scroll-in and parallax animations */}
+          <motion.div
+            variants={{
+              hidden: {},
+              show: {
+                transition: {
+                  staggerChildren: 0.4,
+                },
+              },
+            }}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.1 }}
+            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {beauticians.map((beautician) => (
+              <motion.div
+                key={beautician._id}
+                variants={{
+                  hidden: { opacity: 0, y: 80 },
+                  show: {
+                    opacity: 1,
+                    y: 0,
+                    transition: {
+                      duration: 1.8,
+                      ease: "easeOut",
+                    },
+                  },
+                }}
+                whileHover={{
+                  scale: 1.03,
+                  y: -4,
+                  transition: { duration: 0.3 },
+                }}
+              >
+                <motion.div style={{ y }}>
+                  <Card
+                    hoverable
+                    className="cursor-pointer overflow-hidden p-0 h-96"
+                    onClick={() =>
+                      navigate(`/beauticians?selected=${beautician._id}`)
+                    }
+                  >
+                    {/* Full Card Image with Name Overlay */}
+                    <div className="relative h-full w-full bg-gray-200">
+                      {beautician.image?.url ? (
+                        <img
+                          src={beautician.image.url}
+                          alt={beautician.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <svg
+                            className="w-20 h-20"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                      {/* Strong gradient overlay for text readability */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+
+                      {/* Name at bottom */}
+                      <div className="absolute bottom-0 left-0 right-0 p-6">
+                        <h3 className="text-2xl font-semibold text-white mb-1">
+                          {beautician.name}
+                        </h3>
+                        {beautician.specialties &&
+                          beautician.specialties.length > 0 && (
+                            <p className="text-white/90 text-sm">
+                              {beautician.specialties.slice(0, 2).join(" • ")}
+                            </p>
+                          )}
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </motion.div>
               </motion.div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-      </div>
-    </PageTransition>
+            ))}
+          </motion.div>
+        </div>
+      </PageTransition>
+    </>
   );
 }
