@@ -318,24 +318,24 @@ export default function Products() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8 p-4 sm:p-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-2 tracking-wide">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-2 tracking-wide break-words">
           Products
         </h1>
-        <p className="text-gray-600 font-light">
+        <p className="text-sm sm:text-base text-gray-600 font-light">
           Manage your product catalog and popular collections
         </p>
       </div>
 
       {/* Form */}
-      <div className="bg-white rounded-xl shadow-lg border-4 border-brand-400 p-6 md:p-8">
-        <h2 className="text-2xl font-serif font-semibold text-gray-900 mb-6 tracking-wide">
+      <div className="bg-white rounded-xl shadow-lg border-4 border-brand-400 p-4 sm:p-6 md:p-8 overflow-hidden">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-serif font-semibold text-gray-900 mb-4 sm:mb-6 tracking-wide break-words">
           {editingId ? "Edit Product" : "Add New Product"}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 overflow-x-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Title */}
             <FormField label="Product Title" htmlFor="title" required>
@@ -420,13 +420,13 @@ export default function Products() {
           </div>
 
           {/* Variants Section */}
-          <div className="border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">
+          <div className="border border-gray-200 rounded-lg p-3 sm:p-4 overflow-hidden">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">
                   Product Variants
                 </h3>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500">
                   Add different sizes with their own prices and stock levels
                 </p>
               </div>
@@ -435,19 +435,20 @@ export default function Products() {
                 variant="outline"
                 size="sm"
                 onClick={addVariant}
+                className="w-full sm:w-auto flex-shrink-0"
               >
                 + Add Variant
               </Button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {formData.variants.map((variant, index) => (
                 <div
                   key={index}
-                  className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 hover:border-brand-300 transition-colors"
+                  className="p-3 sm:p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 hover:border-brand-300 transition-colors overflow-hidden"
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-semibold text-gray-700">
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <h4 className="text-sm font-semibold text-gray-700 break-words">
                       Variant #{index + 1}
                     </h4>
                     <button
@@ -773,7 +774,7 @@ export default function Products() {
           </FormField>
 
           {/* Checkboxes */}
-          <div className="flex flex-wrap gap-6">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -781,7 +782,7 @@ export default function Products() {
                 onChange={(e) =>
                   setFormData({ ...formData, featured: e.target.checked })
                 }
-                className="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                className="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500 flex-shrink-0"
               />
               <span className="text-sm font-medium text-gray-700">
                 Featured in Popular Collections
@@ -795,7 +796,7 @@ export default function Products() {
                 onChange={(e) =>
                   setFormData({ ...formData, active: e.target.checked })
                 }
-                className="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                className="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500 flex-shrink-0"
               />
               <span className="text-sm font-medium text-gray-700">
                 Active (visible to customers)
@@ -804,13 +805,14 @@ export default function Products() {
           </div>
 
           {/* Form Actions */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               type="submit"
               variant="brand"
               size="lg"
               loading={submitting}
               disabled={submitting}
+              className="w-full sm:w-auto"
             >
               {editingId ? "Update Product" : "Create Product"}
             </Button>
@@ -820,6 +822,7 @@ export default function Products() {
                 variant="outline"
                 size="lg"
                 onClick={resetForm}
+                className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
@@ -829,24 +832,24 @@ export default function Products() {
       </div>
 
       {/* Products List */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 overflow-hidden">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 break-words">
           All Products ({products.length})
         </h2>
 
         {products.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">
+          <p className="text-sm sm:text-base text-gray-500 text-center py-8">
             No products yet. Create your first product above.
           </p>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-3 sm:gap-4">
             {products.map((product) => (
               <div
                 key={product._id}
-                className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-brand-300 transition-colors"
+                className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 border border-gray-200 rounded-lg hover:border-brand-300 transition-colors overflow-hidden"
               >
                 {/* Product Image */}
-                <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <div className="w-full sm:w-20 h-32 sm:h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                   {product.image?.url ? (
                     <img
                       src={product.image.url}
@@ -873,11 +876,11 @@ export default function Products() {
                 </div>
 
                 {/* Product Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 truncate">
+                <div className="flex-1 min-w-0 w-full">
+                  <h3 className="font-semibold text-gray-900 break-words">
                     {product.title}
                   </h3>
-                  <p className="text-sm text-gray-500 truncate">
+                  <p className="text-sm text-gray-500 break-words">
                     {product.category}
                     {product.variants && product.variants.length > 0 && (
                       <span>
@@ -889,13 +892,13 @@ export default function Products() {
                   </p>
                   {/* Owner Info */}
                   {product.beauticianId && (
-                    <p className="text-xs text-purple-600 font-medium mt-0.5">
+                    <p className="text-xs text-purple-600 font-medium mt-0.5 break-words">
                       👤 Owned by:{" "}
                       {beauticians.find((b) => b._id === product.beauticianId)
                         ?.name || "Unknown"}
                     </p>
                   )}
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
                     {product.variants && product.variants.length > 0 ? (
                       <>
                         {product.variants.length === 1 ? (
@@ -954,11 +957,12 @@ export default function Products() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full sm:w-auto flex-shrink-0">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleEdit(product)}
+                    className="flex-1 sm:flex-initial"
                   >
                     Edit
                   </Button>
@@ -968,7 +972,7 @@ export default function Products() {
                     onClick={() =>
                       setDeleteModal({ open: true, product: product })
                     }
-                    className="text-red-600 hover:text-red-700 hover:border-red-300"
+                    className="text-red-600 hover:text-red-700 hover:border-red-300 flex-1 sm:flex-initial"
                   >
                     Delete
                   </Button>

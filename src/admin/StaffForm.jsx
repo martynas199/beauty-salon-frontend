@@ -218,14 +218,14 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
   ).length;
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-6">
-      <h2 className="text-2xl font-bold mb-6">
+    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-6 overflow-hidden">
+      <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 break-words">
         {isEditMode ? "Edit Staff Member" : "Add New Staff Member"}
       </h2>
 
       {errorCount > 0 && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex items-start gap-3">
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg overflow-hidden">
+          <div className="flex items-start gap-2 sm:gap-3">
             <svg
               className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0"
               fill="currentColor"
@@ -254,10 +254,10 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 overflow-x-hidden">
         {/* Basic Info Section */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold border-b pb-2">
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="text-base sm:text-lg font-semibold border-b pb-2">
             Basic Information
           </h3>
 

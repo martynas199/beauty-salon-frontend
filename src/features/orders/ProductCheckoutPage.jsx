@@ -154,23 +154,23 @@ export default function ProductCheckoutPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+    <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-8">Checkout</h1>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Left: Shipping Form */}
           <div className="lg:col-span-2">
             <div className="space-y-6">
               {/* Shipping Information */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
                   Shipping Information
                 </h2>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       First Name *
                     </label>
                     <input
@@ -180,13 +180,13 @@ export default function ProductCheckoutPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, firstName: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       placeholder="John"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       Last Name *
                     </label>
                     <input
@@ -196,102 +196,117 @@ export default function ProductCheckoutPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, lastName: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       placeholder="Doe"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       Email *
                     </label>
                     <input
                       type="email"
                       required
+                      autoComplete="email"
+                      inputMode="email"
                       value={formData.email}
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       placeholder="john@example.com"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       Phone *
                     </label>
                     <input
                       type="tel"
                       required
+                      autoComplete="tel"
+                      inputMode="tel"
                       value={formData.phone}
                       onChange={(e) =>
                         setFormData({ ...formData, phone: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       placeholder="+44 7700 900000"
                     />
                   </div>
 
-                  <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       Address *
                     </label>
                     <input
                       type="text"
                       required
+                      autoComplete="street-address"
                       value={formData.address}
                       onChange={(e) =>
                         setFormData({ ...formData, address: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       placeholder="123 Main Street, Apt 4B"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       City *
                     </label>
                     <input
                       type="text"
                       required
+                      autoComplete="address-level2"
                       value={formData.city}
                       onChange={(e) =>
                         setFormData({ ...formData, city: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       placeholder="London"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       Postal Code *
                     </label>
                     <input
                       type="text"
                       required
+                      autoComplete="postal-code"
                       value={formData.postalCode}
                       onChange={(e) =>
                         setFormData({ ...formData, postalCode: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       placeholder="SW1A 1AA"
                     />
                   </div>
 
-                  <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       Country *
                     </label>
                     <select
                       required
+                      autoComplete="country-name"
                       value={formData.country}
                       onChange={(e) =>
                         setFormData({ ...formData, country: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none bg-white"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                        backgroundPosition: "right 0.5rem center",
+                        backgroundRepeat: "no-repeat",
+                        backgroundSize: "1.5em 1.5em",
+                        paddingRight: "2.5rem",
+                      }}
                     >
                       <option value="United Kingdom">United Kingdom</option>
                       <option value="Ireland">Ireland</option>
@@ -302,8 +317,8 @@ export default function ProductCheckoutPage() {
                     </select>
                   </div>
 
-                  <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       Order Notes (Optional)
                     </label>
                     <textarea
@@ -312,7 +327,7 @@ export default function ProductCheckoutPage() {
                         setFormData({ ...formData, notes: e.target.value })
                       }
                       rows={3}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
                       placeholder="Special delivery instructions..."
                     />
                   </div>
@@ -348,37 +363,40 @@ export default function ProductCheckoutPage() {
                 )}
               </div>
 
-              {/* Place Order Button - Mobile */}
-              <div className="lg:hidden">
+              {/* Place Order Button - Mobile (Sticky at bottom) */}
+              <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-10 shadow-lg">
                 <Button
                   type="submit"
                   variant="brand"
                   size="lg"
                   loading={loading}
                   disabled={loading}
-                  className="w-full"
+                  className="w-full py-4 text-lg"
                 >
-                  Place Order • £{total.toFixed(2)}
+                  {loading ? "Processing..." : `Place Order • £${total.toFixed(2)}`}
                 </Button>
               </div>
+              
+              {/* Spacer for mobile button */}
+              <div className="lg:hidden h-20"></div>
             </div>
           </div>
 
           {/* Right: Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="lg:col-span-1 order-first lg:order-last mb-4 lg:mb-0">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-8">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
                 Order Summary
               </h2>
 
               {/* Items */}
-              <div className="space-y-4 mb-6">
+              <div className="space-y-3 mb-4 sm:mb-6 max-h-60 sm:max-h-80 overflow-y-auto">
                 {cartItems.map((item) => (
                   <div
                     key={`${item.productId}-${item.variantId}`}
                     className="flex gap-3"
                   >
-                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                       {item.product?.image?.url || item.product?.image ? (
                         <img
                           src={item.product.image?.url || item.product.image}

@@ -379,15 +379,15 @@ export default function HeroSections() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold mb-2">Hero Sections</h1>
-          <p className="text-gray-600">
+          <h1 className="text-xl sm:text-2xl font-bold mb-2">Hero Sections</h1>
+          <p className="text-sm sm:text-base text-gray-600">
             Manage luxury showcase sections on the services page
           </p>
         </div>
-        <Button variant="brand" onClick={handleCreate}>
+        <Button variant="brand" onClick={handleCreate} className="w-full sm:w-auto">
           + Add Hero Section
         </Button>
       </div>
@@ -424,43 +424,43 @@ export default function HeroSections() {
           </Button>
         </Card>
       ) : (
-        <div className="grid gap-6">
+        <div className="grid gap-4 sm:gap-6">
           {sections.map((section) => (
             <Card
               key={section._id}
-              className="p-6 hover:shadow-lg transition-shadow"
+              className="p-4 sm:p-6 hover:shadow-lg transition-shadow overflow-hidden"
             >
-              <div className="flex gap-6">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                 {/* Preview Images */}
-                <div className="flex gap-3">
+                <div className="flex gap-3 justify-center sm:justify-start">
                   {section.centerImage?.url && (
                     <img
                       src={section.centerImage.url}
                       alt="Center"
-                      className="w-24 h-32 object-cover rounded-lg border"
+                      className="w-20 h-24 sm:w-24 sm:h-32 object-cover rounded-lg border flex-shrink-0"
                     />
                   )}
                   {section.rightImage?.url && (
                     <img
                       src={section.rightImage.url}
                       alt="Right image"
-                      className="w-32 h-24 object-cover rounded-lg border"
+                      className="w-24 h-20 sm:w-32 sm:h-24 object-cover rounded-lg border flex-shrink-0"
                     />
                   )}
                 </div>
 
                 {/* Content */}
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-1">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col sm:flex-row items-start justify-between gap-3 mb-3">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 break-words">
                         {section.title}
                       </h3>
-                      <p className="text-sm text-gray-600 line-clamp-2">
+                      <p className="text-sm text-gray-600 line-clamp-2 break-words">
                         {section.subtitle}
                       </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-shrink-0">
                       {section.active ? (
                         <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
                           Active

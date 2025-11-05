@@ -450,8 +450,8 @@ export default function AdminBeauticianLink() {
       </Card>
 
       {/* Current Links */}
-      <Card className="p-6">
-        <h2 className="text-xl font-serif font-semibold mb-4 tracking-wide">
+      <Card className="p-4 sm:p-6 overflow-hidden">
+        <h2 className="text-lg sm:text-xl font-serif font-semibold mb-4 tracking-wide break-words">
           Current Links
         </h2>
         <div className="space-y-3">
@@ -476,23 +476,23 @@ export default function AdminBeauticianLink() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Admin
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Email
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Linked Beautician
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -506,36 +506,43 @@ export default function AdminBeauticianLink() {
                       );
                       return (
                         <tr key={admin._id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="font-medium text-gray-900">
+                          <td className="px-3 sm:px-6 py-4">
+                            <div className="font-medium text-gray-900 text-sm break-words">
                               {admin.name}
                             </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-600">
+                            <div className="sm:hidden text-xs text-gray-600 mt-1 break-all">
                               {admin.email}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="font-medium text-brand-700">
+                          <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-600 break-all">
+                              {admin.email}
+                            </div>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4">
+                            <div className="font-medium text-brand-700 text-sm break-words">
                               {beautician?.name || "Unknown"}
                             </div>
                             {beautician?.email && (
-                              <div className="text-xs text-gray-500">
+                              <div className="text-xs text-gray-500 break-all">
                                 {beautician.email}
                               </div>
                             )}
+                            <span className="md:hidden inline-flex mt-1 px-2 py-0.5 text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                              Linked
+                            </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap">
                             <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                               Linked
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                          <td className="px-3 sm:px-6 py-4 text-right text-sm">
                             <Button
                               variant="danger"
                               size="sm"
                               onClick={() => handleUnlink(admin._id)}
+                              className="text-xs sm:text-sm"
                             >
                               Unlink
                             </Button>

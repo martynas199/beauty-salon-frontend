@@ -107,30 +107,30 @@ export default function OrderSuccessPage() {
       </div>
 
       {/* Order Number */}
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 mb-6 text-center">
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 sm:p-6 mb-6 text-center">
         <p className="text-sm text-gray-600 mb-1">Order Number</p>
         <p
-          className="text-2xl font-bold tracking-wider"
+          className="text-xl sm:text-2xl font-bold tracking-wider break-all"
           style={{ color: "#76540E" }}
         >
           {order.orderNumber}
         </p>
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-gray-500 mt-2 break-words">
           A confirmation email has been sent to{" "}
-          <span className="font-medium">{order.shippingAddress.email}</span>
+          <span className="font-medium break-all">{order.shippingAddress.email}</span>
         </p>
       </div>
 
       {/* Order Summary */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6 overflow-hidden">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
           Order Summary
         </h2>
 
         {/* Items */}
         <div className="space-y-4 mb-6">
           {order.items.map((item, index) => (
-            <div key={index} className="flex gap-4">
+            <div key={index} className="flex gap-3 sm:gap-4">
               <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                 {item.image ? (
                   <img

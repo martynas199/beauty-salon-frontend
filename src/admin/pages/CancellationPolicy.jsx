@@ -2,13 +2,13 @@ import Card from "../../components/ui/Card";
 
 export default function CancellationPolicy() {
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 break-words">
           Cancellation & Refund Policy
         </h1>
-        <p className="text-gray-600">
+        <p className="text-sm sm:text-base text-gray-600">
           View and understand the automated refund policy for appointment
           cancellations
         </p>
@@ -16,11 +16,11 @@ export default function CancellationPolicy() {
 
       {/* Quick Summary Card */}
       <Card>
-        <div className="p-6">
+        <div className="p-4 sm:p-6 overflow-hidden">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center text-white">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center text-white flex-shrink-0">
               <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -33,9 +33,9 @@ export default function CancellationPolicy() {
                 />
               </svg>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Quick Summary</h2>
-              <p className="text-sm text-gray-600">Current policy settings</p>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 break-words">Quick Summary</h2>
+              <p className="text-xs sm:text-sm text-gray-600">Current policy settings</p>
             </div>
           </div>
 
@@ -89,8 +89,8 @@ export default function CancellationPolicy() {
 
       {/* Detailed Policy Card */}
       <Card>
-        <div className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="p-4 sm:p-6 overflow-hidden">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
             Refund Windows Explained
           </h2>
 
@@ -196,8 +196,8 @@ export default function CancellationPolicy() {
 
       {/* Payment Modes Card */}
       <Card>
-        <div className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="p-4 sm:p-6 overflow-hidden">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
             Payment Modes & Refund Base
           </h2>
 
@@ -266,8 +266,8 @@ export default function CancellationPolicy() {
 
       {/* Examples Card */}
       <Card>
-        <div className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="p-4 sm:p-6 overflow-hidden">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
             Refund Calculation Examples
           </h2>
 
@@ -391,18 +391,18 @@ export default function CancellationPolicy() {
 
       {/* Technical Details Card */}
       <Card>
-        <div className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="p-4 sm:p-6 overflow-hidden">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
             Technical Implementation
           </h2>
 
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">
+              <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
                 Current Policy Configuration
               </h3>
-              <div className="bg-gray-50 p-4 rounded-lg font-mono text-xs overflow-x-auto">
-                <pre className="text-gray-800">{`{
+              <div className="bg-gray-50 p-3 sm:p-4 rounded-lg font-mono text-xs overflow-x-auto max-w-full">
+                <pre className="text-gray-800 whitespace-pre-wrap break-words sm:whitespace-pre">{`{
   freeCancelHours: 24,      // Full refund if cancelled 24+ hours before
   noRefundHours: 2,         // No refund if cancelled within 2 hours
   partialRefund: {
@@ -445,19 +445,19 @@ export default function CancellationPolicy() {
             </div>
 
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">
+              <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
                 Code Location
               </h3>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-700 mb-2">
+              <div className="bg-gray-50 p-3 sm:p-4 rounded-lg overflow-x-auto">
+                <p className="text-xs sm:text-sm text-gray-700 mb-2">
                   <strong>Backend:</strong>{" "}
-                  <code className="text-xs bg-white px-2 py-1 rounded">
+                  <code className="text-xs bg-white px-2 py-1 rounded break-all">
                     src/controllers/appointments/computeCancellationOutcome.js
                   </code>
                 </p>
-                <p className="text-sm text-gray-700">
+                <p className="text-xs sm:text-sm text-gray-700">
                   <strong>Documentation:</strong>{" "}
-                  <code className="text-xs bg-white px-2 py-1 rounded">
+                  <code className="text-xs bg-white px-2 py-1 rounded break-all">
                     docs/REFUND_POLICY.md
                   </code>
                 </p>
@@ -469,8 +469,8 @@ export default function CancellationPolicy() {
 
       {/* Best Practices Card */}
       <Card>
-        <div className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="p-4 sm:p-6 overflow-hidden">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
             Best Practices
           </h2>
 
@@ -538,8 +538,8 @@ export default function CancellationPolicy() {
 
       {/* Status Codes Reference */}
       <Card>
-        <div className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="p-4 sm:p-6 overflow-hidden">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
             Status Codes Reference
           </h2>
 
