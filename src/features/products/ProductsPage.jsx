@@ -13,6 +13,8 @@ export default function ProductsPage() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [heroImage, setHeroImage] = useState(null);
+  const [heroPosition, setHeroPosition] = useState("center");
+  const [heroZoom, setHeroZoom] = useState(100);
 
   // Filters and sorting
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -63,6 +65,8 @@ export default function ProductsPage() {
     try {
       const response = await api.get("/settings");
       setHeroImage(response.data?.productsHeroImage?.url || null);
+      setHeroPosition(response.data?.productsHeroImage?.position || "center");
+      setHeroZoom(response.data?.productsHeroImage?.zoom || 100);
     } catch (error) {
       console.error("Failed to load hero image:", error);
     }
@@ -149,15 +153,15 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       {/* Hero Section */}
-      <section 
+      <section
         className="relative text-white py-16 md:py-20 overflow-hidden"
         style={{
-          backgroundImage: heroImage 
+          backgroundImage: heroImage
             ? `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${heroImage})`
-            : 'linear-gradient(to right, rgb(168, 85, 247), rgb(147, 51, 234))',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
+            : "linear-gradient(to right, rgb(168, 85, 247), rgb(147, 51, 234))",
+          backgroundSize: heroImage ? `${heroZoom}%` : "cover",
+          backgroundPosition: heroPosition,
+          backgroundRepeat: "no-repeat",
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

@@ -10,6 +10,9 @@ export default function ProductsHero() {
   const [uploading, setUploading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [imagePosition, setImagePosition] = useState("center");
+  const [imageZoom, setImageZoom] = useState(100);
+  const [savingPosition, setSavingPosition] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -21,6 +24,8 @@ export default function ProductsHero() {
       const response = await api.get("/settings");
       setSettings(response.data);
       setImagePreview(response.data?.productsHeroImage?.url || null);
+      setImagePosition(response.data?.productsHeroImage?.position || "center");
+      setImageZoom(response.data?.productsHeroImage?.zoom || 100);
     } catch (error) {
       console.error("Failed to load settings:", error);
       toast.error("Failed to load settings");
@@ -62,11 +67,15 @@ export default function ProductsHero() {
       const formData = new FormData();
       formData.append("image", imageFile);
 
-      const response = await api.post("/settings/upload-products-hero", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await api.post(
+        "/settings/upload-products-hero",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       setSettings(response.data);
       setImageFile(null);
@@ -84,6 +93,52 @@ export default function ProductsHero() {
     setImagePreview(settings?.productsHeroImage?.url || null);
   };
 
+  const handlePositionChange = async (newPosition) => {
+    if (!settings?.productsHeroImage?.url) {
+      toast.error("Please upload an image first");
+      return;
+    }
+
+    try {
+      setSavingPosition(true);
+      const response = await api.patch("/settings/products-hero-position", {
+        position: newPosition,
+      });
+
+      setSettings(response.data);
+      setImagePosition(newPosition);
+      toast.success("Image position updated!");
+    } catch (error) {
+      console.error("Failed to update position:", error);
+      toast.error(error.response?.data?.error || "Failed to update position");
+    } finally {
+      setSavingPosition(false);
+    }
+  };
+
+  const handleZoomChange = async (newZoom) => {
+    if (!settings?.productsHeroImage?.url) {
+      toast.error("Please upload an image first");
+      return;
+    }
+
+    try {
+      setSavingPosition(true);
+      const response = await api.patch("/settings/products-hero-position", {
+        zoom: newZoom,
+      });
+
+      setSettings(response.data);
+      setImageZoom(newZoom);
+      toast.success("Image zoom updated!");
+    } catch (error) {
+      console.error("Failed to update zoom:", error);
+      toast.error(error.response?.data?.error || "Failed to update zoom");
+    } finally {
+      setSavingPosition(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -99,7 +154,8 @@ export default function ProductsHero() {
           Products Hero Image
         </h1>
         <p className="text-gray-600">
-          Upload a background image for the Products page hero section. Recommended size: 1920x600px or larger.
+          Upload a background image for the Products page hero section.
+          Recommended size: 1920x600px or larger.
         </p>
       </div>
 
@@ -112,10 +168,14 @@ export default function ProductsHero() {
             </label>
             {imagePreview ? (
               <div className="relative">
-                <img
-                  src={imagePreview}
-                  alt="Products hero"
-                  className="w-full h-64 object-cover rounded-lg border-2 border-gray-200"
+                <div
+                  className="w-full h-64 rounded-lg border-2 border-gray-200 overflow-hidden"
+                  style={{
+                    backgroundImage: `url(${imagePreview})`,
+                    backgroundSize: `${imageZoom}%`,
+                    backgroundPosition: imagePosition,
+                    backgroundRepeat: "no-repeat",
+                  }}
                 />
                 {imageFile && (
                   <button
@@ -155,11 +215,178 @@ export default function ProductsHero() {
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  <p className="mt-2 text-sm text-gray-600">No image uploaded</p>
+                  <p className="mt-2 text-sm text-gray-600">
+                    No image uploaded
+                  </p>
                 </div>
               </div>
             )}
           </div>
+
+          {/* Image Position Controls */}
+          {imagePreview && !imageFile && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Image Position
+              </label>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handlePositionChange("top")}
+                  disabled={savingPosition}
+                  className={`flex-1 px-4 py-3 border-2 rounded-lg transition-all ${
+                    imagePosition === "top"
+                      ? "border-brand-500 bg-brand-50 text-brand-700"
+                      : "border-gray-300 hover:border-brand-300 text-gray-700"
+                  } ${savingPosition ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <div className="flex flex-col items-center">
+                    <svg
+                      className="w-6 h-6 mb-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 15l7-7 7 7"
+                      />
+                    </svg>
+                    <span className="text-sm font-medium">Top</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => handlePositionChange("center")}
+                  disabled={savingPosition}
+                  className={`flex-1 px-4 py-3 border-2 rounded-lg transition-all ${
+                    imagePosition === "center"
+                      ? "border-brand-500 bg-brand-50 text-brand-700"
+                      : "border-gray-300 hover:border-brand-300 text-gray-700"
+                  } ${savingPosition ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <div className="flex flex-col items-center">
+                    <svg
+                      className="w-6 h-6 mb-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 8h16M4 16h16"
+                      />
+                    </svg>
+                    <span className="text-sm font-medium">Center</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => handlePositionChange("bottom")}
+                  disabled={savingPosition}
+                  className={`flex-1 px-4 py-3 border-2 rounded-lg transition-all ${
+                    imagePosition === "bottom"
+                      ? "border-brand-500 bg-brand-50 text-brand-700"
+                      : "border-gray-300 hover:border-brand-300 text-gray-700"
+                  } ${savingPosition ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <div className="flex flex-col items-center">
+                    <svg
+                      className="w-6 h-6 mb-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                    <span className="text-sm font-medium">Bottom</span>
+                  </div>
+                </button>
+              </div>
+              <p className="mt-2 text-xs text-gray-500">
+                Choose which part of the image to display in the hero section
+              </p>
+            </div>
+          )}
+
+          {/* Image Zoom Controls */}
+          {imagePreview && !imageFile && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Image Zoom - {imageZoom}%
+              </label>
+              <div className="space-y-3">
+                <input
+                  type="range"
+                  min="80"
+                  max="150"
+                  step="10"
+                  value={imageZoom}
+                  onChange={(e) => setImageZoom(Number(e.target.value))}
+                  onMouseUp={(e) => handleZoomChange(Number(e.target.value))}
+                  onTouchEnd={(e) => handleZoomChange(Number(e.target.value))}
+                  disabled={savingPosition}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleZoomChange(80)}
+                    disabled={savingPosition}
+                    className={`flex-1 px-3 py-2 text-sm border rounded-lg transition-all ${
+                      imageZoom === 80
+                        ? "border-brand-500 bg-brand-50 text-brand-700 font-medium"
+                        : "border-gray-300 hover:border-brand-300 text-gray-700"
+                    } ${savingPosition ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    80%
+                  </button>
+                  <button
+                    onClick={() => handleZoomChange(100)}
+                    disabled={savingPosition}
+                    className={`flex-1 px-3 py-2 text-sm border rounded-lg transition-all ${
+                      imageZoom === 100
+                        ? "border-brand-500 bg-brand-50 text-brand-700 font-medium"
+                        : "border-gray-300 hover:border-brand-300 text-gray-700"
+                    } ${savingPosition ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    100%
+                  </button>
+                  <button
+                    onClick={() => handleZoomChange(120)}
+                    disabled={savingPosition}
+                    className={`flex-1 px-3 py-2 text-sm border rounded-lg transition-all ${
+                      imageZoom === 120
+                        ? "border-brand-500 bg-brand-50 text-brand-700 font-medium"
+                        : "border-gray-300 hover:border-brand-300 text-gray-700"
+                    } ${savingPosition ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    120%
+                  </button>
+                  <button
+                    onClick={() => handleZoomChange(150)}
+                    disabled={savingPosition}
+                    className={`flex-1 px-3 py-2 text-sm border rounded-lg transition-all ${
+                      imageZoom === 150
+                        ? "border-brand-500 bg-brand-50 text-brand-700 font-medium"
+                        : "border-gray-300 hover:border-brand-300 text-gray-700"
+                    } ${savingPosition ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    150%
+                  </button>
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-gray-500">
+                Adjust the zoom level - lower values show more of the image,
+                higher values zoom in
+              </p>
+            </div>
+          )}
 
           {/* File Input */}
           <div>
@@ -267,9 +494,13 @@ export default function ProductsHero() {
               <div className="text-sm text-blue-700">
                 <p className="font-medium mb-1">Image Guidelines:</p>
                 <ul className="list-disc list-inside space-y-1 text-blue-600">
-                  <li>Use high-quality images that represent your products well</li>
+                  <li>
+                    Use high-quality images that represent your products well
+                  </li>
                   <li>Recommended dimensions: 1920x600px or wider</li>
-                  <li>The image will be used as a background with text overlay</li>
+                  <li>
+                    The image will be used as a background with text overlay
+                  </li>
                   <li>Ensure good contrast between the image and white text</li>
                 </ul>
               </div>
