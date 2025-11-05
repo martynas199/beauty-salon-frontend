@@ -254,7 +254,10 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 overflow-x-hidden">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 sm:space-y-6 overflow-x-hidden"
+      >
         {/* Basic Info Section */}
         <div className="space-y-3 sm:space-y-4">
           <h3 className="text-base sm:text-lg font-semibold border-b pb-2">

@@ -3,7 +3,7 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { api } from "../lib/apiClient";
 import logo from "../assets/logo.svg";
-import ServicesPage from "../features/services/ServicesPage";
+import LandingPage from "../features/landing/LandingPage";
 import SalonDetails from "../features/salon/SalonDetails";
 import TimeSlots from "../features/availability/TimeSlots";
 import CheckoutPage from "../features/checkout/CheckoutPage";
@@ -351,7 +351,7 @@ function CustomerLayout() {
       </header>
       <main className="max-w-6xl mx-auto px-4 py-8">
         <Routes>
-          <Route path="/" element={<ServicesPage />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/beauticians" element={<BeauticianSelectionPage />} />
           <Route path="/times" element={<TimeSlots />} />
           <Route path="/checkout" element={<CheckoutPage />} />

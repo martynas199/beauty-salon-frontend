@@ -387,7 +387,11 @@ export default function HeroSections() {
             Manage luxury showcase sections on the services page
           </p>
         </div>
-        <Button variant="brand" onClick={handleCreate} className="w-full sm:w-auto">
+        <Button
+          variant="brand"
+          onClick={handleCreate}
+          className="w-full sm:w-auto"
+        >
           + Add Hero Section
         </Button>
       </div>

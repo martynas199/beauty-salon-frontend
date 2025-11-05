@@ -14,8 +14,9 @@ import PageTransition, {
 import { ServiceCardSkeleton } from "../../components/ui/Skeleton";
 import { api } from "../../lib/apiClient";
 import Card from "../../components/ui/Card";
+import { motion, useScroll, useTransform } from "framer-motion";
 
-export default function ServicesPage() {
+export default function LandingPage() {
   const [services, setServices] = useState([]);
   const [beauticians, setBeauticians] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +24,9 @@ export default function ServicesPage() {
   const [salon, setSalon] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], [0, -20]);
 
   useEffect(() => {
     ServicesAPI.list()
@@ -233,62 +237,77 @@ export default function ServicesPage() {
             Choose your preferred beauty professional
           </p>
         </div>
-        {/* Beauticians Grid with stagger animation */}
-        <StaggerContainer className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Beauticians Grid with scroll-in and parallax animations */}
+        <motion.div
+          variants={{ show: { transition: { staggerChildren: 0.18 } } }}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
           {beauticians.map((beautician) => (
-            <StaggerItem key={beautician._id}>
-              <Card
-                hoverable
-                className="cursor-pointer overflow-hidden p-0 h-96"
-                onClick={() =>
-                  navigate(`/beauticians?selected=${beautician._id}`)
-                }
-              >
-                {/* Full Card Image with Name Overlay */}
-                <div className="relative h-full w-full bg-gray-200">
-                  {beautician.image?.url ? (
-                    <img
-                      src={beautician.image.url}
-                      alt={beautician.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      <svg
-                        className="w-20 h-20"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                  {/* Strong gradient overlay for text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+            <motion.div
+              key={beautician._id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              viewport={{ once: true, amount: 0.4 }}
+              whileHover={{ scale: 1.03, y: -4 }}
+            >
+              <motion.div style={{ y }}>
+                <Card
+                  hoverable
+                  className="cursor-pointer overflow-hidden p-0 h-96"
+                  onClick={() =>
+                    navigate(`/beauticians?selected=${beautician._id}`)
+                  }
+                >
+                  {/* Full Card Image with Name Overlay */}
+                  <div className="relative h-full w-full bg-gray-200">
+                    {beautician.image?.url ? (
+                      <img
+                        src={beautician.image.url}
+                        alt={beautician.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        <svg
+                          className="w-20 h-20"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                    {/* Strong gradient overlay for text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
 
-                  {/* Name at bottom */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <h3 className="text-2xl font-semibold text-white mb-1">
-                      {beautician.name}
-                    </h3>
-                    {beautician.specialties &&
-                      beautician.specialties.length > 0 && (
-                        <p className="text-white/90 text-sm">
-                          {beautician.specialties.slice(0, 2).join(" • ")}
-                        </p>
-                      )}
+                    {/* Name at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <h3 className="text-2xl font-semibold text-white mb-1">
+                        {beautician.name}
+                      </h3>
+                      {beautician.specialties &&
+                        beautician.specialties.length > 0 && (
+                          <p className="text-white/90 text-sm">
+                            {beautician.specialties.slice(0, 2).join(" • ")}
+                          </p>
+                        )}
+                    </div>
                   </div>
-                </div>
-              </Card>
-            </StaggerItem>
+                </Card>
+              </motion.div>
+            </motion.div>
           ))}
-        </StaggerContainer>
+        </motion.div>
       </div>
     </PageTransition>
   );

@@ -34,8 +34,12 @@ export default function CancellationPolicy() {
               </svg>
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 break-words">Quick Summary</h2>
-              <p className="text-xs sm:text-sm text-gray-600">Current policy settings</p>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 break-words">
+                Quick Summary
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-600">
+                Current policy settings
+              </p>
             </div>
           </div>
 

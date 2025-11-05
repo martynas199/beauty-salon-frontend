@@ -335,7 +335,10 @@ export default function Products() {
           {editingId ? "Edit Product" : "Add New Product"}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 overflow-x-hidden">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 sm:space-y-6 overflow-x-hidden"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Title */}
             <FormField label="Product Title" htmlFor="title" required>

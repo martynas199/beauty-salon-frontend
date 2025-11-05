@@ -117,7 +117,9 @@ export default function OrderSuccessPage() {
         </p>
         <p className="text-sm text-gray-500 mt-2 break-words">
           A confirmation email has been sent to{" "}
-          <span className="font-medium break-all">{order.shippingAddress.email}</span>
+          <span className="font-medium break-all">
+            {order.shippingAddress.email}
+          </span>
         </p>
       </div>
 
