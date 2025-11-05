@@ -235,12 +235,40 @@ function CustomerLayout() {
               </button>
             </div>
 
-            {/* Mobile Hamburger Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-              aria-label="Toggle menu"
-            >
+            {/* Mobile Cart & Hamburger Buttons */}
+            <div className="md:hidden flex items-center gap-2">
+              {/* Mobile Cart Button */}
+              <button
+                onClick={() => dispatch(toggleCart())}
+                className="p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors relative"
+                aria-label="Cart"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                  />
+                </svg>
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-brand-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-bounce-subtle">
+                    {cartItemCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Mobile Hamburger Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+                aria-label="Toggle menu"
+              >
               {mobileMenuOpen ? (
                 <svg
                   className="w-6 h-6"
@@ -270,7 +298,8 @@ function CustomerLayout() {
                   />
                 </svg>
               )}
-            </button>
+              </button>
+            </div>
           </div>
 
           {/* Mobile Menu with slide animation */}

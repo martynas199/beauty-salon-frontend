@@ -446,52 +446,65 @@ export default function Appointments() {
         )}
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-16 bg-white border rounded-lg">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
+            <div className="w-16 h-16 border-4 border-brand-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+          </div>
+          <p className="mt-4 text-gray-600 font-medium">Loading appointments...</p>
+          <p className="mt-1 text-sm text-gray-500">Please wait while we fetch your data</p>
+        </div>
+      )}
+
       {/* Desktop Table View */}
-      <div className="hidden lg:block overflow-auto border rounded-lg bg-white shadow-sm">
-        <table className="min-w-[800px] w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <SortableHeader
-                label="Client"
-                sortKey="client"
-                sortConfig={sortConfig}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                label="Staff"
-                sortKey="staff"
-                sortConfig={sortConfig}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                label="Service"
-                sortKey="service"
-                sortConfig={sortConfig}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                label="Start"
-                sortKey="start"
-                sortConfig={sortConfig}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                label="Price"
-                sortKey="price"
-                sortConfig={sortConfig}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                label="Status"
-                sortKey="status"
-                sortConfig={sortConfig}
-                onSort={handleSort}
-              />
-              <th className="text-left p-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedRows.map((r) => (
+      {!loading && (
+        <div className="hidden lg:block overflow-auto border rounded-lg bg-white shadow-sm">
+          <table className="min-w-[800px] w-full text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <SortableHeader
+                  label="Client"
+                  sortKey="client"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Staff"
+                  sortKey="staff"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Service"
+                  sortKey="service"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Start"
+                  sortKey="start"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Price"
+                  sortKey="price"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Status"
+                  sortKey="status"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                />
+                <th className="text-left p-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedRows.map((r) => (
               <tr key={r._id} className="border-t hover:bg-gray-50">
                 <td className="p-3">{r.client?.name}</td>
                 <td className="p-3">{r.beautician?.name || r.beauticianId}</td>
@@ -558,13 +571,15 @@ export default function Appointments() {
                   </div>
                 </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Mobile Card View */}
-      <div className="lg:hidden space-y-3">
+      {!loading && (
+        <div className="lg:hidden space-y-3">
         {sortedRows.map((r) => (
           <div key={r._id} className="bg-white rounded-lg shadow-sm border p-4">
             <div className="flex items-start justify-between mb-3">
@@ -647,14 +662,15 @@ export default function Appointments() {
               </div>
             </div>
           </div>
-        ))}
+          ))}
 
-        {sortedRows.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            No appointments found
-          </div>
-        )}
-      </div>
+          {sortedRows.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              No appointments found
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Pagination Controls */}
       {pagination.totalPages > 1 && (
