@@ -15,6 +15,7 @@ import { ServiceCardSkeleton } from "../../components/ui/Skeleton";
 import { api } from "../../lib/apiClient";
 import Card from "../../components/ui/Card";
 import { motion, useScroll, useTransform } from "framer-motion";
+import logo from "../../assets/logo.svg";
 
 export default function LandingPage() {
   const [services, setServices] = useState([]);
@@ -144,9 +145,23 @@ export default function LandingPage() {
   }
 
   return (
-    <PageTransition className="-mt-8">
-      {/* Hero Section - Full width on mobile */}
-      {/* <div
+    <PageTransition className="-mt-8 relative">
+      {/* Fixed Background Logo with Parallax Effect */}
+      <motion.div
+        className="fixed inset-0 flex items-center justify-center pointer-events-none z-0"
+        style={{ y }}
+      >
+        <img
+          src={logo}
+          alt="Logo"
+          className="w-64 h-64 md:w-96 md:h-96 opacity-5"
+        />
+      </motion.div>
+
+      {/* Content wrapper with relative positioning */}
+      <div className="relative z-10">
+        {/* Hero Section - Full width on mobile */}
+        {/* <div
         className="relative rounded-b-3xl sm:rounded-3xl overflow-hidden h-[280px] md:h-[350px] bg-gray-900 mb-6 sm:mb-8 sm:mx-4 md:mx-6 lg:mx-8 sm:mt-8"
         style={{
           backgroundImage: `url(${
@@ -322,6 +337,7 @@ export default function LandingPage() {
             </motion.div>
           ))}
         </motion.div>
+      </div>
       </div>
     </PageTransition>
   );
