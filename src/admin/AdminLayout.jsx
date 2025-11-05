@@ -20,6 +20,7 @@ const items = [
   { divider: "Website Content" },
   { to: "/admin/hero-sections", label: "Hero Sections", icon: "✨" },
   { to: "/admin/products", label: "Products", icon: "🛍️" },
+  { to: "/admin/products-hero", label: "Products Hero Image", icon: "🖼️" },
   { to: "/admin/cancellation", label: "Cancellation Policy", icon: "�" },
   { divider: "Configuration" },
   { to: "/admin/settings", label: "Salon Settings", icon: "⚙️" },

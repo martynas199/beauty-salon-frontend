@@ -47,6 +47,7 @@ const CancellationPolicy = lazy(() =>
 const TimeOff = lazy(() => import("../admin/pages/TimeOff"));
 const HeroSections = lazy(() => import("../admin/pages/HeroSections"));
 const Products = lazy(() => import("../admin/pages/Products"));
+const ProductsHero = lazy(() => import("../admin/pages/ProductsHero"));
 const AdminBeauticianLink = lazy(() =>
   import("../admin/pages/AdminBeauticianLink")
 );
@@ -269,35 +270,35 @@ function CustomerLayout() {
                 className="p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
                 aria-label="Toggle menu"
               >
-              {mobileMenuOpen ? (
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              )}
+                {mobileMenuOpen ? (
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                )}
               </button>
             </div>
           </div>
@@ -505,6 +506,14 @@ export default function AppRoutes() {
           element={
             <Suspense fallback={<LoadingSpinner center size="lg" />}>
               <Products />
+            </Suspense>
+          }
+        />
+        <Route
+          path="products-hero"
+          element={
+            <Suspense fallback={<LoadingSpinner center size="lg" />}>
+              <ProductsHero />
             </Suspense>
           }
         />

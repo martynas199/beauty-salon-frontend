@@ -12,6 +12,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [heroImage, setHeroImage] = useState(null);
 
   // Filters and sorting
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -22,6 +23,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     loadProducts();
+    loadHeroImage();
   }, []);
 
   useEffect(() => {
@@ -54,6 +56,15 @@ export default function ProductsPage() {
       toast.error("Failed to load products");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadHeroImage = async () => {
+    try {
+      const response = await api.get("/settings");
+      setHeroImage(response.data?.productsHeroImage?.url || null);
+    } catch (error) {
+      console.error("Failed to load hero image:", error);
     }
   };
 
@@ -138,18 +149,28 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-brand-600 to-brand-700 text-white py-16 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section 
+        className="relative text-white py-16 md:py-20 overflow-hidden"
+        style={{
+          backgroundImage: heroImage 
+            ? `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${heroImage})`
+            : 'linear-gradient(to right, rgb(168, 85, 247), rgb(147, 51, 234))',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold tracking-wide mb-4">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold tracking-wide mb-4 drop-shadow-lg">
               Our Products
             </h1>
-            <p className="text-lg md:text-xl text-brand-100 font-light max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed drop-shadow-md">
               Discover our curated collection of luxury beauty products
             </p>
           </motion.div>

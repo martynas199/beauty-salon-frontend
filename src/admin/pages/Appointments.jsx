@@ -453,8 +453,12 @@ export default function Appointments() {
             <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
             <div className="w-16 h-16 border-4 border-brand-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
           </div>
-          <p className="mt-4 text-gray-600 font-medium">Loading appointments...</p>
-          <p className="mt-1 text-sm text-gray-500">Please wait while we fetch your data</p>
+          <p className="mt-4 text-gray-600 font-medium">
+            Loading appointments...
+          </p>
+          <p className="mt-1 text-sm text-gray-500">
+            Please wait while we fetch your data
+          </p>
         </div>
       )}
 
@@ -505,72 +509,74 @@ export default function Appointments() {
             </thead>
             <tbody>
               {sortedRows.map((r) => (
-              <tr key={r._id} className="border-t hover:bg-gray-50">
-                <td className="p-3">{r.client?.name}</td>
-                <td className="p-3">{r.beautician?.name || r.beauticianId}</td>
-                <td className="p-3">
-                  {r.service?.name || r.serviceId} - {r.variantName}
-                </td>
-                <td className="p-3">
-                  {new Date(r.start).toLocaleString("en-GB", {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </td>
-                <td className="p-3 font-semibold text-green-700">
-                  £{Number(r.price || 0).toFixed(2)}
-                </td>
-                <td className="p-3">
-                  <span
-                    className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                      r.status === "confirmed"
-                        ? "bg-green-100 text-green-800"
-                        : r.status === "reserved_unpaid"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : String(r.status).startsWith("cancelled")
-                        ? "bg-red-100 text-red-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {r.status}
-                  </span>
-                </td>
-                <td className="p-3">
-                  <div className="flex gap-2">
-                    <button
-                      className="border rounded px-3 py-1.5 text-sm text-blue-600 border-blue-200 hover:bg-blue-50"
-                      onClick={() => openEditModal(r)}
-                      title="Edit Appointment"
+                <tr key={r._id} className="border-t hover:bg-gray-50">
+                  <td className="p-3">{r.client?.name}</td>
+                  <td className="p-3">
+                    {r.beautician?.name || r.beauticianId}
+                  </td>
+                  <td className="p-3">
+                    {r.service?.name || r.serviceId} - {r.variantName}
+                  </td>
+                  <td className="p-3">
+                    {new Date(r.start).toLocaleString("en-GB", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </td>
+                  <td className="p-3 font-semibold text-green-700">
+                    £{Number(r.price || 0).toFixed(2)}
+                  </td>
+                  <td className="p-3">
+                    <span
+                      className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                        r.status === "confirmed"
+                          ? "bg-green-100 text-green-800"
+                          : r.status === "reserved_unpaid"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : String(r.status).startsWith("cancelled")
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
                     >
-                      Edit
-                    </button>
-                    <button
-                      className="border rounded px-3 py-1.5 text-sm text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50"
-                      disabled={
-                        String(r.status || "").startsWith("cancelled") ||
-                        r.status === "no_show"
-                      }
-                      onClick={() => openCancelModal(r._id)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="border rounded px-3 py-1.5 text-sm text-gray-600 border-gray-300 hover:bg-gray-50 disabled:opacity-50"
-                      disabled={
-                        String(r.status || "").startsWith("cancelled") ||
-                        r.status === "no_show"
-                      }
-                      onClick={() => markAsNoShow(r._id)}
-                      title="Mark as No Show"
-                    >
-                      No Show
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                      {r.status}
+                    </span>
+                  </td>
+                  <td className="p-3">
+                    <div className="flex gap-2">
+                      <button
+                        className="border rounded px-3 py-1.5 text-sm text-blue-600 border-blue-200 hover:bg-blue-50"
+                        onClick={() => openEditModal(r)}
+                        title="Edit Appointment"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="border rounded px-3 py-1.5 text-sm text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50"
+                        disabled={
+                          String(r.status || "").startsWith("cancelled") ||
+                          r.status === "no_show"
+                        }
+                        onClick={() => openCancelModal(r._id)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="border rounded px-3 py-1.5 text-sm text-gray-600 border-gray-300 hover:bg-gray-50 disabled:opacity-50"
+                        disabled={
+                          String(r.status || "").startsWith("cancelled") ||
+                          r.status === "no_show"
+                        }
+                        onClick={() => markAsNoShow(r._id)}
+                        title="Mark as No Show"
+                      >
+                        No Show
+                      </button>
+                    </div>
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
@@ -580,88 +586,91 @@ export default function Appointments() {
       {/* Mobile Card View */}
       {!loading && (
         <div className="lg:hidden space-y-3">
-        {sortedRows.map((r) => (
-          <div key={r._id} className="bg-white rounded-lg shadow-sm border p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <div className="font-semibold text-lg">{r.client?.name}</div>
-                <div className="text-sm text-gray-600">
-                  {r.beautician?.name || r.beauticianId}
+          {sortedRows.map((r) => (
+            <div
+              key={r._id}
+              className="bg-white rounded-lg shadow-sm border p-4"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <div className="font-semibold text-lg">{r.client?.name}</div>
+                  <div className="text-sm text-gray-600">
+                    {r.beautician?.name || r.beauticianId}
+                  </div>
+                </div>
+                <span
+                  className={`px-2 py-1 rounded text-xs font-medium ${
+                    r.status === "confirmed"
+                      ? "bg-green-100 text-green-800"
+                      : r.status === "reserved_unpaid"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : String(r.status).startsWith("cancelled")
+                      ? "bg-red-100 text-red-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  {r.status}
+                </span>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-start">
+                  <span className="text-gray-500 w-20">Service:</span>
+                  <span className="flex-1 font-medium">
+                    {r.service?.name || r.serviceId} - {r.variantName}
+                  </span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-gray-500 w-20">Time:</span>
+                  <span className="flex-1">
+                    {new Date(r.start).toLocaleString("en-GB", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-gray-500 w-20">Price:</span>
+                  <span className="flex-1 font-semibold text-green-700">
+                    £{Number(r.price || 0).toFixed(2)}
+                  </span>
                 </div>
               </div>
-              <span
-                className={`px-2 py-1 rounded text-xs font-medium ${
-                  r.status === "confirmed"
-                    ? "bg-green-100 text-green-800"
-                    : r.status === "reserved_unpaid"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : String(r.status).startsWith("cancelled")
-                    ? "bg-red-100 text-red-800"
-                    : "bg-gray-100 text-gray-800"
-                }`}
-              >
-                {r.status}
-              </span>
-            </div>
 
-            <div className="space-y-2 text-sm">
-              <div className="flex items-start">
-                <span className="text-gray-500 w-20">Service:</span>
-                <span className="flex-1 font-medium">
-                  {r.service?.name || r.serviceId} - {r.variantName}
-                </span>
-              </div>
-              <div className="flex items-start">
-                <span className="text-gray-500 w-20">Time:</span>
-                <span className="flex-1">
-                  {new Date(r.start).toLocaleString("en-GB", {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-              </div>
-              <div className="flex items-start">
-                <span className="text-gray-500 w-20">Price:</span>
-                <span className="flex-1 font-semibold text-green-700">
-                  £{Number(r.price || 0).toFixed(2)}
-                </span>
+              <div className="mt-4 pt-3 border-t space-y-2">
+                <button
+                  className="w-full border rounded-lg px-4 py-2 text-sm text-blue-600 border-blue-200 hover:bg-blue-50 font-medium"
+                  onClick={() => openEditModal(r)}
+                >
+                  Edit Appointment
+                </button>
+                <div className="flex gap-2">
+                  <button
+                    className="flex-1 border rounded-lg px-4 py-2 text-sm text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50 font-medium"
+                    disabled={
+                      String(r.status || "").startsWith("cancelled") ||
+                      r.status === "no_show"
+                    }
+                    onClick={() => openCancelModal(r._id)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="flex-1 border rounded-lg px-4 py-2 text-sm text-gray-600 border-gray-300 hover:bg-gray-50 disabled:opacity-50 font-medium"
+                    disabled={
+                      String(r.status || "").startsWith("cancelled") ||
+                      r.status === "no_show"
+                    }
+                    onClick={() => markAsNoShow(r._id)}
+                  >
+                    No Show
+                  </button>
+                </div>
               </div>
             </div>
-
-            <div className="mt-4 pt-3 border-t space-y-2">
-              <button
-                className="w-full border rounded-lg px-4 py-2 text-sm text-blue-600 border-blue-200 hover:bg-blue-50 font-medium"
-                onClick={() => openEditModal(r)}
-              >
-                Edit Appointment
-              </button>
-              <div className="flex gap-2">
-                <button
-                  className="flex-1 border rounded-lg px-4 py-2 text-sm text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50 font-medium"
-                  disabled={
-                    String(r.status || "").startsWith("cancelled") ||
-                    r.status === "no_show"
-                  }
-                  onClick={() => openCancelModal(r._id)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="flex-1 border rounded-lg px-4 py-2 text-sm text-gray-600 border-gray-300 hover:bg-gray-50 disabled:opacity-50 font-medium"
-                  disabled={
-                    String(r.status || "").startsWith("cancelled") ||
-                    r.status === "no_show"
-                  }
-                  onClick={() => markAsNoShow(r._id)}
-                >
-                  No Show
-                </button>
-              </div>
-            </div>
-          </div>
           ))}
 
           {sortedRows.length === 0 && (
