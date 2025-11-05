@@ -7,7 +7,7 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import { Input, Textarea } from "../../components/ui/Input";
 import Card from "../../components/ui/Card";
-import { ServicesAPI } from "../services/services.api";
+import { ServicesAPI } from "../landing/services.api";
 import BackBar from "../../components/ui/BackBar";
 import FormField from "../../components/forms/FormField";
 import { useAuth } from "../../app/AuthContext";

@@ -2,11 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { ProductsAPI } from "./products.api";
 import ProductCard from "./ProductCard";
 import ProductDetailModal from "./ProductDetailModal";
-import {
-  StaggerContainer,
-  StaggerItem,
-} from "../../components/ui/PageTransition";
 import { ProductCardSkeleton } from "../../components/ui/Skeleton";
+import { motion } from "framer-motion";
 
 export default function PopularCollections() {
   const [products, setProducts] = useState([]);
@@ -54,16 +51,42 @@ export default function PopularCollections() {
       </h2>
 
       {/* Products Grid */}
-      <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      <motion.div
+        variants={{
+          hidden: {},
+          show: {
+            transition: {
+              staggerChildren: 0.15,
+            },
+          },
+        }}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.1 }}
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
+      >
         {products.map((product) => (
-          <StaggerItem key={product._id}>
+          <motion.div
+            key={product._id}
+            variants={{
+              hidden: { opacity: 0, y: 60 },
+              show: {
+                opacity: 1,
+                y: 0,
+                transition: {
+                  duration: 1.2,
+                  ease: "easeOut",
+                },
+              },
+            }}
+          >
             <ProductCard
               product={product}
               onClick={() => setSelectedProduct(product)}
             />
-          </StaggerItem>
+          </motion.div>
         ))}
-      </StaggerContainer>
+      </motion.div>
 
       {/* Product Detail Modal */}
       <ProductDetailModal

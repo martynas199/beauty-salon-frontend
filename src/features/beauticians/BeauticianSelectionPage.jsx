@@ -8,7 +8,7 @@ import PageTransition, {
   StaggerItem,
 } from "../../components/ui/PageTransition";
 import Card from "../../components/ui/Card";
-import ServiceCard from "../services/ServiceCard";
+import ServiceCard from "../landing/ServiceCard";
 
 export default function BeauticianSelectionPage() {
   const [beauticians, setBeauticians] = useState([]);

@@ -239,20 +239,34 @@ export default function LandingPage() {
         </div>
         {/* Beauticians Grid with scroll-in and parallax animations */}
         <motion.div
-          variants={{ show: { transition: { staggerChildren: 0.18 } } }}
+          variants={{
+            hidden: {},
+            show: {
+              transition: {
+                staggerChildren: 0.3,
+              },
+            },
+          }}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           {beauticians.map((beautician) => (
             <motion.div
               key={beautician._id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              viewport={{ once: true, amount: 0.4 }}
-              whileHover={{ scale: 1.03, y: -4 }}
+              variants={{
+                hidden: { opacity: 0, y: 80 },
+                show: {
+                  opacity: 1,
+                  y: 0,
+                  transition: {
+                    duration: 1.4,
+                    ease: "easeOut",
+                  },
+                },
+              }}
+              whileHover={{ scale: 1.03, y: -4, transition: { duration: 0.3 } }}
             >
               <motion.div style={{ y }}>
                 <Card
