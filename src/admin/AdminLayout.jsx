@@ -11,21 +11,21 @@ const items = [
   { to: "/admin", label: "Dashboard", icon: "📊" },
   { to: "/admin/appointments", label: "Appointments", icon: "📅" },
   { to: "/admin/orders", label: "Orders", icon: "📦" },
-  { to: "/admin/revenue", label: "Revenue Analytics", icon: "💰" },
+  { to: "/admin/revenue", label: "Revenue Analytics", icon: "💰", superAdminOnly: true },
   { divider: "Booking Setup" },
   { to: "/admin/services", label: "Services", icon: "💅" },
-  { to: "/admin/staff", label: "Staff", icon: "👥" },
-  { to: "/admin/hours", label: "Working Hours", icon: "🕐" },
+  { to: "/admin/staff", label: "Staff", icon: "👥", superAdminOnly: true },
+  { to: "/admin/hours", label: "Working Hours", icon: "🕐", superAdminOnly: true },
   { to: "/admin/timeoff", label: "Time Off", icon: "🏖️" },
   { divider: "Website Content" },
-  { to: "/admin/hero-sections", label: "Hero Sections", icon: "✨" },
+  { to: "/admin/hero-sections", label: "Hero Sections", icon: "✨", superAdminOnly: true },
   { to: "/admin/products", label: "Products", icon: "🛍️" },
-  { to: "/admin/products-hero", label: "Products Hero Image", icon: "🖼️" },
-  { to: "/admin/cancellation", label: "Cancellation Policy", icon: "�" },
+  { to: "/admin/products-hero", label: "Products Hero Image", icon: "🖼️", superAdminOnly: true },
+  { to: "/admin/cancellation", label: "Cancellation Policy", icon: "📋" },
   { divider: "Configuration" },
-  { to: "/admin/settings", label: "Salon Settings", icon: "⚙️" },
-  { to: "/admin/stripe-connect", label: "Stripe Connect", icon: "�" },
-  { to: "/admin/admin-links", label: "Admin Links", icon: "�" },
+  { to: "/admin/settings", label: "Salon Settings", icon: "⚙️", superAdminOnly: true },
+  { to: "/admin/stripe-connect", label: "Stripe Connect", icon: "💳" },
+  { to: "/admin/admin-links", label: "Admin Links", icon: "🔗", superAdminOnly: true },
   { to: "/admin/profile", label: "My Profile", icon: "👤" },
 ];
 
@@ -58,6 +58,16 @@ export default function AdminLayout() {
       return true;
     });
   }, [isSuperAdmin]);
+
+  // Debug logging for menu filtering
+  useEffect(() => {
+    console.log("[MENU DEBUG] Admin object:", admin);
+    console.log("[MENU DEBUG] Admin role:", admin?.role);
+    console.log("[MENU DEBUG] Is Super Admin:", isSuperAdmin);
+    console.log("[MENU DEBUG] Total items:", items.length);
+    console.log("[MENU DEBUG] Filtered items:", filteredItems.length);
+    console.log("[MENU DEBUG] Filtered menu items:", filteredItems.filter(item => !item.divider).map(item => item.label));
+  }, [admin, isSuperAdmin, filteredItems]);
 
   useEffect(() => {
     api

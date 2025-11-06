@@ -14,10 +14,16 @@ export default function Services() {
 
   // Get admin info from Redux store
   const admin = useSelector(selectAdmin);
-  
+
   // Memoize role checks for performance
-  const isSuperAdmin = useMemo(() => admin?.role === "super_admin", [admin?.role]);
-  const isBeautician = useMemo(() => admin?.role === "admin" && admin?.beauticianId, [admin?.role, admin?.beauticianId]);
+  const isSuperAdmin = useMemo(
+    () => admin?.role === "super_admin",
+    [admin?.role]
+  );
+  const isBeautician = useMemo(
+    () => admin?.role === "admin" && admin?.beauticianId,
+    [admin?.role, admin?.beauticianId]
+  );
 
   useEffect(() => {
     loadData();

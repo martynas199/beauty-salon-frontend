@@ -24,6 +24,10 @@ export default function ProfileEditPage() {
     confirmPassword: "",
   });
 
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [profileErrors, setProfileErrors] = useState({});
   const [passwordErrors, setPasswordErrors] = useState({});
 
@@ -335,27 +339,73 @@ export default function ProfileEditPage() {
               >
                 Current Password *
               </label>
-              <Input
-                id="currentPassword"
-                type="password"
-                value={passwordForm.currentPassword}
-                onChange={(e) => {
-                  setPasswordForm({
-                    ...passwordForm,
-                    currentPassword: e.target.value,
-                  });
-                  if (passwordErrors.currentPassword) {
-                    setPasswordErrors({
-                      ...passwordErrors,
-                      currentPassword: "",
+              <div className="relative">
+                <Input
+                  id="currentPassword"
+                  type={showCurrentPassword ? "text" : "password"}
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => {
+                    setPasswordForm({
+                      ...passwordForm,
+                      currentPassword: e.target.value,
                     });
+                    if (passwordErrors.currentPassword) {
+                      setPasswordErrors({
+                        ...passwordErrors,
+                        currentPassword: "",
+                      });
+                    }
+                  }}
+                  className={
+                    passwordErrors.currentPassword
+                      ? "border-red-500 pr-10"
+                      : "pr-10"
                   }
-                }}
-                className={
-                  passwordErrors.currentPassword ? "border-red-500" : ""
-                }
-                placeholder="Enter your current password"
-              />
+                  placeholder="Enter your current password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showCurrentPassword ? (
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
               {passwordErrors.currentPassword && (
                 <p className="mt-1 text-sm text-red-600">
                   {passwordErrors.currentPassword}
@@ -370,22 +420,70 @@ export default function ProfileEditPage() {
               >
                 New Password *
               </label>
-              <Input
-                id="newPassword"
-                type="password"
-                value={passwordForm.newPassword}
-                onChange={(e) => {
-                  setPasswordForm({
-                    ...passwordForm,
-                    newPassword: e.target.value,
-                  });
-                  if (passwordErrors.newPassword) {
-                    setPasswordErrors({ ...passwordErrors, newPassword: "" });
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type={showNewPassword ? "text" : "password"}
+                  value={passwordForm.newPassword}
+                  onChange={(e) => {
+                    setPasswordForm({
+                      ...passwordForm,
+                      newPassword: e.target.value,
+                    });
+                    if (passwordErrors.newPassword) {
+                      setPasswordErrors({ ...passwordErrors, newPassword: "" });
+                    }
+                  }}
+                  className={
+                    passwordErrors.newPassword
+                      ? "border-red-500 pr-10"
+                      : "pr-10"
                   }
-                }}
-                className={passwordErrors.newPassword ? "border-red-500" : ""}
-                placeholder="Enter new password (min. 6 characters)"
-              />
+                  placeholder="Enter new password (min. 6 characters)"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showNewPassword ? (
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
               {passwordErrors.newPassword && (
                 <p className="mt-1 text-sm text-red-600">
                   {passwordErrors.newPassword}
@@ -400,27 +498,73 @@ export default function ProfileEditPage() {
               >
                 Confirm New Password *
               </label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={passwordForm.confirmPassword}
-                onChange={(e) => {
-                  setPasswordForm({
-                    ...passwordForm,
-                    confirmPassword: e.target.value,
-                  });
-                  if (passwordErrors.confirmPassword) {
-                    setPasswordErrors({
-                      ...passwordErrors,
-                      confirmPassword: "",
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => {
+                    setPasswordForm({
+                      ...passwordForm,
+                      confirmPassword: e.target.value,
                     });
+                    if (passwordErrors.confirmPassword) {
+                      setPasswordErrors({
+                        ...passwordErrors,
+                        confirmPassword: "",
+                      });
+                    }
+                  }}
+                  className={
+                    passwordErrors.confirmPassword
+                      ? "border-red-500 pr-10"
+                      : "pr-10"
                   }
-                }}
-                className={
-                  passwordErrors.confirmPassword ? "border-red-500" : ""
-                }
-                placeholder="Confirm your new password"
-              />
+                  placeholder="Confirm your new password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
               {passwordErrors.confirmPassword && (
                 <p className="mt-1 text-sm text-red-600">
                   {passwordErrors.confirmPassword}
