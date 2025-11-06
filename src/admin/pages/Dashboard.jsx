@@ -1,4 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSelector } from "react-redux";
+import { selectAdmin } from "../../features/auth/authSlice";
 import { api } from "../../lib/apiClient";
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
 import dayjs from "dayjs";
@@ -7,6 +9,8 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 const localizer = dayjsLocalizer(dayjs);
 
 export default function Dashboard() {
+  const admin = useSelector(selectAdmin);
+  const isSuperAdmin = admin?.role === "super_admin";
   const [allAppointments, setAllAppointments] = useState([]);
   const [beauticians, setBeauticians] = useState([]);
   const [selectedBeautician, setSelectedBeautician] = useState("all");
@@ -26,8 +30,17 @@ export default function Dashboard() {
         api.get("/beauticians"),
       ]);
 
-      const appointments = appointmentsRes.data || [];
+      let appointments = appointmentsRes.data || [];
       const beauticiansData = beauticiansRes.data || [];
+
+      // Filter appointments for non-super admins (beauticians)
+      if (!isSuperAdmin && admin?.beauticianId) {
+        appointments = appointments.filter(
+          (apt) => apt.beauticianId?._id === admin.beauticianId
+        );
+        // Auto-select the beautician's filter
+        setSelectedBeautician(admin.beauticianId);
+      }
 
       setAllAppointments(appointments);
       setBeauticians(beauticiansData);
@@ -48,7 +61,7 @@ export default function Dashboard() {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [admin, isSuperAdmin]); // Re-fetch when admin changes
 
   // Memoize filtered events to prevent unnecessary recalculations
   const events = useMemo(() => {
@@ -124,31 +137,37 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">View and manage all appointments</p>
+          <p className="text-gray-600 mt-1">
+            {isSuperAdmin
+              ? "View and manage all appointments"
+              : "View your appointments"}
+          </p>
         </div>
 
-        {/* Beautician Filter */}
-        <div className="flex items-center gap-3">
-          <label
-            htmlFor="beautician-filter"
-            className="text-sm font-medium text-gray-700"
-          >
-            Filter by Beautician:
-          </label>
-          <select
-            id="beautician-filter"
-            value={selectedBeautician}
-            onChange={(e) => setSelectedBeautician(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white"
-          >
-            <option value="all">All Beauticians</option>
-            {beauticians.map((beautician) => (
-              <option key={beautician._id} value={beautician._id}>
-                {beautician.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Beautician Filter - Only show for super admins */}
+        {isSuperAdmin && (
+          <div className="flex items-center gap-3">
+            <label
+              htmlFor="beautician-filter"
+              className="text-sm font-medium text-gray-700"
+            >
+              Filter by Beautician:
+            </label>
+            <select
+              id="beautician-filter"
+              value={selectedBeautician}
+              onChange={(e) => setSelectedBeautician(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white"
+            >
+              <option value="all">All Beauticians</option>
+              {beauticians.map((beautician) => (
+                <option key={beautician._id} value={beautician._id}>
+                  {beautician.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Today's Appointments Widget */}
