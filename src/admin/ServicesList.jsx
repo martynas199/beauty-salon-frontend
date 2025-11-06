@@ -11,6 +11,8 @@ import ConfirmDeleteModal from "../components/forms/ConfirmDeleteModal";
  * @param {function} props.onDelete - Callback(serviceId) when delete confirmed
  * @param {function} props.onCreate - Callback when create button clicked
  * @param {boolean} props.isLoading - Loading state
+ * @param {boolean} props.isSuperAdmin - Is user a super admin
+ * @param {boolean} props.isBeautician - Is user a beautician
  */
 export default function ServicesList({
   services,
@@ -18,6 +20,8 @@ export default function ServicesList({
   onDelete,
   onCreate,
   isLoading,
+  isSuperAdmin = false,
+  isBeautician = false,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterActive, setFilterActive] = useState("all"); // 'all', 'active', 'inactive'
@@ -91,9 +95,11 @@ export default function ServicesList({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Services</h2>
-        <Button onClick={onCreate} variant="brand">
-          + Add Service
-        </Button>
+        {isSuperAdmin && (
+          <Button onClick={onCreate} variant="brand">
+            + Add Service
+          </Button>
+        )}
       </div>
 
       {/* Filters */}
@@ -145,13 +151,20 @@ export default function ServicesList({
         <div className="bg-white rounded-lg shadow p-12 text-center">
           <p className="text-gray-500 text-lg mb-4">
             {services.length === 0
-              ? "No services yet"
+              ? isBeautician
+                ? "No services assigned to you yet"
+                : "No services yet"
               : "No services match your filters"}
           </p>
-          {services.length === 0 && (
+          {services.length === 0 && isSuperAdmin && (
             <Button onClick={onCreate} variant="brand">
               Add Your First Service
             </Button>
+          )}
+          {services.length === 0 && isBeautician && (
+            <p className="text-gray-400 text-sm mt-2">
+              Please contact your salon manager to get services assigned.
+            </p>
           )}
         </div>
       ) : (
@@ -243,14 +256,16 @@ export default function ServicesList({
                     >
                       Edit
                     </Button>
-                    <Button
-                      onClick={() => handleDeleteClick(service)}
-                      variant="danger"
-                      size="sm"
-                      className="flex-1"
-                    >
-                      Delete
-                    </Button>
+                    {isSuperAdmin && (
+                      <Button
+                        onClick={() => handleDeleteClick(service)}
+                        variant="danger"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        Delete
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -351,12 +366,14 @@ export default function ServicesList({
                         >
                           Edit
                         </button>
-                        <button
-                          onClick={() => handleDeleteClick(service)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
+                        {isSuperAdmin && (
+                          <button
+                            onClick={() => handleDeleteClick(service)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Delete
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

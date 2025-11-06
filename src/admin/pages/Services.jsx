@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { selectAdmin } from "../../features/auth/authSlice";
 import { api } from "../../lib/apiClient";
 import ServiceForm from "../ServiceForm";
 import ServicesList from "../ServicesList";
@@ -9,6 +11,11 @@ export default function Services() {
   const [editingService, setEditingService] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Get admin info from Redux store
+  const admin = useSelector(selectAdmin);
+  const isSuperAdmin = admin?.role === "super_admin";
+  const isBeautician = admin?.role === "admin" && admin?.beauticianId;
 
   useEffect(() => {
     loadData();
@@ -17,12 +24,23 @@ export default function Services() {
   const loadData = async () => {
     setIsLoading(true);
     try {
+      // Fetch services - backend will automatically filter based on admin role
       const [servicesRes, beauticiansRes] = await Promise.all([
         api.get("/services"),
         api.get("/beauticians"),
       ]);
-      setServices(servicesRes.data);
+      
+      const loadedServices = servicesRes.data;
+      setServices(loadedServices);
       setBeauticians(beauticiansRes.data);
+      
+      // Log for debugging
+      console.log("[Services] Loaded services:", loadedServices.length);
+      if (isBeautician) {
+        console.log("[Services] Beautician role - showing assigned services only");
+      } else if (isSuperAdmin) {
+        console.log("[Services] Super admin role - showing all services");
+      }
     } catch (error) {
       console.error("Failed to load data:", error);
       alert("Failed to load services data: " + error.message);
@@ -32,6 +50,11 @@ export default function Services() {
   };
 
   const handleCreate = () => {
+    // Only super_admin can create services
+    if (!isSuperAdmin) {
+      alert("Only salon managers can create new services.");
+      return;
+    }
     setEditingService(null);
     setShowForm(true);
   };
@@ -120,6 +143,12 @@ export default function Services() {
   };
 
   const handleDelete = async (serviceId) => {
+    // Only super_admin can delete services
+    if (!isSuperAdmin) {
+      alert("Only salon managers can delete services.");
+      return;
+    }
+    
     try {
       await api.delete(`/services/${serviceId}`);
       await loadData();
@@ -144,19 +173,36 @@ export default function Services() {
         onSave={handleSave}
         onCancel={handleCancel}
         onDelete={
-          editingService ? () => handleDelete(editingService._id) : undefined
+          editingService && isSuperAdmin ? () => handleDelete(editingService._id) : undefined
         }
+        isSuperAdmin={isSuperAdmin}
       />
     );
   }
 
   return (
-    <ServicesList
-      services={services}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
-      onCreate={handleCreate}
-      isLoading={isLoading}
-    />
+    <div className="space-y-4">
+      {/* Show message if beautician has no services */}
+      {isBeautician && services.length === 0 && !isLoading && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+          <div className="text-blue-800 text-lg font-semibold mb-2">
+            No Services Assigned
+          </div>
+          <p className="text-blue-600">
+            You don't have any services assigned to you yet. Please contact your salon manager to get services assigned.
+          </p>
+        </div>
+      )}
+      
+      <ServicesList
+        services={services}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onCreate={handleCreate}
+        isLoading={isLoading}
+        isSuperAdmin={isSuperAdmin}
+        isBeautician={isBeautician}
+      />
+    </div>
   );
 }

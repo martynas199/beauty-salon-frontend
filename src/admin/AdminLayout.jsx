@@ -37,6 +37,25 @@ export default function AdminLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [salonName, setSalonName] = useState("Beauty Salon");
 
+  // Memoize role check for performance
+  const isSuperAdmin = useMemo(() => admin?.role === "super_admin", [admin?.role]);
+
+  // Filter menu items based on role (memoized for performance)
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => {
+      // Always show dividers and external links
+      if (item.divider || item.external) return true;
+      
+      // If item requires super_admin, only show to super_admin users
+      if (item.superAdminOnly) {
+        return isSuperAdmin;
+      }
+      
+      // Show all other items to everyone
+      return true;
+    });
+  }, [isSuperAdmin]);
+
   useEffect(() => {
     api
       .get("/salon")
@@ -153,7 +172,7 @@ export default function AdminLayout() {
 
             {/* Navigation */}
             <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-              {items.map((it, idx) => {
+              {filteredItems.map((it, idx) => {
                 // Render divider
                 if (it.divider) {
                   return (
@@ -222,7 +241,7 @@ export default function AdminLayout() {
                     {admin?.name || "Admin User"}
                   </div>
                   <div className="text-[10px] text-gray-500 capitalize">
-                    {admin?.role || "Administrator"}
+                    {isSuperAdmin ? "Super Admin" : "Beautician"}
                   </div>
                 </div>
               </div>
