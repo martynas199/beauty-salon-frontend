@@ -393,7 +393,7 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold border-b pb-2">Specialties</h3>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={newSpecialty}
@@ -404,7 +404,12 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"
               placeholder="e.g., Haircuts, Coloring, Styling"
             />
-            <Button type="button" onClick={addSpecialty} variant="brand">
+            <Button
+              type="button"
+              onClick={addSpecialty}
+              variant="brand"
+              className="w-full sm:w-auto"
+            >
               Add
             </Button>
           </div>
