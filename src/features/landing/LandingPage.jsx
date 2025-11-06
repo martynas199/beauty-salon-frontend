@@ -16,6 +16,7 @@ import { api } from "../../lib/apiClient";
 import Card from "../../components/ui/Card";
 import { motion, useScroll, useTransform } from "framer-motion";
 import logo from "../../assets/logo.svg";
+import ScrollRevealText from "../../components/ui/ScrollRevealText";
 
 export default function LandingPage() {
   const [services, setServices] = useState([]);
@@ -238,10 +239,27 @@ export default function LandingPage() {
           <HeroSectionDisplay />
         </div>
 
+        {/* Scroll Reveal Text Quote - Opening */}
+        <ScrollRevealText
+          text={`"Invest in your skin.\nIt's going to represent you for a very long time."`}
+          caption=""
+          revealColor="#d4a710"
+          captionColor="text-brand-700"
+        />
+
         {/* Popular Collections Section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
           <PopularCollections />
         </div>
+
+        {/* Scroll Reveal Text Quote */}
+        {/* <ScrollRevealText
+          text={`"The space becomes architecture when\nit provokes emotion."`}
+          caption="Beatriz Galán"
+          className="bg-gradient-to-b from-white via-brand-50 to-white"
+          revealColor="#b8910e"
+          captionColor="text-brand-800"
+        /> */}
 
         {/* Beauticians Section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
@@ -344,6 +362,14 @@ export default function LandingPage() {
             ))}
           </motion.div>
         </div>
+
+        {/* Scroll Reveal Text Quote 2 */}
+        <ScrollRevealText
+          text={`"Beauty begins the moment\nyou decide to be yourself."`}
+          caption="Coco Chanel"
+          revealColor="#d4a710"
+          captionColor="text-brand-700"
+        />
       </PageTransition>
     </>
   );
