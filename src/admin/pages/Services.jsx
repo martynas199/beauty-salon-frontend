@@ -60,11 +60,6 @@ export default function Services() {
   };
 
   const handleCreate = () => {
-    // Only super_admin can create services
-    if (!isSuperAdmin) {
-      alert("Only salon managers can create new services.");
-      return;
-    }
     setEditingService(null);
     setShowForm(true);
   };
@@ -188,25 +183,13 @@ export default function Services() {
             : undefined
         }
         isSuperAdmin={isSuperAdmin}
+        admin={admin}
       />
     );
   }
 
   return (
     <div className="space-y-4">
-      {/* Show message if beautician has no services */}
-      {isBeautician && services.length === 0 && !isLoading && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-          <div className="text-blue-800 text-lg font-semibold mb-2">
-            No Services Assigned
-          </div>
-          <p className="text-blue-600">
-            You don't have any services assigned to you yet. Please contact your
-            salon manager to get services assigned.
-          </p>
-        </div>
-      )}
-
       <ServicesList
         services={services}
         onEdit={handleEdit}

@@ -13,6 +13,8 @@ import Button from "../components/ui/Button";
  * @param {function} props.onSave - Callback(serviceData) when form is submitted
  * @param {function} props.onCancel - Callback when user cancels
  * @param {function} props.onDelete - Callback when user deletes (edit mode only)
+ * @param {boolean} props.isSuperAdmin - Is user a super admin
+ * @param {object} props.admin - Current admin user object
  */
 export default function ServiceForm({
   service,
@@ -20,6 +22,8 @@ export default function ServiceForm({
   onSave,
   onCancel,
   onDelete,
+  isSuperAdmin = false,
+  admin,
 }) {
   const isEditMode = Boolean(service);
   const { uploadImage, isUploading: isUploadingImage } = useImageUpload();
@@ -83,8 +87,14 @@ export default function ServiceForm({
                 },
               ],
       });
+    } else if (!isSuperAdmin && admin?.beauticianId) {
+      // For non-super admins creating a new service, pre-select their beautician ID
+      setFormData((prev) => ({
+        ...prev,
+        primaryBeauticianId: String(admin.beauticianId),
+      }));
     }
-  }, [service]);
+  }, [service, isSuperAdmin, admin]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -345,11 +355,12 @@ export default function ServiceForm({
               onChange={(e) =>
                 handleChange("primaryBeauticianId", e.target.value)
               }
+              disabled={!isSuperAdmin}
               className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 ${
                 errors.primaryBeauticianId
                   ? "border-red-500"
                   : "border-gray-300"
-              }`}
+              } ${!isSuperAdmin ? "bg-gray-100 cursor-not-allowed" : ""}`}
               aria-invalid={!!errors.primaryBeauticianId}
             >
               <option value="">Select a beautician</option>
@@ -359,6 +370,11 @@ export default function ServiceForm({
                 </option>
               ))}
             </select>
+            {!isSuperAdmin && (
+              <p className="text-sm text-gray-500 mt-1">
+                You can only create services for yourself
+              </p>
+            )}
           </FormField>
 
           {/* Image Upload */}

@@ -95,11 +95,9 @@ export default function ServicesList({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Services</h2>
-        {isSuperAdmin && (
-          <Button onClick={onCreate} variant="brand">
-            + Add Service
-          </Button>
-        )}
+        <Button onClick={onCreate} variant="brand">
+          + Add Service
+        </Button>
       </div>
 
       {/* Filters */}
@@ -151,20 +149,13 @@ export default function ServicesList({
         <div className="bg-white rounded-lg shadow p-12 text-center">
           <p className="text-gray-500 text-lg mb-4">
             {services.length === 0
-              ? isBeautician
-                ? "No services assigned to you yet"
-                : "No services yet"
+              ? "No services yet"
               : "No services match your filters"}
           </p>
-          {services.length === 0 && isSuperAdmin && (
+          {services.length === 0 && (
             <Button onClick={onCreate} variant="brand">
               Add Your First Service
             </Button>
-          )}
-          {services.length === 0 && isBeautician && (
-            <p className="text-gray-400 text-sm mt-2">
-              Please contact your salon manager to get services assigned.
-            </p>
           )}
         </div>
       ) : (

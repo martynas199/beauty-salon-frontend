@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { selectAdmin } from "../../features/auth/authSlice";
 import { api } from "../../lib/apiClient";
 import Modal from "../../components/ui/Modal";
 import FormField from "../../components/forms/FormField";
 import Button from "../../components/ui/Button";
 
 export default function Appointments() {
+  const admin = useSelector(selectAdmin);
+  const isSuperAdmin = admin?.role === "super_admin";
   const [rows, setRows] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -42,14 +46,24 @@ export default function Appointments() {
       setLoading(true);
       const response = await api.get(`/appointments?page=${page}&limit=50`);
 
+      let appointments = [];
       if (response.data.data) {
         // Paginated response
-        setRows(response.data.data || []);
+        appointments = response.data.data || [];
         setPagination(response.data.pagination || pagination);
       } else {
         // Legacy response (array)
-        setRows(response.data || []);
+        appointments = response.data || [];
       }
+
+      // Filter appointments for non-super admins (beauticians)
+      if (!isSuperAdmin && admin?.beauticianId) {
+        appointments = appointments.filter(
+          (apt) => apt.beauticianId?._id === admin.beauticianId
+        );
+      }
+
+      setRows(appointments);
     } catch (error) {
       console.error("Failed to fetch appointments:", error);
       setRows([]);
