@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+﻿import { useState, useEffect, useMemo } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { api } from "../lib/apiClient";
@@ -38,19 +38,22 @@ export default function AdminLayout() {
   const [salonName, setSalonName] = useState("Beauty Salon");
 
   // Memoize role check for performance
-  const isSuperAdmin = useMemo(() => admin?.role === "super_admin", [admin?.role]);
+  const isSuperAdmin = useMemo(
+    () => admin?.role === "super_admin",
+    [admin?.role]
+  );
 
   // Filter menu items based on role (memoized for performance)
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       // Always show dividers and external links
       if (item.divider || item.external) return true;
-      
+
       // If item requires super_admin, only show to super_admin users
       if (item.superAdminOnly) {
         return isSuperAdmin;
       }
-      
+
       // Show all other items to everyone
       return true;
     });

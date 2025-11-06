@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { selectAdmin } from "../../features/auth/authSlice";
 import { api } from "../../lib/apiClient";
@@ -11,11 +11,13 @@ export default function Services() {
   const [editingService, setEditingService] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Get admin info from Redux store
   const admin = useSelector(selectAdmin);
-  const isSuperAdmin = admin?.role === "super_admin";
-  const isBeautician = admin?.role === "admin" && admin?.beauticianId;
+  
+  // Memoize role checks for performance
+  const isSuperAdmin = useMemo(() => admin?.role === "super_admin", [admin?.role]);
+  const isBeautician = useMemo(() => admin?.role === "admin" && admin?.beauticianId, [admin?.role, admin?.beauticianId]);
 
   useEffect(() => {
     loadData();
@@ -29,15 +31,17 @@ export default function Services() {
         api.get("/services"),
         api.get("/beauticians"),
       ]);
-      
+
       const loadedServices = servicesRes.data;
       setServices(loadedServices);
       setBeauticians(beauticiansRes.data);
-      
+
       // Log for debugging
       console.log("[Services] Loaded services:", loadedServices.length);
       if (isBeautician) {
-        console.log("[Services] Beautician role - showing assigned services only");
+        console.log(
+          "[Services] Beautician role - showing assigned services only"
+        );
       } else if (isSuperAdmin) {
         console.log("[Services] Super admin role - showing all services");
       }
@@ -148,7 +152,7 @@ export default function Services() {
       alert("Only salon managers can delete services.");
       return;
     }
-    
+
     try {
       await api.delete(`/services/${serviceId}`);
       await loadData();
@@ -173,7 +177,9 @@ export default function Services() {
         onSave={handleSave}
         onCancel={handleCancel}
         onDelete={
-          editingService && isSuperAdmin ? () => handleDelete(editingService._id) : undefined
+          editingService && isSuperAdmin
+            ? () => handleDelete(editingService._id)
+            : undefined
         }
         isSuperAdmin={isSuperAdmin}
       />
@@ -189,11 +195,12 @@ export default function Services() {
             No Services Assigned
           </div>
           <p className="text-blue-600">
-            You don't have any services assigned to you yet. Please contact your salon manager to get services assigned.
+            You don't have any services assigned to you yet. Please contact your
+            salon manager to get services assigned.
           </p>
         </div>
       )}
-      
+
       <ServicesList
         services={services}
         onEdit={handleEdit}
