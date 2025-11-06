@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useDispatch } from "react-redux";
 import { addToCart, openCart } from "../cart/cartSlice";
+import Button from "../../components/ui/Button";
 
 export default function ProductDetailModal({ product, isOpen, onClose }) {
   const dispatch = useDispatch();
@@ -224,7 +225,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
               </div>
 
               {/* Right: Product Details */}
-              <div className="space-y-6">
+              <div className="space-y-6 pb-24 md:pb-6">
                 {/* Category */}
                 <div className="text-sm font-medium text-gray-500 uppercase tracking-wider">
                   {product.category}
@@ -571,96 +572,151 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
                   </div>
                 )}
 
-                {/* Add to Cart Button */}
-                <button
-                  onClick={async () => {
-                    if (displayStock === 0) return;
+                {/* Add to Cart Button - Hidden on mobile as we have sticky version */}
+                <div className="hidden md:block">
+                  <Button
+                    onClick={async () => {
+                      if (displayStock === 0) return;
 
-                    setAddingToCart(true);
-                    try {
-                      const variantId = hasVariants
-                        ? product.variants[selectedVariantIndex]._id
-                        : null;
+                      setAddingToCart(true);
+                      try {
+                        const variantId = hasVariants
+                          ? product.variants[selectedVariantIndex]._id
+                          : null;
 
-                      dispatch(
-                        addToCart({
-                          productId: product._id,
-                          variantId,
-                          quantity,
-                          // Store product details for display
-                          product: {
-                            title: product.title,
-                            image:
-                              product.image?.url || product.images?.[0]?.url,
-                            price: displayPrice,
-                            size: displaySize,
-                          },
-                        })
-                      );
+                        dispatch(
+                          addToCart({
+                            productId: product._id,
+                            variantId,
+                            quantity,
+                            // Store product details for display
+                            product: {
+                              title: product.title,
+                              image:
+                                product.image?.url || product.images?.[0]?.url,
+                              price: displayPrice,
+                              size: displaySize,
+                            },
+                          })
+                        );
 
-                      // Show success feedback
-                      await new Promise((resolve) => setTimeout(resolve, 300));
+                        // Show success feedback
+                        await new Promise((resolve) =>
+                          setTimeout(resolve, 300)
+                        );
 
-                      // Open cart sidebar
-                      dispatch(openCart());
+                        // Open cart sidebar
+                        dispatch(openCart());
 
-                      // Close modal
-                      onClose();
-                    } catch (error) {
-                      console.error("Error adding to cart:", error);
-                      alert("Failed to add item to cart");
-                    } finally {
-                      setAddingToCart(false);
-                    }
-                  }}
-                  className="w-full bg-brand-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-brand-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  disabled={displayStock === 0 || addingToCart}
-                >
-                  {addingToCart ? (
-                    <>
-                      <svg
-                        className="animate-spin h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
+                        // Close modal
+                        onClose();
+                      } catch (error) {
+                        console.error("Error adding to cart:", error);
+                        alert("Failed to add item to cart");
+                      } finally {
+                        setAddingToCart(false);
+                      }
+                    }}
+                    variant="brand"
+                    size="lg"
+                    fullWidth
+                    disabled={displayStock === 0 || addingToCart}
+                    loading={addingToCart}
+                  >
+                    {displayStock > 0 ? (
+                      <>
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
                           stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
-                      Adding...
-                    </>
-                  ) : displayStock > 0 ? (
-                    <>
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                        />
-                      </svg>
-                      Add to Cart
-                    </>
-                  ) : (
-                    "Out of Stock"
-                  )}
-                </button>
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                          />
+                        </svg>
+                        Add to Cart
+                      </>
+                    ) : (
+                      "Out of Stock"
+                    )}
+                  </Button>
+                </div>
               </div>
+            </div>
+
+            {/* Sticky Add to Cart Button - Only visible on mobile */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 z-20">
+              <Button
+                onClick={async () => {
+                  if (displayStock === 0) return;
+
+                  setAddingToCart(true);
+                  try {
+                    const variantId = hasVariants
+                      ? product.variants[selectedVariantIndex]._id
+                      : null;
+
+                    dispatch(
+                      addToCart({
+                        productId: product._id,
+                        variantId,
+                        quantity,
+                        // Store product details for display
+                        product: {
+                          title: product.title,
+                          image: product.image?.url || product.images?.[0]?.url,
+                          price: displayPrice,
+                          size: displaySize,
+                        },
+                      })
+                    );
+
+                    // Show success feedback
+                    await new Promise((resolve) => setTimeout(resolve, 300));
+
+                    // Open cart sidebar
+                    dispatch(openCart());
+
+                    // Close modal
+                    onClose();
+                  } catch (error) {
+                    console.error("Error adding to cart:", error);
+                    alert("Failed to add item to cart");
+                  } finally {
+                    setAddingToCart(false);
+                  }
+                }}
+                variant="brand"
+                size="lg"
+                fullWidth
+                disabled={displayStock === 0 || addingToCart}
+                loading={addingToCart}
+              >
+                {displayStock > 0 ? (
+                  <>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                      />
+                    </svg>
+                    Add to Cart
+                  </>
+                ) : (
+                  "Out of Stock"
+                )}
+              </Button>
             </div>
           </div>
         </div>
