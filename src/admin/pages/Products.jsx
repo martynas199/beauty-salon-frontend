@@ -27,6 +27,7 @@ export default function Products() {
         size: "",
         price: "",
         originalPrice: "",
+        purchasePrice: "",
         stock: 0,
         sku: "",
         weight: 0,
@@ -111,33 +112,73 @@ export default function Products() {
 
     toast(
       (t) => (
-        <span className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <span>Delete this image? This cannot be undone.</span>
           <button
-            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
             onClick={async () => {
               toast.dismiss(t.id);
               try {
+                // Show loading state
+                const loadingToastId = toast.loading("Deleting image...");
+
                 const product = await ProductsAPI.deleteImage(editingId, index);
                 setExistingGalleryImages(product.images || []);
-                toast.success("Image deleted successfully");
+
+                // Dismiss loading and show success
+                toast.dismiss(loadingToastId);
+                toast.success("Image deleted successfully", {
+                  duration: 3000,
+                  id: "delete-success",
+                });
               } catch (error) {
                 console.error("Error deleting image:", error);
-                toast.error("Failed to delete image: " + error.message);
+                console.error("Product ID:", editingId, "Image Index:", index);
+
+                // Dismiss all toasts first to prevent stacking
+                toast.dismiss();
+
+                // Show error with auto-dismiss
+                const errorMessage =
+                  error.response?.data?.error ||
+                  error.message ||
+                  "Unknown error occurred";
+                toast.error(`Failed to delete image: ${errorMessage}`, {
+                  duration: 5000,
+                  id: "delete-error",
+                  style: {
+                    maxWidth: "400px",
+                  },
+                });
+
+                // Auto-dismiss error toast after duration
+                setTimeout(() => {
+                  toast.dismiss("delete-error");
+                }, 5000);
               }
             }}
           >
             Yes, Delete
           </button>
           <button
-            className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300"
+            className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300 transition-colors"
             onClick={() => toast.dismiss(t.id)}
           >
             Cancel
           </button>
-        </span>
+        </div>
       ),
-      { duration: 8000 }
+      {
+        duration: 10000,
+        id: "delete-confirmation",
+        style: {
+          background: "#fff",
+          color: "#374151",
+          border: "1px solid #e5e7eb",
+          borderRadius: "8px",
+          padding: "12px",
+        },
+      }
     );
   };
 
@@ -163,6 +204,7 @@ export default function Products() {
           size: v.size.trim(),
           price: parseFloat(v.price),
           originalPrice: v.originalPrice ? parseFloat(v.originalPrice) : null,
+          purchasePrice: v.purchasePrice ? parseFloat(v.purchasePrice) : null,
           stock: parseInt(v.stock) || 0,
           sku: v.sku?.trim() || "",
           weight: parseFloat(v.weight) || 0,
@@ -223,6 +265,7 @@ export default function Products() {
               size: v.size || "",
               price: v.price?.toString() || "",
               originalPrice: v.originalPrice?.toString() || "",
+              purchasePrice: v.purchasePrice?.toString() || "",
               stock: v.stock || 0,
               sku: v.sku || "",
               weight: v.weight || 0,
@@ -232,6 +275,7 @@ export default function Products() {
                 size: product.size || "",
                 price: product.price?.toString() || "",
                 originalPrice: product.originalPrice?.toString() || "",
+                purchasePrice: product.purchasePrice?.toString() || "",
                 stock: product.stock || 0,
                 sku: "",
                 weight: 0,
@@ -279,6 +323,7 @@ export default function Products() {
           size: "",
           price: "",
           originalPrice: "",
+          purchasePrice: "",
           stock: 0,
           sku: "",
           weight: 0,
@@ -301,6 +346,7 @@ export default function Products() {
           size: "",
           price: "",
           originalPrice: "",
+          purchasePrice: "",
           stock: 0,
           sku: "",
           weight: 0,
@@ -508,7 +554,7 @@ export default function Products() {
                         </svg>
                       </button>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       {/* Size */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -565,6 +611,34 @@ export default function Products() {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
                           placeholder="149.99"
                         />
+                        <p className="text-xs text-gray-500 mt-1">
+                          RRP/Strike-through price
+                        </p>
+                      </div>
+
+                      {/* Purchase Price */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Purchase Price (£)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={variant.purchasePrice}
+                          onChange={(e) =>
+                            updateVariant(
+                              index,
+                              "purchasePrice",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm bg-yellow-50"
+                          placeholder="29.99"
+                        />
+                        <p className="text-xs text-yellow-600 mt-1">
+                          Cost price for profit calculation
+                        </p>
                       </div>
 
                       {/* Stock */}

@@ -19,6 +19,12 @@ const items = [
     icon: "💰",
     superAdminOnly: true,
   },
+  {
+    to: "/admin/profit-analytics",
+    label: "Profit Analytics",
+    icon: "📈",
+    superAdminOnly: true,
+  },
   { divider: "Booking Setup" },
   { to: "/admin/services", label: "Services", icon: "💅" },
   { to: "/admin/staff", label: "Staff", icon: "👥", superAdminOnly: true },

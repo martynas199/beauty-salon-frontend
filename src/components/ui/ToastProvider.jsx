@@ -10,9 +10,13 @@ export default function ToastProvider() {
       position="top-center"
       reverseOrder={false}
       gutter={8}
+      containerStyle={{
+        zIndex: 9999,
+      }}
       toastOptions={{
         // Default options
         duration: 4000,
+        dismissible: true,
         style: {
           background: "#fff",
           color: "#1f2937",
@@ -22,6 +26,7 @@ export default function ToastProvider() {
             "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
           maxWidth: "500px",
           fontFamily: "inherit",
+          cursor: "pointer",
         },
         // Success toast
         success: {
@@ -37,12 +42,14 @@ export default function ToastProvider() {
         // Error toast
         error: {
           duration: 5000,
+          dismissible: true,
           iconTheme: {
             primary: "#ef4444",
             secondary: "#fff",
           },
           style: {
             border: "1px solid #fee2e2",
+            cursor: "pointer",
           },
         },
         // Loading toast
