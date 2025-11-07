@@ -71,9 +71,9 @@ export default function AboutUsPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section with Image and Quote */}
-      <section className="relative min-h-screen md:h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0">
+      <section className="relative min-h-screen overflow-hidden">
+        {/* Mobile: Full background image */}
+        <div className="absolute inset-0 md:hidden">
           <img
             src={aboutUs.image.url}
             alt="About Noble Elegance"
@@ -83,28 +83,62 @@ export default function AboutUsPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/60"></div>
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
-          {/* Decorative Element */}
-          <div className="mb-8">
-            <svg
-              className="w-16 h-16 mx-auto text-white/80"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
-              <path d="M12 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-            </svg>
+        {/* Desktop: Two container layout */}
+        <div className="hidden md:flex min-h-screen">
+          {/* Left Container: Image with frame */}
+          <div className="flex-1 flex items-center justify-center p-12 bg-gray-50">
+            <div className="relative max-w-lg">
+              {/* Image with elegant border */}
+              <div className="relative p-2 bg-gradient-to-br from-brand-200 via-white to-brand-200 rounded-lg shadow-2xl">
+                <img
+                  src={aboutUs.image.url}
+                  alt="About Noble Elegance"
+                  className="w-full h-auto object-contain rounded-md shadow-lg max-h-[70vh]"
+                />
+              </div>
+
+              {/* Decorative corner elements */}
+              <div className="absolute -top-3 -left-3 w-6 h-6 border-l-2 border-t-2 border-brand-400"></div>
+              <div className="absolute -top-3 -right-3 w-6 h-6 border-r-2 border-t-2 border-brand-400"></div>
+              <div className="absolute -bottom-3 -left-3 w-6 h-6 border-l-2 border-b-2 border-brand-400"></div>
+              <div className="absolute -bottom-3 -right-3 w-6 h-6 border-r-2 border-b-2 border-brand-400"></div>
+            </div>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-serif font-light mb-6 tracking-wide">
-            About Us
-          </h1>
+          {/* Right Container: Content */}
+          <div className="flex-1 flex items-center justify-center p-12 bg-white">
+            <div className="max-w-2xl text-gray-900 text-center">
+              <h1 className="text-5xl md:text-6xl font-serif font-light mb-8 tracking-wide text-gray-900">
+                About Us
+              </h1>
 
-          {/* Quote with elegant styling */}
-          <blockquote className="text-xl md:text-2xl font-light italic leading-relaxed max-w-3xl mx-auto mb-8 text-white/95">
-            "{aboutUs.quote}"
-          </blockquote>
+              {/* Quote with elegant styling */}
+              <blockquote className="text-xl md:text-2xl font-light italic leading-relaxed mb-8 text-gray-700 border-l-4 border-brand-400 pl-6">
+                "{aboutUs.quote}"
+              </blockquote>
+
+              {/* Decorative divider */}
+              <div className="flex items-center justify-center mb-8">
+                <div className="h-px bg-brand-300 flex-1"></div>
+                <div className="w-3 h-3 bg-brand-400 rounded-full mx-4"></div>
+                <div className="h-px bg-brand-300 flex-1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Content Overlay */}
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white md:hidden flex items-center justify-center min-h-screen">
+          <div>
+            <h1 className="text-5xl font-serif font-light mb-6 tracking-wide">
+              About Us
+            </h1>
+
+            {/* Quote with elegant styling */}
+            <blockquote className="text-xl font-light italic leading-relaxed mb-8 text-white/95">
+              "{aboutUs.quote}"
+            </blockquote>
+          </div>
 
           {/* Scroll indicator */}
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
