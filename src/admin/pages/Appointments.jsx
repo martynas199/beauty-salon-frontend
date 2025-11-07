@@ -48,10 +48,12 @@ export default function Appointments() {
       const response = await api.get(`/appointments?page=${page}&limit=50`);
 
       let appointments = [];
+      let paginationData = pagination;
+      
       if (response.data.data) {
         // Paginated response
         appointments = response.data.data || [];
-        setPagination(response.data.pagination || pagination);
+        paginationData = response.data.pagination || pagination;
       } else {
         // Legacy response (array)
         appointments = response.data || [];
@@ -62,9 +64,20 @@ export default function Appointments() {
         appointments = appointments.filter(
           (apt) => apt.beauticianId?._id === admin.beauticianId
         );
+        
+        // Recalculate pagination for filtered results
+        const filteredTotal = appointments.length;
+        paginationData = {
+          page: 1,
+          limit: 50,
+          total: filteredTotal,
+          totalPages: Math.ceil(filteredTotal / 50),
+          hasMore: false,
+        };
       }
 
       setRows(appointments);
+      setPagination(paginationData);
     } catch (error) {
       console.error("Failed to fetch appointments:", error);
       setRows([]);
@@ -722,7 +735,7 @@ export default function Appointments() {
       )}
 
       {/* Pagination Controls */}
-      {pagination.totalPages > 1 && (
+      {pagination.totalPages > 1 && rows.length > 0 && (
         <div className="mt-6 flex items-center justify-between border-t pt-4">
           <div className="text-sm text-gray-600">
             Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
