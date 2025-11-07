@@ -84,14 +84,36 @@ export default function AdminBeauticianLink() {
   };
 
   const handleUnlink = async (adminId) => {
-    if (
-      !confirm(
-        "Are you sure you want to unlink this admin from their beautician?"
-      )
-    ) {
-      return;
-    }
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3">
+          <p className="font-medium">
+            Are you sure you want to unlink this admin from their beautician?
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                performUnlink(adminId);
+              }}
+              className="flex-1 px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 font-medium"
+            >
+              Yes, Unlink
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="flex-1 px-3 py-1.5 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: 8000 }
+    );
+  };
 
+  const performUnlink = async (adminId) => {
     try {
       const token = localStorage.getItem("adminToken");
       await api.patch(
@@ -105,6 +127,57 @@ export default function AdminBeauticianLink() {
     } catch (error) {
       console.error("Failed to unlink:", error);
       toast.error("Failed to unlink admin");
+    }
+  };
+
+  const handleDelete = async (admin) => {
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3">
+          <p className="font-medium">
+            Delete admin account "{admin.name}"?
+          </p>
+          <p className="text-sm text-gray-600">
+            This will permanently delete the admin account. This action cannot
+            be undone.
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                performDelete(admin._id);
+              }}
+              className="flex-1 px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 font-medium"
+            >
+              Yes, Delete
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="flex-1 px-3 py-1.5 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: 8000 }
+    );
+  };
+
+  const performDelete = async (adminId) => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      await api.delete(`/admin/admins/${adminId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      toast.success("Admin account deleted successfully");
+      loadData();
+    } catch (error) {
+      console.error("Failed to delete admin:", error);
+      toast.error(
+        error.response?.data?.error || "Failed to delete admin account"
+      );
     }
   };
 
@@ -596,6 +669,102 @@ export default function AdminBeauticianLink() {
                         </tr>
                       );
                     })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {/* All Admins List */}
+      <Card className="p-4 sm:p-6 overflow-hidden">
+        <h2 className="text-lg sm:text-xl font-serif font-semibold mb-4 tracking-wide break-words">
+          All Admin Accounts
+        </h2>
+        <div className="space-y-3">
+          {admins.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p className="font-medium">No admins found</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Linked To
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {admins.map((admin) => (
+                    <tr key={admin._id} className="hover:bg-gray-50">
+                      <td className="px-3 sm:px-6 py-4">
+                        <div className="font-medium text-gray-900 text-sm break-words">
+                          {admin.name}
+                        </div>
+                        <div className="sm:hidden text-xs text-gray-600 mt-1 break-all">
+                          {admin.email}
+                        </div>
+                      </td>
+                      <td className="hidden sm:table-cell px-6 py-4">
+                        <div className="text-sm text-gray-600 break-all">
+                          {admin.email}
+                        </div>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4">
+                        <span
+                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            admin.role === "super_admin"
+                              ? "bg-purple-100 text-purple-800"
+                              : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {admin.role === "super_admin"
+                            ? "Super Admin"
+                            : "Admin"}
+                        </span>
+                        {admin.beauticianId && (
+                          <div className="lg:hidden text-xs text-brand-700 mt-1">
+                            Linked: {getBeauticianName(admin.beauticianId)}
+                          </div>
+                        )}
+                      </td>
+                      <td className="hidden lg:table-cell px-6 py-4">
+                        {admin.beauticianId ? (
+                          <div className="text-sm text-brand-700">
+                            {getBeauticianName(admin.beauticianId)}
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-400">
+                            Not linked
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 text-right text-sm">
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleDelete(admin)}
+                          className="text-xs sm:text-sm"
+                        >
+                          Delete
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
