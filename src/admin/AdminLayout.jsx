@@ -391,7 +391,7 @@ export default function AdminLayout() {
         </aside>
 
         {/* Main Content */}
-        <section className="p-4 lg:p-6 min-h-screen">
+        <section className="p-4 lg:p-6 pb-20 lg:pb-6 min-h-screen">
           <Outlet />
         </section>
       </div>

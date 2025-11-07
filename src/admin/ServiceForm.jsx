@@ -247,7 +247,7 @@ export default function ServiceForm({
   ).length;
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-6">
+    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-8">
       <h2 className="text-2xl font-bold mb-6">
         {isEditMode ? "Edit Service" : "Create New Service"}
       </h2>

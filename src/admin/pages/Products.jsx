@@ -363,7 +363,7 @@ export default function Products() {
 
       {/* Form */}
       {showForm && (
-        <div className="bg-white rounded-xl shadow-lg border-4 border-brand-400 p-4 sm:p-6 md:p-8 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-lg border-4 border-brand-400 p-4 sm:p-6 md:p-8 mb-8 overflow-hidden">
           <h2 className="text-lg sm:text-xl md:text-2xl font-serif font-semibold text-gray-900 mb-4 sm:mb-6 tracking-wide break-words">
             {editingId ? "Edit Product" : "Add New Product"}
           </h2>

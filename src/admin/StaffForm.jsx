@@ -224,7 +224,7 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
   ).length;
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-6 overflow-hidden">
+    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-8 overflow-hidden">
       <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 break-words">
         {isEditMode ? "Edit Staff Member" : "Add New Staff Member"}
       </h2>
