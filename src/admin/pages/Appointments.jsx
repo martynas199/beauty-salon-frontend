@@ -61,10 +61,18 @@ export default function Appointments() {
         appointments = response.data || [];
       }
 
-      // Filter appointments for non-super admins (beauticians)
-      if (!isSuperAdmin && admin?.beauticianId) {
+      // Filter appointments based on admin role and linked beautician
+      if (isSuperAdmin) {
+        // Super admin sees all appointments
+        console.log("[Appointments] Super admin - showing all appointments:", appointments.length);
+      } else if (admin?.beauticianId) {
+        // Regular admin with linked beautician - only show their beautician's appointments
+        const originalCount = appointments.length;
         appointments = appointments.filter(
           (apt) => apt.beauticianId?._id === admin.beauticianId
+        );
+        console.log(
+          `[Appointments] Regular admin with beautician ${admin.beauticianId} - filtered from ${originalCount} to ${appointments.length} appointments`
         );
 
         // Recalculate pagination for filtered results
@@ -74,6 +82,17 @@ export default function Appointments() {
           limit: 50,
           total: filteredTotal,
           totalPages: Math.ceil(filteredTotal / 50),
+          hasMore: false,
+        };
+      } else {
+        // Regular admin without linked beautician - show no appointments
+        console.log("[Appointments] Regular admin without linked beautician - showing no appointments");
+        appointments = [];
+        paginationData = {
+          page: 1,
+          limit: 50,
+          total: 0,
+          totalPages: 0,
           hasMore: false,
         };
       }
@@ -395,7 +414,48 @@ export default function Appointments() {
         Appointments
       </h1>
 
-      {/* Filters */}
+      {/* Show warning for regular admins without linked beautician */}
+      {!isSuperAdmin && !admin?.beauticianId && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-2">
+            <svg
+              className="w-5 h-5 text-amber-600 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            <div>
+              <p className="text-sm font-medium text-amber-900">
+                Account Not Linked
+              </p>
+              <p className="text-xs text-amber-700 mt-1">
+                Your admin account is not linked to a beautician. You cannot view appointments until your account is linked. Please contact the super administrator.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Show subtitle for different admin types */}
+      {isSuperAdmin ? (
+        <p className="text-gray-600 mb-6">
+          View and manage all appointments from all beauticians
+        </p>
+      ) : admin?.beauticianId ? (
+        <p className="text-gray-600 mb-6">
+          View appointments for your linked beautician only
+        </p>
+      ) : null}
+
+      {/* Filters - only show if admin has access */}
+      {(isSuperAdmin || admin?.beauticianId) && (
       <div className="bg-white border rounded-lg p-4 mb-4 space-y-4">
         {/* Search Bar */}
         <div className="relative">
@@ -514,6 +574,7 @@ export default function Appointments() {
           </div>
         )}
       </div>
+      )}
 
       {/* Loading State with Skeletons */}
       {loading && (
