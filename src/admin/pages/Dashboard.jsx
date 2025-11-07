@@ -44,7 +44,10 @@ export default function Dashboard() {
       // Filter appointments based on admin role and linked beautician
       if (isSuperAdmin) {
         // Super admin sees all appointments
-        console.log("[Dashboard] Super admin - showing all appointments:", appointments.length);
+        console.log(
+          "[Dashboard] Super admin - showing all appointments:",
+          appointments.length
+        );
       } else if (admin?.beauticianId) {
         // Regular admin with linked beautician - only show their beautician's appointments
         const originalCount = appointments.length;
@@ -58,7 +61,9 @@ export default function Dashboard() {
         setSelectedBeautician(admin.beauticianId);
       } else {
         // Regular admin without linked beautician - show no appointments
-        console.log("[Dashboard] Regular admin without linked beautician - showing no appointments");
+        console.log(
+          "[Dashboard] Regular admin without linked beautician - showing no appointments"
+        );
         appointments = [];
       }
 
@@ -193,7 +198,7 @@ export default function Dashboard() {
             </select>
           </div>
         )}
-        
+
         {/* Show warning for regular admins without linked beautician */}
         {!isSuperAdmin && !admin?.beauticianId && (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
@@ -216,7 +221,8 @@ export default function Dashboard() {
                   Account Not Linked
                 </p>
                 <p className="text-xs text-amber-700 mt-1">
-                  Your admin account is not linked to a beautician. Please contact the super administrator to link your account.
+                  Your admin account is not linked to a beautician. Please
+                  contact the super administrator to link your account.
                 </p>
               </div>
             </div>

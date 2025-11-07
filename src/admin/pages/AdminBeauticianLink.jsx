@@ -191,25 +191,33 @@ export default function AdminBeauticianLink() {
         _id: currentAdmin?._id,
         role: currentAdmin?.role,
         name: currentAdmin?.name,
-        email: currentAdmin?.email
+        email: currentAdmin?.email,
       });
-      
+
       // Check if user is trying to delete themselves
       if (currentAdmin?._id === adminId) {
         console.log("⚠️ User is trying to delete their own account");
       }
-      
+
       // Check role permission
-      if (currentAdmin?.role !== 'super_admin') {
-        console.log("⚠️ User role is not super_admin, current role:", currentAdmin?.role);
+      if (currentAdmin?.role !== "super_admin") {
+        console.log(
+          "⚠️ User role is not super_admin, current role:",
+          currentAdmin?.role
+        );
       }
-      
+
       // First, let's verify the admin exists in our current list
-      const adminExists = admins.find(admin => admin._id === adminId);
-      console.log("Admin exists in current list:", adminExists ? `Yes - ${adminExists.name} (${adminExists.email})` : "No");
-      
+      const adminExists = admins.find((admin) => admin._id === adminId);
+      console.log(
+        "Admin exists in current list:",
+        adminExists ? `Yes - ${adminExists.name} (${adminExists.email})` : "No"
+      );
+
       if (!adminExists) {
-        toast.error("Admin not found in current list. Please refresh and try again.");
+        toast.error(
+          "Admin not found in current list. Please refresh and try again."
+        );
         await loadData();
         return;
       }
@@ -218,18 +226,24 @@ export default function AdminBeauticianLink() {
       const requestUrl = `/admin/admins/${adminId}`;
       console.log("Making DELETE request to:", requestUrl);
       console.log("Full URL will be:", api.defaults.baseURL + requestUrl);
-      console.log("Auth token in localStorage:", localStorage.getItem("authToken") ? "Present" : "Missing");
-      
+      console.log(
+        "Auth token in localStorage:",
+        localStorage.getItem("authToken") ? "Present" : "Missing"
+      );
+
       let response;
-      
+
       try {
         response = await api.delete(requestUrl);
       } catch (primaryError) {
-        console.log("❌ DELETE request failed with status:", primaryError.response?.status);
+        console.log(
+          "❌ DELETE request failed with status:",
+          primaryError.response?.status
+        );
         console.log("❌ Error data:", primaryError.response?.data);
         throw primaryError; // Re-throw the error for proper handling
       }
-      
+
       console.log("Delete response:", response);
 
       toast.success("Admin account deleted successfully");
@@ -252,9 +266,11 @@ export default function AdminBeauticianLink() {
         });
 
         if (error.response.status === 404) {
-          errorMessage = "Admin account not found. It may have already been deleted.";
+          errorMessage =
+            "Admin account not found. It may have already been deleted.";
         } else if (error.response.status === 403) {
-          errorMessage = "Permission denied. You don't have permission to delete this admin.";
+          errorMessage =
+            "Permission denied. You don't have permission to delete this admin.";
         } else if (error.response.status === 401) {
           errorMessage = "Authentication required. Please log in again.";
         } else {

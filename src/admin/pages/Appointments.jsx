@@ -64,7 +64,10 @@ export default function Appointments() {
       // Filter appointments based on admin role and linked beautician
       if (isSuperAdmin) {
         // Super admin sees all appointments
-        console.log("[Appointments] Super admin - showing all appointments:", appointments.length);
+        console.log(
+          "[Appointments] Super admin - showing all appointments:",
+          appointments.length
+        );
       } else if (admin?.beauticianId) {
         // Regular admin with linked beautician - only show their beautician's appointments
         const originalCount = appointments.length;
@@ -86,7 +89,9 @@ export default function Appointments() {
         };
       } else {
         // Regular admin without linked beautician - show no appointments
-        console.log("[Appointments] Regular admin without linked beautician - showing no appointments");
+        console.log(
+          "[Appointments] Regular admin without linked beautician - showing no appointments"
+        );
         appointments = [];
         paginationData = {
           page: 1,
@@ -436,7 +441,9 @@ export default function Appointments() {
                 Account Not Linked
               </p>
               <p className="text-xs text-amber-700 mt-1">
-                Your admin account is not linked to a beautician. You cannot view appointments until your account is linked. Please contact the super administrator.
+                Your admin account is not linked to a beautician. You cannot
+                view appointments until your account is linked. Please contact
+                the super administrator.
               </p>
             </div>
           </div>
@@ -456,38 +463,12 @@ export default function Appointments() {
 
       {/* Filters - only show if admin has access */}
       {(isSuperAdmin || admin?.beauticianId) && (
-      <div className="bg-white border rounded-lg p-4 mb-4 space-y-4">
-        {/* Search Bar */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg
-              className="h-5 w-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </div>
-          <input
-            type="text"
-            placeholder="Search by name, email, phone, service..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-            >
+        <div className="bg-white border rounded-lg p-4 mb-4 space-y-4">
+          {/* Search Bar */}
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg
-                className="h-5 w-5"
+                className="h-5 w-5 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -496,84 +477,110 @@ export default function Appointments() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-            </button>
-          )}
-        </div>
+            </div>
+            <input
+              type="text"
+              placeholder="Search by name, email, phone, service..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
 
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Beautician Filter */}
-          <FormField
-            label="Beautician"
-            htmlFor="beautician-filter"
-            className="flex-1"
-          >
-            <select
-              id="beautician-filter"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={selectedBeauticianId}
-              onChange={(e) => setSelectedBeauticianId(e.target.value)}
-            >
-              <option value="">All Beauticians</option>
-              {beauticians.map((b) => (
-                <option key={b._id} value={b._id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-          </FormField>
-
-          {/* Date Filter */}
-          <FormField
-            label="Date Range"
-            htmlFor="date-filter"
-            className="flex-1"
-          >
-            <select
-              id="date-filter"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-            >
-              <option value="all">All Time</option>
-              <option value="day">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="custom">Custom Range</option>
-            </select>
-          </FormField>
-        </div>
-
-        {/* Custom Date Range */}
-        {dateFilter === "custom" && (
-          <div className="flex flex-col sm:flex-row gap-4 pt-2 border-t">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Beautician Filter */}
             <FormField
-              label="Start Date"
-              htmlFor="start-date"
+              label="Beautician"
+              htmlFor="beautician-filter"
               className="flex-1"
             >
-              <input
-                id="start-date"
-                type="date"
+              <select
+                id="beautician-filter"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={customStartDate}
-                onChange={(e) => setCustomStartDate(e.target.value)}
-              />
+                value={selectedBeauticianId}
+                onChange={(e) => setSelectedBeauticianId(e.target.value)}
+              >
+                <option value="">All Beauticians</option>
+                {beauticians.map((b) => (
+                  <option key={b._id} value={b._id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
             </FormField>
-            <FormField label="End Date" htmlFor="end-date" className="flex-1">
-              <input
-                id="end-date"
-                type="date"
+
+            {/* Date Filter */}
+            <FormField
+              label="Date Range"
+              htmlFor="date-filter"
+              className="flex-1"
+            >
+              <select
+                id="date-filter"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={customEndDate}
-                onChange={(e) => setCustomEndDate(e.target.value)}
-              />
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+              >
+                <option value="all">All Time</option>
+                <option value="day">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="custom">Custom Range</option>
+              </select>
             </FormField>
           </div>
-        )}
-      </div>
+
+          {/* Custom Date Range */}
+          {dateFilter === "custom" && (
+            <div className="flex flex-col sm:flex-row gap-4 pt-2 border-t">
+              <FormField
+                label="Start Date"
+                htmlFor="start-date"
+                className="flex-1"
+              >
+                <input
+                  id="start-date"
+                  type="date"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                />
+              </FormField>
+              <FormField label="End Date" htmlFor="end-date" className="flex-1">
+                <input
+                  id="end-date"
+                  type="date"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                />
+              </FormField>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Loading State with Skeletons */}
