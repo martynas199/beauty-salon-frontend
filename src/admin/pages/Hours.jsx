@@ -33,30 +33,33 @@ export default function Hours() {
       setRetryCount(0); // Reset retry count on success
     } catch (error) {
       console.error("Failed to load settings:", error);
-      
+
       // Retry logic: retry up to 2 times with exponential backoff
       if (retry < 2) {
         const delay = Math.pow(2, retry) * 1000; // 1s, 2s
         console.log(`Retrying in ${delay}ms... (attempt ${retry + 1}/2)`);
-        
+
         setTimeout(() => {
           setRetryCount(retry + 1);
           loadSettings(retry + 1);
         }, delay);
-        
+
         setMessage({
           type: "warning",
           text: `Loading working hours... (attempt ${retry + 1}/3)`,
         });
       } else {
         // Failed after retries
-        const errorMessage = error.response?.data?.error || error.message || "Failed to load working hours";
+        const errorMessage =
+          error.response?.data?.error ||
+          error.message ||
+          "Failed to load working hours";
         setMessage({
           type: "error",
           text: errorMessage,
         });
         toast.error(errorMessage);
-        
+
         // Set default hours as fallback
         setWorkingHours({
           mon: { start: "09:00", end: "17:00" },
@@ -127,7 +130,8 @@ export default function Hours() {
       toast.success("Working hours saved successfully!");
       setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (error) {
-      const errorMessage = error.response?.data?.error || "Failed to save working hours";
+      const errorMessage =
+        error.response?.data?.error || "Failed to save working hours";
       setMessage({
         type: "error",
         text: errorMessage,
@@ -181,14 +185,11 @@ export default function Hours() {
               </div>
             )}
           </div>
-        ) : message.type === "error" && Object.keys(workingHours).length === 0 ? (
+        ) : message.type === "error" &&
+          Object.keys(workingHours).length === 0 ? (
           <div className="text-center py-8">
             <div className="text-red-600 mb-4">{message.text}</div>
-            <Button
-              onClick={() => loadSettings(0)}
-              variant="brand"
-              size="sm"
-            >
+            <Button onClick={() => loadSettings(0)} variant="brand" size="sm">
               🔄 Retry Loading
             </Button>
           </div>

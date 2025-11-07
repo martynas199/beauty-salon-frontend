@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { selectAdmin } from "../../features/auth/authSlice";
@@ -26,11 +26,7 @@ export default function Services() {
     [admin?.role, admin?.beauticianId]
   );
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       // Fetch services - backend will automatically filter based on admin role
@@ -58,7 +54,11 @@ export default function Services() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []); // No dependencies = only created once
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleCreate = () => {
     setEditingService(null);

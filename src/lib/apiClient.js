@@ -21,36 +21,66 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor: Handle errors and token expiration
+// Response interceptor: Enhanced error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle 401 Unauthorized (token expired or invalid)
-    if (error.response?.status === 401) {
+    // Handle network errors
+    if (!error.response) {
+      const networkError = new Error(
+        error.code === "ECONNABORTED"
+          ? "Request timed out. Please check your connection and try again."
+          : "Network error. Please check your internet connection."
+      );
+      networkError.isNetworkError = true;
+      networkError.originalError = error;
+      return Promise.reject(networkError);
+    }
+
+    // Handle 401 Unauthorized
+    if (error.response.status === 401) {
       const currentPath = window.location.pathname;
 
-      // Only redirect if we're not already on the login page
       if (!currentPath.includes("/admin/login")) {
-        // Clear auth data
         localStorage.removeItem("authToken");
         localStorage.removeItem("admin");
-
-        // Redirect to login
         window.location.href = "/admin/login";
       }
     }
 
-    // Handle 429 Too Many Requests (rate limiting)
-    if (error.response?.status === 429) {
-      const errorMessage =
-        error.response?.data?.error ||
-        "Too many requests. Please try again later.";
-      return Promise.reject(new Error(errorMessage));
+    // Handle 429 Too Many Requests
+    if (error.response.status === 429) {
+      const retryAfter = error.response.headers["retry-after"];
+      const errorMessage = retryAfter
+        ? `Too many requests. Please wait ${retryAfter} seconds.`
+        : "Too many requests. Please try again later.";
+
+      const rateLimitError = new Error(errorMessage);
+      rateLimitError.isRateLimitError = true;
+      rateLimitError.retryAfter = retryAfter;
+      return Promise.reject(rateLimitError);
+    }
+
+    // Handle 503 Service Unavailable
+    if (error.response.status === 503) {
+      const maintenanceError = new Error(
+        "Service temporarily unavailable. We're working on it!"
+      );
+      maintenanceError.isMaintenanceError = true;
+      return Promise.reject(maintenanceError);
     }
 
     // Return structured error
     const errorMessage =
-      error?.response?.data?.error || error?.message || "Unknown error";
-    return Promise.reject(new Error(errorMessage));
+      error?.response?.data?.error ||
+      error?.response?.data?.message ||
+      error?.message ||
+      "An unexpected error occurred";
+
+    const structuredError = new Error(errorMessage);
+    structuredError.status = error.response?.status;
+    structuredError.response = error.response;
+
+    return Promise.reject(structuredError);
   }
 );

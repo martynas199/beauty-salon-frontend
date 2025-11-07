@@ -32,10 +32,18 @@ export default function TimeSlots() {
     setLoading(true);
     setError(null);
 
+    // Create AbortController for request cancellation
+    const abortController = new AbortController();
+    let isCancelled = false;
+
     // Fetch service first to get assigned beautician
     api
-      .get(`/services/${serviceId}`)
+      .get(`/services/${serviceId}`, {
+        signal: abortController.signal, // Add cancellation signal
+      })
       .then((serviceResponse) => {
+        if (isCancelled) return; // Don't update state if unmounted
+
         setService(serviceResponse.data);
 
         // Determine which beautician to use
@@ -67,49 +75,58 @@ export default function TimeSlots() {
           setBeauticianInState({ beauticianId: targetBeauticianId, any: false })
         );
 
-        // Fetch beautician details
-        return api.get(`/beauticians/${targetBeauticianId}`);
+        // Fetch beautician details with cancellation
+        return api.get(`/beauticians/${targetBeauticianId}`, {
+          signal: abortController.signal,
+        });
       })
       .then((beauticianResponse) => {
-        if (beauticianResponse) {
-          const beauticianData = beauticianResponse.data;
+        if (isCancelled || !beauticianResponse) return;
 
-          // Convert legacy working hours to new format if needed
-          if (
-            (!beauticianData.workingHours ||
-              beauticianData.workingHours.length === 0) &&
+        const beauticianData = beauticianResponse.data;
+
+        // Convert legacy working hours to new format if needed
+        if (
+          (!beauticianData.workingHours ||
+            beauticianData.workingHours.length === 0) &&
+          beauticianData.legacyWorkingHours
+        ) {
+          const dayMapping = {
+            mon: 1,
+            tue: 2,
+            wed: 3,
+            thu: 4,
+            fri: 5,
+            sat: 6,
+            sun: 0,
+          };
+
+          const convertedHours = [];
+          for (const [dayKey, schedule] of Object.entries(
             beauticianData.legacyWorkingHours
-          ) {
-            const dayMapping = {
-              mon: 1,
-              tue: 2,
-              wed: 3,
-              thu: 4,
-              fri: 5,
-              sat: 6,
-              sun: 0,
-            };
-
-            const convertedHours = [];
-            for (const [dayKey, schedule] of Object.entries(
-              beauticianData.legacyWorkingHours
-            )) {
-              if (schedule && schedule.start && schedule.end) {
-                convertedHours.push({
-                  dayOfWeek: dayMapping[dayKey],
-                  start: schedule.start,
-                  end: schedule.end,
-                });
-              }
+          )) {
+            if (schedule && schedule.start && schedule.end) {
+              convertedHours.push({
+                dayOfWeek: dayMapping[dayKey],
+                start: schedule.start,
+                end: schedule.end,
+              });
             }
-
-            beauticianData.workingHours = convertedHours;
           }
 
-          setBeautician(beauticianData);
+          beauticianData.workingHours = convertedHours;
         }
+
+        setBeautician(beauticianData);
       })
       .catch((err) => {
+        // Ignore cancellation errors
+        if (err.name === "CanceledError" || err.code === "ERR_CANCELED") {
+          return;
+        }
+
+        if (isCancelled) return;
+
         console.error("Failed to load service/beautician:", err);
         const errorMsg =
           err.response?.data?.error ||
@@ -120,8 +137,16 @@ export default function TimeSlots() {
         toast.error(errorMsg);
       })
       .finally(() => {
-        setLoading(false);
+        if (!isCancelled) {
+          setLoading(false);
+        }
       });
+
+    // Cleanup: Cancel request if component unmounts
+    return () => {
+      isCancelled = true;
+      abortController.abort();
+    };
   }, [serviceId, beauticianId]);
 
   const handleSlotSelect = (slot) => {

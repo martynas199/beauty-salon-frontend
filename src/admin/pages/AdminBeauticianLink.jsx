@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { api } from "../../lib/apiClient";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import Input from "../../components/ui/Input";
 import toast from "react-hot-toast";
+import { useDebounce } from "../../hooks/useDebounce";
+import { selectAdmin } from "../../features/auth/authSlice";
 
 export default function AdminBeauticianLink() {
+  const currentAdmin = useSelector(selectAdmin);
   const [admins, setAdmins] = useState([]);
   const [beauticians, setBeauticians] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +18,10 @@ export default function AdminBeauticianLink() {
   const [linking, setLinking] = useState(false);
   const [searchAdmin, setSearchAdmin] = useState("");
   const [searchBeautician, setSearchBeautician] = useState("");
+
+  // Debounce search inputs to avoid excessive re-renders
+  const debouncedAdminSearch = useDebounce(searchAdmin, 300);
+  const debouncedBeauticianSearch = useDebounce(searchBeautician, 300);
 
   // Create admin form state
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -28,22 +36,26 @@ export default function AdminBeauticianLink() {
   });
 
   useEffect(() => {
+    console.log(
+      "AdminBeauticianLink mounted with current admin:",
+      currentAdmin
+    );
+    console.log("Auth token:", localStorage.getItem("authToken"));
     loadData();
   }, []);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("adminToken");
+      console.log("Loading admin data...", { currentAdmin });
 
-      // Fetch admins
-      const adminsRes = await api.get("/admin/admins", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Fetch admins and beauticians in parallel - API client handles auth automatically
+      const [adminsRes, beauticiansRes] = await Promise.all([
+        api.get("/admin/admins"),
+        api.get("/beauticians"),
+      ]);
 
-      // Fetch beauticians
-      const beauticiansRes = await api.get("/beauticians");
-
+      console.log("Loaded admins:", adminsRes.data);
       setAdmins(adminsRes.data || []);
       setBeauticians(beauticiansRes.data || []);
     } catch (error) {
@@ -62,12 +74,9 @@ export default function AdminBeauticianLink() {
 
     setLinking(true);
     try {
-      const token = localStorage.getItem("adminToken");
-      await api.patch(
-        `/admin/admins/${selectedAdmin}/link-beautician`,
-        { beauticianId: selectedBeautician },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.patch(`/admin/admins/${selectedAdmin}/link-beautician`, {
+        beauticianId: selectedBeautician,
+      });
 
       toast.success("Successfully linked admin to beautician!");
       loadData(); // Reload to show updated links
@@ -115,12 +124,9 @@ export default function AdminBeauticianLink() {
 
   const performUnlink = async (adminId) => {
     try {
-      const token = localStorage.getItem("adminToken");
-      await api.patch(
-        `/admin/admins/${adminId}/link-beautician`,
-        { beauticianId: null },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.patch(`/admin/admins/${adminId}/link-beautician`, {
+        beauticianId: null,
+      });
 
       toast.success("Successfully unlinked admin from beautician");
       loadData();
@@ -131,12 +137,22 @@ export default function AdminBeauticianLink() {
   };
 
   const handleDelete = async (admin) => {
+    // Check if user is trying to delete themselves
+    if (currentAdmin?.id === admin._id || currentAdmin?._id === admin._id) {
+      toast.error("You cannot delete your own admin account");
+      return;
+    }
+
+    // Check if current user has permission (only super_admin can delete admins)
+    if (currentAdmin?.role !== "super_admin") {
+      toast.error("Only super administrators can delete admin accounts");
+      return;
+    }
+
     toast(
       (t) => (
         <div className="flex flex-col gap-3">
-          <p className="font-medium">
-            Delete admin account "{admin.name}"?
-          </p>
+          <p className="font-medium">Delete admin account "{admin.name}"?</p>
           <p className="text-sm text-gray-600">
             This will permanently delete the admin account. This action cannot
             be undone.
@@ -165,19 +181,53 @@ export default function AdminBeauticianLink() {
   };
 
   const performDelete = async (adminId) => {
+    // Dismiss any existing toasts first to prevent overlap
+    toast.dismiss();
+
     try {
-      const token = localStorage.getItem("adminToken");
-      await api.delete(`/admin/admins/${adminId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      console.log("Attempting to delete admin with ID:", adminId);
+      console.log("Current user role:", currentAdmin?.role);
+      console.log("Request URL:", `/admin/admins/${adminId}`);
+
+      const response = await api.delete(`/admin/admins/${adminId}`);
+      console.log("Delete response:", response);
 
       toast.success("Admin account deleted successfully");
-      loadData();
+      await loadData(); // Ensure we wait for the reload
     } catch (error) {
-      console.error("Failed to delete admin:", error);
-      toast.error(
-        error.response?.data?.error || "Failed to delete admin account"
-      );
+      console.error("Failed to delete admin - Full error:", error);
+      console.error("Error response:", error.response);
+      console.error("Error request:", error.request);
+      console.error("Error message:", error.message);
+
+      // More detailed error handling
+      let errorMessage = "Failed to delete admin account";
+
+      if (error.response) {
+        // Server responded with error status
+        console.log("Server error details:", {
+          status: error.response.status,
+          data: error.response.data,
+          headers: error.response.headers,
+        });
+
+        errorMessage =
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          `Server error: ${error.response.status} - ${error.response.statusText}`;
+      } else if (error.request) {
+        // Request was made but no response received
+        console.log("No response received:", error.request);
+        errorMessage = "No response from server. Please check your connection.";
+      } else {
+        // Something else happened
+        console.log("Request setup error:", error.message);
+        errorMessage = error.message || "An unexpected error occurred";
+      }
+
+      toast.error(errorMessage, {
+        duration: 8000, // Show error for 8 seconds for better visibility
+      });
     }
   };
 
@@ -197,18 +247,13 @@ export default function AdminBeauticianLink() {
 
     setCreating(true);
     try {
-      const token = localStorage.getItem("adminToken");
-      await api.post(
-        "/admin/admins",
-        {
-          name: newAdmin.name,
-          email: newAdmin.email,
-          password: newAdmin.password,
-          role: newAdmin.role,
-          beauticianId: newAdmin.beauticianId || null,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.post("/admin/admins", {
+        name: newAdmin.name,
+        email: newAdmin.email,
+        password: newAdmin.password,
+        role: newAdmin.role,
+        beauticianId: newAdmin.beauticianId || null,
+      });
 
       toast.success("Admin created successfully!");
       setShowCreateForm(false);
@@ -235,16 +280,18 @@ export default function AdminBeauticianLink() {
 
   const filteredAdmins = admins.filter(
     (admin) =>
-      admin.name.toLowerCase().includes(searchAdmin.toLowerCase()) ||
-      admin.email.toLowerCase().includes(searchAdmin.toLowerCase())
+      admin.name.toLowerCase().includes(debouncedAdminSearch.toLowerCase()) ||
+      admin.email.toLowerCase().includes(debouncedAdminSearch.toLowerCase())
   );
 
   const filteredBeauticians = beauticians.filter(
     (beautician) =>
-      beautician.name.toLowerCase().includes(searchBeautician.toLowerCase()) ||
+      beautician.name
+        .toLowerCase()
+        .includes(debouncedBeauticianSearch.toLowerCase()) ||
       (beautician.email || "")
         .toLowerCase()
-        .includes(searchBeautician.toLowerCase())
+        .includes(debouncedBeauticianSearch.toLowerCase())
   );
 
   if (loading) {
@@ -758,7 +805,20 @@ export default function AdminBeauticianLink() {
                           variant="danger"
                           size="sm"
                           onClick={() => handleDelete(admin)}
+                          disabled={
+                            currentAdmin?.role !== "super_admin" ||
+                            currentAdmin?.id === admin._id ||
+                            currentAdmin?._id === admin._id
+                          }
                           className="text-xs sm:text-sm"
+                          title={
+                            currentAdmin?.role !== "super_admin"
+                              ? "Only super administrators can delete admin accounts"
+                              : currentAdmin?.id === admin._id ||
+                                currentAdmin?._id === admin._id
+                              ? "You cannot delete your own account"
+                              : "Delete admin account"
+                          }
                         >
                           Delete
                         </Button>

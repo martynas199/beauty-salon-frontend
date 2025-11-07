@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { selectAdmin } from "../../features/auth/authSlice";
@@ -6,6 +6,8 @@ import { api } from "../../lib/apiClient";
 import Modal from "../../components/ui/Modal";
 import FormField from "../../components/forms/FormField";
 import Button from "../../components/ui/Button";
+import { SkeletonBox, TableRowSkeleton } from "../../components/ui/Skeleton";
+import { SlowRequestWarning } from "../../components/ui/SlowRequestWarning";
 
 export default function Appointments() {
   const admin = useSelector(selectAdmin);
@@ -49,7 +51,7 @@ export default function Appointments() {
 
       let appointments = [];
       let paginationData = pagination;
-      
+
       if (response.data.data) {
         // Paginated response
         appointments = response.data.data || [];
@@ -64,7 +66,7 @@ export default function Appointments() {
         appointments = appointments.filter(
           (apt) => apt.beauticianId?._id === admin.beauticianId
         );
-        
+
         // Recalculate pagination for filtered results
         const filteredTotal = appointments.length;
         paginationData = {
@@ -146,82 +148,94 @@ export default function Appointments() {
     return start && end ? { start, end } : null;
   };
 
-  // Filter by beautician and date
-  let filteredRows = rows;
+  // Memoize filtered and sorted appointments to prevent unnecessary recalculations
+  const sortedRows = useMemo(() => {
+    let filteredRows = rows;
 
-  // Apply beautician filter
-  if (selectedBeauticianId) {
-    filteredRows = filteredRows.filter((r) => {
-      const beauticianId =
-        typeof r.beauticianId === "object" && r.beauticianId?._id
-          ? r.beauticianId._id
-          : r.beauticianId;
-      return String(beauticianId) === String(selectedBeauticianId);
-    });
-  }
-
-  // Apply date filter
-  const dateRange = getDateRange();
-  if (dateRange) {
-    filteredRows = filteredRows.filter((r) => {
-      const appointmentDate = new Date(r.start);
-      return (
-        appointmentDate >= dateRange.start && appointmentDate < dateRange.end
-      );
-    });
-  }
-
-  // Apply search filter
-  if (searchQuery.trim()) {
-    const query = searchQuery.toLowerCase();
-    filteredRows = filteredRows.filter((r) => {
-      return (
-        r.client?.name?.toLowerCase().includes(query) ||
-        r.client?.email?.toLowerCase().includes(query) ||
-        r.client?.phone?.toLowerCase().includes(query) ||
-        r.beautician?.name?.toLowerCase().includes(query) ||
-        r.service?.name?.toLowerCase().includes(query) ||
-        r.variantName?.toLowerCase().includes(query)
-      );
-    });
-  }
-
-  const sortedRows = [...filteredRows].sort((a, b) => {
-    let aVal, bVal;
-
-    switch (sortConfig.key) {
-      case "client":
-        aVal = a.client?.name || "";
-        bVal = b.client?.name || "";
-        break;
-      case "staff":
-        aVal = a.beautician?.name || a.beauticianId || "";
-        bVal = b.beautician?.name || b.beauticianId || "";
-        break;
-      case "service":
-        aVal = `${a.service?.name || a.serviceId} - ${a.variantName}`;
-        bVal = `${b.service?.name || b.serviceId} - ${b.variantName}`;
-        break;
-      case "start":
-        aVal = new Date(a.start).getTime();
-        bVal = new Date(b.start).getTime();
-        break;
-      case "price":
-        aVal = Number(a.price || 0);
-        bVal = Number(b.price || 0);
-        break;
-      case "status":
-        aVal = a.status || "";
-        bVal = b.status || "";
-        break;
-      default:
-        return 0;
+    // Apply beautician filter
+    if (selectedBeauticianId) {
+      filteredRows = filteredRows.filter((r) => {
+        const beauticianId =
+          typeof r.beauticianId === "object" && r.beauticianId?._id
+            ? r.beauticianId._id
+            : r.beauticianId;
+        return String(beauticianId) === String(selectedBeauticianId);
+      });
     }
 
-    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-    return 0;
-  });
+    // Apply date filter
+    const dateRange = getDateRange();
+    if (dateRange) {
+      filteredRows = filteredRows.filter((r) => {
+        const appointmentDate = new Date(r.start);
+        return (
+          appointmentDate >= dateRange.start && appointmentDate < dateRange.end
+        );
+      });
+    }
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filteredRows = filteredRows.filter((r) => {
+        return (
+          r.client?.name?.toLowerCase().includes(query) ||
+          r.client?.email?.toLowerCase().includes(query) ||
+          r.client?.phone?.toLowerCase().includes(query) ||
+          r.beautician?.name?.toLowerCase().includes(query) ||
+          r.service?.name?.toLowerCase().includes(query) ||
+          r.variantName?.toLowerCase().includes(query)
+        );
+      });
+    }
+
+    // Sort filtered results
+    return [...filteredRows].sort((a, b) => {
+      let aVal, bVal;
+
+      switch (sortConfig.key) {
+        case "client":
+          aVal = a.client?.name || "";
+          bVal = b.client?.name || "";
+          break;
+        case "staff":
+          aVal = a.beautician?.name || a.beauticianId || "";
+          bVal = b.beautician?.name || b.beauticianId || "";
+          break;
+        case "service":
+          aVal = `${a.service?.name || a.serviceId} - ${a.variantName}`;
+          bVal = `${b.service?.name || b.serviceId} - ${b.variantName}`;
+          break;
+        case "start":
+          aVal = new Date(a.start).getTime();
+          bVal = new Date(b.start).getTime();
+          break;
+        case "price":
+          aVal = Number(a.price || 0);
+          bVal = Number(b.price || 0);
+          break;
+        case "status":
+          aVal = a.status || "";
+          bVal = b.status || "";
+          break;
+        default:
+          return 0;
+      }
+
+      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [
+    rows,
+    selectedBeauticianId,
+    dateFilter,
+    customStartDate,
+    customEndDate,
+    searchQuery,
+    sortConfig.key,
+    sortConfig.direction,
+  ]);
 
   async function openCancelModal(id) {
     try {
@@ -375,6 +389,8 @@ export default function Appointments() {
 
   return (
     <div>
+      <SlowRequestWarning isLoading={loading} threshold={2000} />
+
       <h1 className="text-2xl lg:text-3xl font-bold mb-4 lg:mb-6">
         Appointments
       </h1>
@@ -499,19 +515,95 @@ export default function Appointments() {
         )}
       </div>
 
-      {/* Loading State */}
+      {/* Loading State with Skeletons */}
       {loading && (
-        <div className="flex flex-col items-center justify-center py-16 bg-white border rounded-lg">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
-            <div className="w-16 h-16 border-4 border-brand-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+        <div className="space-y-6">
+          {/* Header Skeleton */}
+          <div className="flex justify-between items-center">
+            <div>
+              <SkeletonBox className="h-8 w-48 mb-2" />
+              <SkeletonBox className="h-4 w-64" />
+            </div>
+            <SkeletonBox className="h-10 w-32" />
           </div>
-          <p className="mt-4 text-gray-600 font-medium">
-            Loading appointments...
-          </p>
-          <p className="mt-1 text-sm text-gray-500">
-            Please wait while we fetch your data
-          </p>
+
+          {/* Filters Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <SkeletonBox key={i} className="h-10" />
+            ))}
+          </div>
+
+          {/* Desktop Table Skeleton */}
+          <div className="hidden lg:block bg-white rounded-lg border border-gray-200">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    {[
+                      "Client",
+                      "Beautician",
+                      "Service",
+                      "Date/Time",
+                      "Status",
+                      "Actions",
+                    ].map((header, i) => (
+                      <th key={i} className="px-6 py-3">
+                        <SkeletonBox className="w-20 h-4" />
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <tr key={i}>
+                      {Array.from({ length: 6 }).map((_, j) => (
+                        <td key={j} className="px-6 py-4">
+                          <SkeletonBox className="w-full h-4" />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile Cards Skeleton */}
+          <div className="lg:hidden space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-lg shadow-sm border p-4 space-y-3"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2">
+                    <SkeletonBox className="w-32 h-5" />
+                    <SkeletonBox className="w-24 h-4" />
+                  </div>
+                  <SkeletonBox className="w-16 h-6 rounded-full" />
+                </div>
+                <div className="space-y-2">
+                  <SkeletonBox className="w-full h-4" />
+                  <SkeletonBox className="w-3/4 h-4" />
+                  <SkeletonBox className="w-1/2 h-4" />
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <SkeletonBox className="flex-1 h-8" />
+                  <SkeletonBox className="flex-1 h-8" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination Skeleton */}
+          <div className="flex justify-between items-center">
+            <SkeletonBox className="h-4 w-32" />
+            <div className="flex gap-2">
+              <SkeletonBox className="h-10 w-24" />
+              <SkeletonBox className="h-10 w-24" />
+            </div>
+          </div>
         </div>
       )}
 
