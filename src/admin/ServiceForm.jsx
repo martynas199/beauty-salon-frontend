@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { useImageUpload } from "../hooks/useImageUpload";
 import FormField from "../components/forms/FormField";
 import ConfirmDeleteModal from "../components/forms/ConfirmDeleteModal";
@@ -26,7 +27,11 @@ export default function ServiceForm({
   admin,
 }) {
   const isEditMode = Boolean(service);
-  const { uploadImage, isUploading: isUploadingImage } = useImageUpload();
+  const {
+    uploadImage,
+    isUploading: isUploadingImage,
+    progress,
+  } = useImageUpload();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -128,30 +133,19 @@ export default function ServiceForm({
 
   const removeVariant = (index) => {
     if (formData.variants.length === 1) {
-      alert("At least one variant is required");
+      toast.error("At least one variant is required");
       return;
     }
     setFormData((prev) => ({
       ...prev,
       variants: prev.variants.filter((_, i) => i !== index),
     }));
+    toast.success("Variant removed");
   };
 
   const handleImageChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      setErrors((prev) => ({ ...prev, image: "Please select an image file" }));
-      return;
-    }
-
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      setErrors((prev) => ({ ...prev, image: "Image must be less than 5MB" }));
-      return;
-    }
 
     try {
       const uploadedImage = await uploadImage(file, { alt: formData.name });
@@ -235,6 +229,10 @@ export default function ServiceForm({
   };
 
   const confirmDelete = async () => {
+    if (!onDelete) {
+      toast.error("Delete permission denied");
+      return;
+    }
     setIsSubmitting(true);
     try {
       await onDelete();
@@ -392,13 +390,62 @@ export default function ServiceForm({
               disabled={isUploadingImage}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"
             />
-            {formData.image && (
+
+            {/* Upload Progress Bar */}
+            {isUploadingImage && progress > 0 && (
               <div className="mt-2">
+                <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                  <div
+                    className="bg-brand-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <p className="text-sm text-gray-600 mt-1">
+                  {progress}% uploaded
+                </p>
+              </div>
+            )}
+
+            {/* Image Preview */}
+            {formData.image && !isUploadingImage && (
+              <div className="mt-3 relative inline-block">
                 <img
                   src={formData.image.url}
                   alt={formData.image.alt || "Service image"}
-                  className="w-32 h-32 object-cover rounded-lg"
+                  className="w-48 h-32 object-cover rounded-xl shadow-md"
                 />
+                <button
+                  type="button"
+                  onClick={() => {
+                    toast(
+                      (t) => (
+                        <span className="flex items-center gap-3">
+                          <span>Remove this image?</span>
+                          <button
+                            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                            onClick={() => {
+                              setFormData((prev) => ({ ...prev, image: null }));
+                              toast.dismiss(t.id);
+                              toast.success("Image removed");
+                            }}
+                          >
+                            Remove
+                          </button>
+                          <button
+                            className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300"
+                            onClick={() => toast.dismiss(t.id)}
+                          >
+                            Cancel
+                          </button>
+                        </span>
+                      ),
+                      { duration: 6000 }
+                    );
+                  }}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 shadow-lg"
+                >
+                  ×
+                </button>
               </div>
             )}
           </FormField>
@@ -584,7 +631,7 @@ export default function ServiceForm({
         {/* Form Actions */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-6 border-t gap-4">
           <div>
-            {isEditMode && (
+            {isEditMode && onDelete && (
               <Button
                 type="button"
                 onClick={handleDeleteClick}

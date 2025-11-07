@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import { OrdersAPI } from "./orders.api";
 import { ProductsAPI } from "../products/products.api";
 import { clearCart } from "../cart/cartSlice";
@@ -115,7 +116,7 @@ export default function ProductCheckoutPage() {
       window.location.href = response.url;
     } catch (error) {
       console.error("Error creating checkout:", error);
-      alert(
+      toast.error(
         error.response?.data?.error ||
           "Failed to create checkout session. Please try again."
       );

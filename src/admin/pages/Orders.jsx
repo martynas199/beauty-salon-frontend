@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { OrdersAPI } from "../../features/orders/orders.api";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
@@ -21,7 +22,7 @@ export default function Orders() {
       setAllOrders(data);
     } catch (error) {
       console.error("Error loading orders:", error);
-      alert("Failed to load orders");
+      toast.error("Failed to load orders");
     } finally {
       setLoading(false);
     }
@@ -41,10 +42,10 @@ export default function Orders() {
       });
       setAllOrders(allOrders.map((o) => (o._id === orderId ? updated : o)));
       setSelectedOrder(updated);
-      alert("Order status updated successfully");
+      toast.success("Order status updated successfully");
     } catch (error) {
       console.error("Error updating order:", error);
-      alert("Failed to update order status");
+      toast.error("Failed to update order status");
     } finally {
       setUpdating(false);
     }
@@ -56,36 +57,52 @@ export default function Orders() {
       const updated = await OrdersAPI.update(orderId, { trackingNumber });
       setAllOrders(allOrders.map((o) => (o._id === orderId ? updated : o)));
       setSelectedOrder(updated);
-      alert("Tracking number updated successfully");
+      toast.success("Tracking number updated successfully");
     } catch (error) {
       console.error("Error updating tracking:", error);
-      alert("Failed to update tracking number");
+      toast.error("Failed to update tracking number");
     } finally {
       setUpdating(false);
     }
   };
 
   const handleCancelOrder = async (orderId) => {
-    if (
-      !confirm(
-        "Are you sure you want to cancel this order? Stock will be restored."
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setUpdating(true);
-      const updated = await OrdersAPI.cancel(orderId);
-      setAllOrders(allOrders.map((o) => (o._id === orderId ? updated : o)));
-      setSelectedOrder(updated);
-      alert("Order cancelled successfully");
-    } catch (error) {
-      console.error("Error cancelling order:", error);
-      alert("Failed to cancel order");
-    } finally {
-      setUpdating(false);
-    }
+    toast(
+      (t) => (
+        <span className="flex items-center gap-3">
+          <span>Cancel this order? Stock will be restored.</span>
+          <button
+            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                setUpdating(true);
+                const updated = await OrdersAPI.cancel(orderId);
+                setAllOrders(
+                  allOrders.map((o) => (o._id === orderId ? updated : o))
+                );
+                setSelectedOrder(updated);
+                toast.success("Order cancelled successfully");
+              } catch (error) {
+                console.error("Error cancelling order:", error);
+                toast.error("Failed to cancel order");
+              } finally {
+                setUpdating(false);
+              }
+            }}
+          >
+            Yes, Cancel Order
+          </button>
+          <button
+            className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300"
+            onClick={() => toast.dismiss(t.id)}
+          >
+            No
+          </button>
+        </span>
+      ),
+      { duration: 8000 }
+    );
   };
 
   const getStatusColor = (status) => {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { ProductsAPI } from "../../features/products/products.api";
 import { api } from "../../lib/apiClient";
 import Button from "../../components/ui/Button";
@@ -108,20 +109,36 @@ export default function Products() {
   const removeExistingGalleryImage = async (index) => {
     if (!editingId) return;
 
-    if (
-      confirm(
-        "Are you sure you want to delete this image? This cannot be undone."
-      )
-    ) {
-      try {
-        const product = await ProductsAPI.deleteImage(editingId, index);
-        setExistingGalleryImages(product.images || []);
-        alert("Image deleted successfully!");
-      } catch (error) {
-        console.error("Error deleting image:", error);
-        alert("Failed to delete image: " + error.message);
-      }
-    }
+    toast(
+      (t) => (
+        <span className="flex items-center gap-3">
+          <span>Delete this image? This cannot be undone.</span>
+          <button
+            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                const product = await ProductsAPI.deleteImage(editingId, index);
+                setExistingGalleryImages(product.images || []);
+                toast.success("Image deleted successfully");
+              } catch (error) {
+                console.error("Error deleting image:", error);
+                toast.error("Failed to delete image: " + error.message);
+              }
+            }}
+          >
+            Yes, Delete
+          </button>
+          <button
+            className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300"
+            onClick={() => toast.dismiss(t.id)}
+          >
+            Cancel
+          </button>
+        </span>
+      ),
+      { duration: 8000 }
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -134,7 +151,7 @@ export default function Products() {
         (v) => v.size.trim() && v.price
       );
       if (validVariants.length === 0) {
-        alert("Please add at least one variant with size and price");
+        toast.error("Please add at least one variant with size and price");
         setSubmitting(false);
         return;
       }
@@ -171,14 +188,14 @@ export default function Products() {
 
       await loadProducts();
       resetForm();
-      alert(
+      toast.success(
         editingId
           ? "Product updated successfully!"
           : "Product created successfully!"
       );
     } catch (error) {
       console.error("Error saving product:", error);
-      alert("Failed to save product: " + error.message);
+      toast.error("Failed to save product: " + error.message);
     } finally {
       setSubmitting(false);
     }
@@ -236,10 +253,10 @@ export default function Products() {
       await ProductsAPI.delete(deleteModal.product._id);
       await loadProducts();
       setDeleteModal({ open: false, product: null });
-      alert("Product deleted successfully!");
+      toast.success("Product deleted successfully");
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("Failed to delete product: " + error.message);
+      toast.error("Failed to delete product: " + error.message);
     }
   };
 
@@ -294,7 +311,7 @@ export default function Products() {
 
   const removeVariant = (index) => {
     if (formData.variants.length <= 1) {
-      alert("Product must have at least one variant");
+      toast.error("Product must have at least one variant");
       return;
     }
     setFormData({

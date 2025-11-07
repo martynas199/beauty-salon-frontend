@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 import { selectAdmin } from "../../features/auth/authSlice";
 import { api } from "../../lib/apiClient";
 import ServiceForm from "../ServiceForm";
@@ -53,7 +54,7 @@ export default function Services() {
       }
     } catch (error) {
       console.error("Failed to load data:", error);
-      alert("Failed to load services data: " + error.message);
+      toast.error("Failed to load services: " + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -132,7 +133,7 @@ export default function Services() {
         } catch (uploadError) {
           console.error("Image upload failed:", uploadError);
           // Service was saved, but image upload failed
-          alert(
+          toast.error(
             "Service saved, but image upload failed: " + uploadError.message
           );
         }
@@ -141,6 +142,11 @@ export default function Services() {
       await loadData();
       setShowForm(false);
       setEditingService(null);
+      toast.success(
+        editingService
+          ? "Service updated successfully"
+          : "Service created successfully"
+      );
     } catch (error) {
       console.error("Save error:", error);
       throw error; // Let form handle error display
@@ -148,20 +154,15 @@ export default function Services() {
   };
 
   const handleDelete = async (serviceId) => {
-    // Only super_admin can delete services
-    if (!isSuperAdmin) {
-      alert("Only salon managers can delete services.");
-      return;
-    }
-
     try {
       await api.delete(`/services/${serviceId}`);
       await loadData();
       setShowForm(false);
       setEditingService(null);
+      toast.success("Service deleted successfully");
     } catch (error) {
       console.error("Delete error:", error);
-      alert("Failed to delete service: " + error.message);
+      toast.error("Failed to delete service: " + error.message);
     }
   };
 
@@ -178,9 +179,7 @@ export default function Services() {
         onSave={handleSave}
         onCancel={handleCancel}
         onDelete={
-          editingService && isSuperAdmin
-            ? () => handleDelete(editingService._id)
-            : undefined
+          editingService ? () => handleDelete(editingService._id) : undefined
         }
         isSuperAdmin={isSuperAdmin}
         admin={admin}

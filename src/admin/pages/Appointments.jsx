@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 import { selectAdmin } from "../../features/auth/authSlice";
 import { api } from "../../lib/apiClient";
 import Modal from "../../components/ui/Modal";
@@ -218,7 +219,7 @@ export default function Appointments() {
       setActiveId(id);
       setModalOpen(true);
     } catch (e) {
-      alert(e.message || "Failed to load preview");
+      toast.error(e.message || "Failed to load preview");
     }
   }
 
@@ -247,29 +248,53 @@ export default function Appointments() {
       setActiveId("");
       setPreview(null);
       setReason("Admin initiated");
+      toast.success("Appointment cancelled successfully");
     } catch (e) {
-      alert(e.message || "Failed to cancel");
+      toast.error(e.message || "Failed to cancel appointment");
     } finally {
       setSubmitting(false);
     }
   }
 
   async function markAsNoShow(id) {
-    if (!confirm("Mark this appointment as No Show?")) return;
+    toast(
+      (t) => (
+        <span className="flex items-center gap-3">
+          <span>Mark this appointment as No Show?</span>
+          <button
+            className="px-3 py-1 bg-orange-600 text-white text-sm rounded hover:bg-orange-700"
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                const res = await api
+                  .patch(`/appointments/${id}/status`, {
+                    status: "no_show",
+                  })
+                  .then((r) => r.data);
 
-    try {
-      const res = await api
-        .patch(`/appointments/${id}/status`, {
-          status: "no_show",
-        })
-        .then((r) => r.data);
-
-      setRows((old) =>
-        old.map((x) => (x._id === id ? { ...x, status: res.status } : x))
-      );
-    } catch (e) {
-      alert(e.message || "Failed to update status");
-    }
+                setRows((old) =>
+                  old.map((x) =>
+                    x._id === id ? { ...x, status: res.status } : x
+                  )
+                );
+                toast.success("Marked as No Show");
+              } catch (e) {
+                toast.error(e.message || "Failed to update status");
+              }
+            }}
+          >
+            Yes, Mark No Show
+          </button>
+          <button
+            className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300"
+            onClick={() => toast.dismiss(t.id)}
+          >
+            Cancel
+          </button>
+        </span>
+      ),
+      { duration: 8000 }
+    );
   }
 
   function openEditModal(appointment) {
@@ -325,8 +350,9 @@ export default function Appointments() {
 
       setEditModalOpen(false);
       setEditingAppointment(null);
+      toast.success("Appointment updated successfully");
     } catch (e) {
-      alert(
+      toast.error(
         e.response?.data?.error || e.message || "Failed to update appointment"
       );
     } finally {

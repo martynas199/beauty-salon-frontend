@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { useImageUpload } from "../hooks/useImageUpload";
 import FormField from "../components/forms/FormField";
 import ConfirmDeleteModal from "../components/forms/ConfirmDeleteModal";
@@ -15,7 +16,11 @@ import Button from "../components/ui/Button";
  */
 export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
   const isEditMode = Boolean(staff);
-  const { uploadImage, isUploading: isUploadingImage } = useImageUpload();
+  const {
+    uploadImage,
+    isUploading: isUploadingImage,
+    progress,
+  } = useImageUpload();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -99,7 +104,7 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
     if (!newSpecialty.trim()) return;
 
     if (formData.specialties.includes(newSpecialty.trim())) {
-      alert("This specialty is already added");
+      toast.error("This specialty is already added");
       return;
     }
 
@@ -108,6 +113,7 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
       specialties: [...prev.specialties, newSpecialty.trim()],
     }));
     setNewSpecialty("");
+    toast.success("Specialty added");
   };
 
   const removeSpecialty = (index) => {

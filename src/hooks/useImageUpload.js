@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import toast from "react-hot-toast";
 
 /**
  * Placeholder hook for image uploads to Cloudflare R2 (or any object storage)
@@ -152,6 +153,22 @@ export function useImageUpload() {
     setProgress(0);
 
     try {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        const errorMsg = "Please select an image file";
+        setError(errorMsg);
+        toast.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        const errorMsg = "Image must be less than 5MB";
+        setError(errorMsg);
+        toast.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+
       // Get actual image dimensions for preview
       const dimensions = await getImageDimensions(file);
 
@@ -162,7 +179,20 @@ export function useImageUpload() {
       // The actual upload will happen when the service is saved
       const previewUrl = URL.createObjectURL(file);
 
-      setProgress(100);
+      // Simulate upload progress
+      await new Promise((resolve) => {
+        let currentProgress = 30;
+        const interval = setInterval(() => {
+          currentProgress += 20;
+          setProgress(Math.min(currentProgress, 100));
+          if (currentProgress >= 100) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 100);
+      });
+
+      toast.success("Image preview loaded successfully");
 
       return {
         provider: "local-preview",
@@ -174,7 +204,11 @@ export function useImageUpload() {
         height: dimensions.height,
       };
     } catch (err) {
-      setError(err.message);
+      const errorMsg = err.message || "Failed to load image";
+      setError(errorMsg);
+      if (!err.message) {
+        toast.error(errorMsg);
+      }
       throw err;
     } finally {
       setIsUploading(false);

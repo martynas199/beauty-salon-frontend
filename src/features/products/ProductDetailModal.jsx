@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
 import { addToCart, openCart } from "../cart/cartSlice";
 import Button from "../../components/ui/Button";
 
@@ -610,9 +611,11 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
 
                         // Close modal
                         onClose();
+
+                        toast.success("Added to cart successfully");
                       } catch (error) {
                         console.error("Error adding to cart:", error);
-                        alert("Failed to add item to cart");
+                        toast.error("Failed to add item to cart");
                       } finally {
                         setAddingToCart(false);
                       }
@@ -683,9 +686,11 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
 
                     // Close modal
                     onClose();
+
+                    toast.success("Added to cart successfully");
                   } catch (error) {
                     console.error("Error adding to cart:", error);
-                    alert("Failed to add item to cart");
+                    toast.error("Failed to add item to cart");
                   } finally {
                     setAddingToCart(false);
                   }
