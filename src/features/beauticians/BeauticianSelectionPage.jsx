@@ -9,6 +9,7 @@ import PageTransition, {
 } from "../../components/ui/PageTransition";
 import Card from "../../components/ui/Card";
 import ServiceCard from "../landing/ServiceCard";
+import ServiceVariantSelector from "../../components/ServiceVariantSelector";
 
 export default function BeauticianSelectionPage() {
   const [beauticians, setBeauticians] = useState([]);
@@ -16,6 +17,8 @@ export default function BeauticianSelectionPage() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [servicesLoading, setServicesLoading] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [showVariantSelector, setShowVariantSelector] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
@@ -105,12 +108,34 @@ export default function BeauticianSelectionPage() {
   };
 
   const handleServiceSelect = (service) => {
-    // Set booking data
+    // Check if service has variants that need selection
+    if (service.variants && service.variants.length > 1) {
+      setSelectedService(service);
+      setShowVariantSelector(true);
+    } else {
+      // Auto-select single variant or use service defaults
+      const variant = service.variants?.[0] || {
+        name: "Standard Service",
+        price: service.price,
+        durationMin: service.durationMin,
+        bufferBeforeMin: 0,
+        bufferAfterMin: 10,
+      };
+
+      handleVariantConfirm(variant, service);
+    }
+  };
+
+  const handleVariantConfirm = (selectedVariant, service) => {
+    // Set booking data with selected variant
     dispatch(
       setService({
         serviceId: service._id,
-        variantName: service.variants?.[0]?.name,
-        price: service.variants?.[0]?.price || service.price,
+        variantName: selectedVariant.name,
+        price: selectedVariant.price,
+        durationMin: selectedVariant.durationMin,
+        bufferBeforeMin: selectedVariant.bufferBeforeMin,
+        bufferAfterMin: selectedVariant.bufferAfterMin,
       })
     );
     dispatch(
@@ -124,9 +149,16 @@ export default function BeauticianSelectionPage() {
     navigate("/times");
   };
 
+  const handleVariantCancel = () => {
+    setShowVariantSelector(false);
+    setSelectedService(null);
+  };
+
   const handleBack = () => {
     setSelectedBeautician(null);
     setServices([]);
+    setShowVariantSelector(false);
+    setSelectedService(null);
   };
 
   if (loading) {
@@ -293,6 +325,16 @@ export default function BeauticianSelectionPage() {
           </>
         )}
       </div>
+
+      {/* Service Variant Selection Modal */}
+      {showVariantSelector && selectedService && (
+        <ServiceVariantSelector
+          service={selectedService}
+          selectedBeautician={selectedBeautician}
+          onVariantSelect={handleVariantConfirm}
+          onCancel={handleVariantCancel}
+        />
+      )}
     </PageTransition>
   );
 }
