@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { api } from "../../lib/apiClient";
 import Button from "../../components/ui/Button";
 
@@ -17,22 +18,56 @@ export default function Hours() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     loadSettings();
   }, []);
 
-  const loadSettings = async () => {
+  const loadSettings = async (retry = 0) => {
     setLoading(true);
     try {
       const response = await api.get("/settings");
       setWorkingHours(response.data.workingHours || {});
+      setMessage({ type: "", text: "" }); // Clear any previous error messages
+      setRetryCount(0); // Reset retry count on success
     } catch (error) {
       console.error("Failed to load settings:", error);
-      setMessage({
-        type: "error",
-        text: "Failed to load working hours",
-      });
+      
+      // Retry logic: retry up to 2 times with exponential backoff
+      if (retry < 2) {
+        const delay = Math.pow(2, retry) * 1000; // 1s, 2s
+        console.log(`Retrying in ${delay}ms... (attempt ${retry + 1}/2)`);
+        
+        setTimeout(() => {
+          setRetryCount(retry + 1);
+          loadSettings(retry + 1);
+        }, delay);
+        
+        setMessage({
+          type: "warning",
+          text: `Loading working hours... (attempt ${retry + 1}/3)`,
+        });
+      } else {
+        // Failed after retries
+        const errorMessage = error.response?.data?.error || error.message || "Failed to load working hours";
+        setMessage({
+          type: "error",
+          text: errorMessage,
+        });
+        toast.error(errorMessage);
+        
+        // Set default hours as fallback
+        setWorkingHours({
+          mon: { start: "09:00", end: "17:00" },
+          tue: { start: "09:00", end: "17:00" },
+          wed: { start: "09:00", end: "17:00" },
+          thu: { start: "09:00", end: "17:00" },
+          fri: { start: "09:00", end: "17:00" },
+          sat: { start: "09:00", end: "13:00" },
+          sun: null,
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -89,12 +124,15 @@ export default function Hours() {
         type: "success",
         text: "Salon working hours saved successfully!",
       });
+      toast.success("Working hours saved successfully!");
       setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (error) {
+      const errorMessage = error.response?.data?.error || "Failed to save working hours";
       setMessage({
         type: "error",
-        text: error.response?.data?.error || "Failed to save working hours",
+        text: errorMessage,
       });
+      toast.error(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -135,8 +173,24 @@ export default function Hours() {
         </h2>
 
         {loading ? (
-          <div className="text-center py-8 text-gray-500">
-            Loading schedule...
+          <div className="text-center py-8">
+            <div className="text-gray-500 mb-2">Loading schedule...</div>
+            {retryCount > 0 && (
+              <div className="text-sm text-gray-400">
+                Retry attempt {retryCount}/2
+              </div>
+            )}
+          </div>
+        ) : message.type === "error" && Object.keys(workingHours).length === 0 ? (
+          <div className="text-center py-8">
+            <div className="text-red-600 mb-4">{message.text}</div>
+            <Button
+              onClick={() => loadSettings(0)}
+              variant="brand"
+              size="sm"
+            >
+              🔄 Retry Loading
+            </Button>
           </div>
         ) : (
           <div className="space-y-3">
