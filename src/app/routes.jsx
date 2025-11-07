@@ -24,6 +24,7 @@ import AuthSuccessPage from "../features/auth/AuthSuccessPage";
 import ProfilePage from "../features/profile/ProfilePage";
 import ProfileEditPage from "../features/profile/ProfileEditPage";
 import BeauticianSelectionPage from "../features/beauticians/BeauticianSelectionPage";
+import AboutUsPage from "../features/about/AboutUsPage";
 import { useAuth } from "./AuthContext";
 
 import AdminLayout from "../admin/AdminLayout";
@@ -47,6 +48,9 @@ const CancellationPolicy = lazy(() =>
 );
 const TimeOff = lazy(() => import("../admin/pages/TimeOff"));
 const HeroSections = lazy(() => import("../admin/pages/HeroSections"));
+const AboutUsManagement = lazy(() =>
+  import("../admin/pages/AboutUsManagement")
+);
 const Products = lazy(() => import("../admin/pages/Products"));
 const ProductsHero = lazy(() => import("../admin/pages/ProductsHero"));
 const AdminBeauticianLink = lazy(() =>
@@ -104,6 +108,12 @@ function CustomerLayout() {
                 className="text-sm font-serif font-medium text-gray-700 hover:text-brand-600 transition-colors tracking-wide"
               >
                 Catalog
+              </Link>
+              <Link
+                to="/about"
+                className="text-sm font-serif font-medium text-gray-700 hover:text-brand-600 transition-colors tracking-wide"
+              >
+                About
               </Link>
               <Link
                 to="/salon"
@@ -330,6 +340,13 @@ function CustomerLayout() {
                   Catalog
                 </Link>
                 <Link
+                  to="/about"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-3 text-sm font-serif font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-all duration-250 tracking-wide"
+                >
+                  About
+                </Link>
+                <Link
                   to="/salon"
                   onClick={() => setMobileMenuOpen(false)}
                   className="px-4 py-3 text-sm font-serif font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-all duration-250 tracking-wide"
@@ -399,6 +416,7 @@ function CustomerLayout() {
             path="/order-success/:orderNumber"
             element={<OrderSuccessPage />}
           />
+          <Route path="/about" element={<AboutUsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
@@ -501,6 +519,14 @@ export default function AppRoutes() {
             element={
               <Suspense fallback={<LoadingSpinner center size="lg" />}>
                 <HeroSections />
+              </Suspense>
+            }
+          />
+          <Route
+            path="about-us"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <AboutUsManagement />
               </Suspense>
             }
           />

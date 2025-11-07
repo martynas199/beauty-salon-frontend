@@ -35,6 +35,12 @@ const items = [
     superAdminOnly: true,
   },
   {
+    to: "/admin/about-us",
+    label: "About Us Page",
+    icon: "ℹ️",
+    superAdminOnly: true,
+  },
+  {
     to: "/admin/products",
     label: "Products",
     icon: "🛍️",
