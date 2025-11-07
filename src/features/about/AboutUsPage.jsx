@@ -1,41 +1,26 @@
-import { useState, useEffect } from "react";
-import { api } from "../../lib/apiClient";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { useAboutUs } from "./hooks/useAboutUsQueries";
 
 export default function AboutUsPage() {
-  const [aboutUs, setAboutUs] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const {
+    data: aboutUs,
+    isLoading,
+    isError,
+    error,
+    isFetching,
+    isStale,
+  } = useAboutUs();
 
-  useEffect(() => {
-    const fetchAboutUs = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get("/about-us");
-
-        if (response.data.success) {
-          setAboutUs(response.data.data);
-        }
-      } catch (error) {
-        console.error("Error fetching About Us content:", error);
-        setError("Unable to load content. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAboutUs();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
+        <div className="ml-4 text-gray-600">Loading About Us...</div>
       </div>
     );
   }
 
-  if (error || !aboutUs) {
+  if (isError || !aboutUs) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center py-16">
@@ -58,7 +43,7 @@ export default function AboutUsPage() {
             Content Coming Soon
           </h3>
           <p className="text-gray-600 max-w-md mx-auto">
-            {error ||
+            {error?.message ||
               "Our About Us page is being crafted with care. Please check back soon!"}
           </p>
         </div>
@@ -70,6 +55,23 @@ export default function AboutUsPage() {
 
   return (
     <div className="min-h-screen">
+      {/* Background Refresh Indicator */}
+      {isFetching && !isLoading && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-brand-500 text-white text-center py-1 text-sm">
+          <div className="flex items-center justify-center space-x-2">
+            <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+            <span>Updating content...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Data Freshness Indicator */}
+      {isStale && !isFetching && (
+        <div className="fixed top-0 right-4 z-40 bg-yellow-500 text-white px-3 py-1 rounded-b text-sm">
+          Content may be outdated
+        </div>
+      )}
+
       {/* Hero Section with Image and Quote */}
       <section className="relative min-h-screen overflow-hidden">
         {/* Mobile: Full background image */}

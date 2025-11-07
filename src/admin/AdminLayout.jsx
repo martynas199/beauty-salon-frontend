@@ -1,8 +1,10 @@
 ﻿import { useState, useEffect, useMemo } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { api } from "../lib/apiClient";
 import { selectAdmin, clearAuth } from "../features/auth/authSlice";
+import { useAdminLogout } from "../hooks/useAuthQueries";
+import { api } from "../lib/apiClient";
+import toast from "react-hot-toast";
 import logo from "../assets/logo.svg";
 
 const items = [
@@ -127,16 +129,23 @@ export default function AdminLayout() {
       });
   }, []);
 
+  const logoutMutation = useAdminLogout();
+
   const handleLogout = async () => {
-    try {
-      await api.post("/auth/logout");
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
-      // Clear auth state and redirect
-      dispatch(clearAuth());
-      navigate("/admin/login");
-    }
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        // Clear auth state and redirect
+        dispatch(clearAuth());
+        toast.success("Logged out successfully");
+        navigate("/admin/login");
+      },
+      onError: (error) => {
+        // Even on error, clear auth and redirect
+        dispatch(clearAuth());
+        toast.error("Logout failed, but you've been signed out locally");
+        navigate("/admin/login");
+      },
+    });
   };
 
   // Get admin initials for avatar

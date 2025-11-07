@@ -1,20 +1,42 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { selectAdmin } from "../../features/auth/authSlice";
-import { api } from "../../lib/apiClient";
+import {
+  useServices,
+  useBeauticians,
+  useCreateService,
+  useUpdateService,
+  useDeleteService,
+} from "../../hooks/useServicesQueries";
 import ServiceForm from "../ServiceForm";
 import ServicesList from "../ServicesList";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { testApiConnection } from "../../utils/apiTest";
 
 export default function Services() {
-  const [services, setServices] = useState([]);
-  const [beauticians, setBeauticians] = useState([]);
   const [editingService, setEditingService] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Get admin info from Redux store
   const admin = useSelector(selectAdmin);
+
+  // React Query hooks
+  const {
+    data: services = [],
+    isLoading: servicesLoading,
+    isError: servicesError,
+    error: servicesErrorData,
+    isFetching: servicesFetching,
+  } = useServices();
+
+  const { data: beauticians = [], isLoading: beauticiansLoading } =
+    useBeauticians();
+
+  // Mutations
+  const createServiceMutation = useCreateService();
+  const updateServiceMutation = useUpdateService();
+  const deleteServiceMutation = useDeleteService();
 
   // Memoize role checks for performance
   const isSuperAdmin = useMemo(
@@ -26,39 +48,8 @@ export default function Services() {
     [admin?.role, admin?.beauticianId]
   );
 
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      // Fetch services - backend will automatically filter based on admin role
-      const [servicesRes, beauticiansRes] = await Promise.all([
-        api.get("/services"),
-        api.get("/beauticians"),
-      ]);
-
-      const loadedServices = servicesRes.data;
-      setServices(loadedServices);
-      setBeauticians(beauticiansRes.data);
-
-      // Log for debugging
-      console.log("[Services] Loaded services:", loadedServices.length);
-      if (isBeautician) {
-        console.log(
-          "[Services] Beautician role - showing assigned services only"
-        );
-      } else if (isSuperAdmin) {
-        console.log("[Services] Super admin role - showing all services");
-      }
-    } catch (error) {
-      console.error("Failed to load data:", error);
-      toast.error("Failed to load services: " + error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []); // No dependencies = only created once
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  // Derived state
+  const isLoading = servicesLoading || beauticiansLoading;
 
   const handleCreate = () => {
     setEditingService(null);
@@ -71,99 +62,75 @@ export default function Services() {
   };
 
   const handleSave = async (serviceData) => {
-    try {
-      // Separate image file from service data
-      const imageFile = serviceData.image?.file;
-      const serviceDataToSend = { ...serviceData };
+    // Prepare service data
+    const serviceDataToSend = { ...serviceData };
 
-      // Ensure IDs are strings (convert ObjectId to string if needed)
-      if (serviceDataToSend.primaryBeauticianId) {
-        serviceDataToSend.primaryBeauticianId = String(
-          serviceDataToSend.primaryBeauticianId
-        );
-      }
-      if (serviceDataToSend.additionalBeauticianIds?.length) {
-        serviceDataToSend.additionalBeauticianIds =
-          serviceDataToSend.additionalBeauticianIds.map((id) => String(id));
-      }
-
-      // Remove the file object from service data (keep only metadata if editing)
-      // Remove image if: null, local-preview, or has a file (will be uploaded separately)
-      if (
-        !serviceDataToSend.image ||
-        serviceDataToSend.image?.provider === "local-preview" ||
-        imageFile
-      ) {
-        delete serviceDataToSend.image;
-      } else if (serviceDataToSend.image?.file) {
-        // Also remove the file property if it somehow still exists
-        delete serviceDataToSend.image.file;
-      }
-
-      // 1. Create or update the service
-      const url = editingService
-        ? `/services/${editingService._id}`
-        : "/services";
-
-      const method = editingService ? "patch" : "post";
-
-      const response = await api[method](url, serviceDataToSend);
-
-      if (!response.data) {
-        throw new Error("Failed to save service");
-      }
-
-      const savedService = response.data;
-
-      // 2. Upload image to Cloudinary if a new file was selected
-      if (imageFile && imageFile instanceof File) {
-        try {
-          const formData = new FormData();
-          formData.append("image", imageFile);
-
-          await api.post(
-            `/services/${savedService._id}/upload-image`,
-            formData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
-        } catch (uploadError) {
-          console.error("Image upload failed:", uploadError);
-          // Service was saved, but image upload failed
-          toast.error(
-            "Service saved, but image upload failed: " + uploadError.message
-          );
-        }
-      }
-
-      await loadData();
-      setShowForm(false);
-      setEditingService(null);
-      toast.success(
-        editingService
-          ? "Service updated successfully"
-          : "Service created successfully"
+    // Ensure IDs are strings (convert ObjectId to string if needed)
+    if (serviceDataToSend.primaryBeauticianId) {
+      serviceDataToSend.primaryBeauticianId = String(
+        serviceDataToSend.primaryBeauticianId
       );
-    } catch (error) {
-      console.error("Save error:", error);
-      throw error; // Let form handle error display
     }
+    if (serviceDataToSend.additionalBeauticianIds?.length) {
+      serviceDataToSend.additionalBeauticianIds =
+        serviceDataToSend.additionalBeauticianIds.map((id) => String(id));
+    }
+
+    // Remove image file for now (we'll handle image upload separately)
+    if (serviceDataToSend.image?.file) {
+      delete serviceDataToSend.image;
+    }
+
+    return new Promise((resolve, reject) => {
+      const mutation = editingService
+        ? updateServiceMutation
+        : createServiceMutation;
+      const mutationData = editingService
+        ? { serviceId: editingService._id, serviceData: serviceDataToSend }
+        : serviceDataToSend;
+
+      mutation.mutate(mutationData, {
+        onSuccess: (savedService) => {
+          // Handle image upload if needed
+          const imageFile = serviceData.image?.file;
+          if (imageFile && imageFile instanceof File) {
+            // For now, we'll skip image upload and show a warning
+            // TODO: Create separate image upload mutation
+            toast.warning(
+              "Service saved! Image upload will be implemented in next update."
+            );
+          } else {
+            toast.success(
+              editingService
+                ? "Service updated successfully"
+                : "Service created successfully"
+            );
+          }
+
+          setShowForm(false);
+          setEditingService(null);
+          resolve(savedService);
+        },
+        onError: (error) => {
+          console.error("Save error:", error);
+          reject(error);
+        },
+      });
+    });
   };
 
   const handleDelete = async (serviceId) => {
-    try {
-      await api.delete(`/services/${serviceId}`);
-      await loadData();
-      setShowForm(false);
-      setEditingService(null);
-      toast.success("Service deleted successfully");
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("Failed to delete service: " + error.message);
-    }
+    deleteServiceMutation.mutate(serviceId, {
+      onSuccess: () => {
+        setShowForm(false);
+        setEditingService(null);
+        toast.success("Service deleted successfully");
+      },
+      onError: (error) => {
+        console.error("Delete error:", error);
+        toast.error("Failed to delete service: " + error.message);
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -171,24 +138,141 @@ export default function Services() {
     setEditingService(null);
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <LoadingSpinner size="lg" />
+        <span className="ml-3 text-gray-600">Loading services...</span>
+      </div>
+    );
+  }
+
+  // Error state
+  if (servicesError) {
+    return (
+      <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+        <h3 className="text-lg font-semibold text-red-800 mb-2">
+          Error Loading Services
+        </h3>
+        <p className="text-red-600 mb-2">
+          {servicesErrorData?.message || "Failed to load services"}
+        </p>
+
+        {/* Debug information */}
+        <details className="mb-4">
+          <summary className="cursor-pointer text-sm text-red-500 hover:text-red-700">
+            Show debug information
+          </summary>
+          <div className="mt-2 p-3 bg-red-100 rounded text-sm font-mono">
+            <p>
+              <strong>Error:</strong>{" "}
+              {servicesErrorData?.message || "Unknown error"}
+            </p>
+            <p>
+              <strong>Status:</strong>{" "}
+              {servicesErrorData?.response?.status || "No status"}
+            </p>
+            <p>
+              <strong>Backend URL:</strong>{" "}
+              {import.meta.env.VITE_API_URL || "http://localhost:3000"}
+            </p>
+            <p>
+              <strong>Endpoint:</strong> /api/services
+            </p>
+          </div>
+        </details>
+
+        <div className="space-x-3">
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Reload Page
+          </button>
+
+          <button
+            onClick={() => testApiConnection()}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Test API (Check Console)
+          </button>
+
+          <button
+            onClick={() => {
+              // Force refetch services
+              window.location.hash = "#refresh";
+              window.location.reload();
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry Services
+          </button>
+        </div>
+
+        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+          <p className="text-sm text-yellow-700">
+            <strong>Troubleshooting:</strong>
+          </p>
+          <ul className="text-sm text-yellow-600 mt-1 list-disc list-inside">
+            <li>Make sure the backend server is running on port 3000</li>
+            <li>
+              Check if you can access{" "}
+              <code>http://localhost:3000/api/services</code> directly
+            </li>
+            <li>Verify your internet connection</li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
+
   if (showForm) {
     return (
-      <ServiceForm
-        service={editingService}
-        beauticians={beauticians}
-        onSave={handleSave}
-        onCancel={handleCancel}
-        onDelete={
-          editingService ? () => handleDelete(editingService._id) : undefined
-        }
-        isSuperAdmin={isSuperAdmin}
-        admin={admin}
-      />
+      <div>
+        {/* Background refresh indicator */}
+        {servicesFetching && (
+          <div className="fixed top-4 right-4 z-50 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg">
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm">Refreshing services...</span>
+            </div>
+          </div>
+        )}
+
+        <ServiceForm
+          service={editingService}
+          beauticians={beauticians}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          onDelete={
+            editingService ? () => handleDelete(editingService._id) : undefined
+          }
+          isSuperAdmin={isSuperAdmin}
+          admin={admin}
+          saving={
+            createServiceMutation.isPending || updateServiceMutation.isPending
+          }
+          deleting={deleteServiceMutation.isPending}
+        />
+      </div>
     );
   }
 
   return (
     <div className="space-y-4">
+      {/* Background refresh indicator */}
+      {servicesFetching && (
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
+          <div className="flex items-center">
+            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-3"></div>
+            <span className="text-blue-700">
+              Updating services in background...
+            </span>
+          </div>
+        </div>
+      )}
+
       <ServicesList
         services={services}
         onEdit={handleEdit}

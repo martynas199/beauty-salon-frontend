@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { api } from "../../lib/apiClient";
 import { setAuth } from "../../features/auth/authSlice";
+import { useAdminLogin } from "../../hooks/useAuthQueries";
 import logo from "../../assets/logo.svg";
 import Button from "../../components/ui/Button";
 import FormField from "../../components/forms/FormField";
+import toast from "react-hot-toast";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -13,42 +14,35 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  const loginMutation = useAdminLogin();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
 
-    try {
-      const response = await api.post("/auth/login", {
-        email,
-        password,
-      });
-
-      if (response.data.success && response.data.token) {
-        // Store token and admin data
-        const { token, admin } = response.data;
-
-        // Dispatch to Redux store
-        dispatch(setAuth({ token, admin }));
-
-        // Redirect to admin dashboard
-        navigate("/admin");
-      } else {
-        setError("Login failed. Please try again.");
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-      setError(
-        err.response?.data?.error ||
-          err.message ||
-          "Login failed. Please check your credentials."
-      );
-    } finally {
-      setLoading(false);
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
     }
+
+    loginMutation.mutate(
+      { email, password },
+      {
+        onSuccess: (data) => {
+          // Store token and admin data in Redux
+          const { token, admin } = data;
+          dispatch(setAuth({ token, admin }));
+
+          toast.success("Login successful!");
+
+          // Redirect to admin dashboard
+          navigate("/admin");
+        },
+        onError: (error) => {
+          toast.error(error.message || "Login failed. Please try again.");
+        },
+      }
+    );
   };
 
   return (
@@ -75,12 +69,6 @@ export default function AdminLogin() {
             Sign In
           </h2>
 
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-6">
             <FormField label="Email Address" htmlFor="email" required>
               <input
@@ -93,7 +81,7 @@ export default function AdminLogin() {
                 required
                 autoComplete="email"
                 autoFocus
-                disabled={loading}
+                disabled={loginMutation.isPending}
               />
             </FormField>
 
@@ -108,7 +96,7 @@ export default function AdminLogin() {
                   className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   required
                   autoComplete="current-password"
-                  disabled={loading}
+                  disabled={loginMutation.isPending}
                 />
                 <button
                   type="button"
@@ -176,8 +164,8 @@ export default function AdminLogin() {
               variant="brand"
               size="lg"
               className="w-full"
-              loading={loading}
-              disabled={loading}
+              loading={loginMutation.isPending}
+              disabled={loginMutation.isPending}
             >
               Sign In
             </Button>

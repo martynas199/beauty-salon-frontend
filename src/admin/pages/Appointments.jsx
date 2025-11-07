@@ -1029,7 +1029,7 @@ function EditModal({
 
   return (
     <Modal open={open} onClose={onClose} title="Edit Appointment">
-      <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+      <div className="space-y-4">
         {/* Client Information */}
         <div className="space-y-3">
           <h3 className="font-semibold text-gray-900">Client Information</h3>

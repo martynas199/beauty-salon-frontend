@@ -1,14 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectAdmin } from "../../features/auth/authSlice";
-import { api } from "../../lib/apiClient";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import {
+  useAboutUsAdmin,
+  useUpdateAboutUs,
+  useDeleteAboutUsImage,
+} from "../../features/about/hooks/useAboutUsQueries";
 
 export default function AboutUsManagement() {
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [aboutUs, setAboutUs] = useState(null);
   const [formData, setFormData] = useState({
     quote: "",
     description: "",
@@ -22,40 +23,29 @@ export default function AboutUsManagement() {
   // Check if user is super admin
   const isSuperAdmin = admin?.role === "super_admin";
 
-  const fetchAboutUs = useCallback(async () => {
-    try {
-      console.log("[ABOUT-US-ADMIN] Fetching About Us content...");
-      setLoading(true);
+  // React Query hooks
+  const {
+    data: aboutUs,
+    isLoading,
+    isError,
+    error,
+    isFetching,
+    refetch,
+  } = useAboutUsAdmin(isSuperAdmin);
 
-      const response = await api.get("/about-us/admin");
+  const updateMutation = useUpdateAboutUs();
+  const deleteImageMutation = useDeleteAboutUsImage();
 
-      if (response.data.success) {
-        const data = response.data.data;
-        setAboutUs(data);
-
-        if (data) {
-          setFormData({
-            quote: data.quote || "",
-            description: data.description || "",
-          });
-          setImagePreview(data.image?.url || null);
-        }
-      }
-
-      console.log("[ABOUT-US-ADMIN] ✓ About Us content loaded");
-    } catch (error) {
-      console.error("[ABOUT-US-ADMIN] ✗ Error fetching About Us:", error);
-      toast.error("Failed to load About Us content");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
+  // Update form data when aboutUs data changes
   useEffect(() => {
-    if (isSuperAdmin) {
-      fetchAboutUs();
+    if (aboutUs) {
+      setFormData({
+        quote: aboutUs.quote || "",
+        description: aboutUs.description || "",
+      });
+      setImagePreview(aboutUs.image?.url || null);
     }
-  }, [isSuperAdmin, fetchAboutUs]);
+  }, [aboutUs]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -109,47 +99,36 @@ export default function AboutUsManagement() {
       return;
     }
 
-    try {
-      setSaving(true);
-      console.log("[ABOUT-US-ADMIN] Saving About Us content...");
+    const submitData = new FormData();
+    submitData.append("quote", formData.quote.trim());
+    submitData.append("description", formData.description.trim());
 
-      const submitData = new FormData();
-      submitData.append("quote", formData.quote.trim());
-      submitData.append("description", formData.description.trim());
+    if (imageFile) {
+      submitData.append("image", imageFile);
+    } else if (keepExistingImage && aboutUs?.image) {
+      submitData.append("keepExistingImage", "true");
+    }
 
-      if (imageFile) {
-        submitData.append("image", imageFile);
-      } else if (keepExistingImage && aboutUs?.image) {
-        submitData.append("keepExistingImage", "true");
-      }
-
-      const response = await api.put("/about-us/admin", submitData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      if (response.data.success) {
+    // Use React Query mutation
+    updateMutation.mutate(submitData, {
+      onSuccess: (data) => {
         toast.success("About Us content updated successfully!");
-        await fetchAboutUs();
+
+        // Reset form state
         setImageFile(null);
         setKeepExistingImage(true);
 
         // Reset file input
         const fileInput = document.getElementById("image-upload");
         if (fileInput) fileInput.value = "";
-      }
-    } catch (error) {
-      console.error("[ABOUT-US-ADMIN] ✗ Error saving About Us:", error);
 
-      if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("Failed to update About Us content");
-      }
-    } finally {
-      setSaving(false);
-    }
+        console.log("[ABOUT-US-ADMIN] ✓ About Us content saved successfully");
+      },
+      onError: (error) => {
+        console.error("[ABOUT-US-ADMIN] ✗ Error saving About Us:", error);
+        toast.error(error.message || "Failed to save About Us content");
+      },
+    });
   };
 
   if (!isSuperAdmin) {
@@ -180,16 +159,45 @@ export default function AboutUsManagement() {
     );
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-        <LoadingSpinner />
+        <div className="flex items-center space-x-3">
+          <LoadingSpinner />
+          <span className="text-gray-600">Loading About Us management...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-6 bg-white rounded-lg shadow-sm border border-red-200">
+        <div className="text-center">
+          <div className="text-red-600 mb-2">Failed to load About Us data</div>
+          <p className="text-sm text-gray-600 mb-4">{error?.message}</p>
+          <button
+            onClick={() => refetch()}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* Background Refresh Indicator */}
+      {isFetching && !isLoading && (
+        <div className="fixed top-4 right-4 z-50 bg-brand-500 text-white px-4 py-2 rounded-lg shadow-lg">
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm">Refreshing data...</span>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <div className="flex items-center gap-3 mb-2">
@@ -393,18 +401,20 @@ export default function AboutUsManagement() {
               removeImage();
             }}
             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
-            disabled={saving}
+            disabled={updateMutation.isPending}
           >
             Clear Form
           </button>
           <button
             type="submit"
             disabled={
-              saving || !formData.quote.trim() || !formData.description.trim()
+              updateMutation.isPending ||
+              !formData.quote.trim() ||
+              !formData.description.trim()
             }
             className="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors flex items-center gap-2"
           >
-            {saving ? (
+            {updateMutation.isPending ? (
               <>
                 <svg
                   className="w-4 h-4 animate-spin"
