@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import toast from "react-hot-toast";
+import { compressIfNeeded, formatFileSize } from "../utils/imageCompression";
 
 /**
  * Placeholder hook for image uploads to Cloudflare R2 (or any object storage)
@@ -163,10 +164,22 @@ export function useImageUpload() {
 
       // Validate file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
-        const errorMsg = "Image must be less than 5MB";
-        setError(errorMsg);
-        toast.error(errorMsg);
-        throw new Error(errorMsg);
+        toast(`Image is ${formatFileSize(file.size)}. Compressing to 5MB...`, {
+          icon: "🔄",
+          duration: 2000,
+        });
+
+        // Automatically compress the image
+        const result = await compressIfNeeded(file, 5);
+
+        if (result.compressed) {
+          toast.success(
+            `Compressed from ${formatFileSize(
+              result.originalSize
+            )} to ${formatFileSize(result.newSize)}`
+          );
+          file = result.file; // Use compressed file
+        }
       }
 
       // Get actual image dimensions for preview
