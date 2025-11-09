@@ -119,13 +119,13 @@ export default function ServiceVariantSelector({
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 pb-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Choose Service Option
           </h3>
 
           {service.variants && service.variants.length > 0 ? (
-            <div className="space-y-3 mb-6">
+            <div className="max-h-[400px] overflow-y-auto space-y-3 mb-6 pr-2 pb-4 custom-scrollbar">
               {service.variants.map((variant, index) => (
                 <Card
                   key={variant.name || index}
