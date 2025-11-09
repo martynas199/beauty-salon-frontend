@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
+import { api } from "../../lib/apiClient";
 import { selectAdmin } from "../../features/auth/authSlice";
 import {
   useServices,
@@ -76,7 +77,8 @@ export default function Services() {
         serviceDataToSend.additionalBeauticianIds.map((id) => String(id));
     }
 
-    // Remove image file for now (we'll handle image upload separately)
+    // Remove image file for separate upload
+    const imageFile = serviceDataToSend.image?.file;
     if (serviceDataToSend.image?.file) {
       delete serviceDataToSend.image;
     }
@@ -90,16 +92,35 @@ export default function Services() {
         : serviceDataToSend;
 
       mutation.mutate(mutationData, {
-        onSuccess: (savedService) => {
-          // Handle image upload if needed
-          const imageFile = serviceData.image?.file;
+        onSuccess: async (savedService) => {
+          // Upload image to Cloudinary if a new file was selected
           if (imageFile && imageFile instanceof File) {
-            // For now, we'll skip image upload and show a warning
-            // TODO: Create separate image upload mutation
-            toast(
-              "Service saved! Image upload will be implemented in next update.",
-              { icon: "⚠️" }
-            );
+            try {
+              const formData = new FormData();
+              formData.append("image", imageFile);
+
+              await api.post(
+                `/services/${savedService._id}/upload-image`,
+                formData,
+                {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                  },
+                }
+              );
+
+              toast.success(
+                editingService
+                  ? "Service and image updated successfully"
+                  : "Service and image created successfully"
+              );
+            } catch (uploadError) {
+              console.error("Image upload failed:", uploadError);
+              toast.error(
+                "Service saved, but image upload failed: " +
+                  (uploadError.response?.data?.error || uploadError.message)
+              );
+            }
           } else {
             toast.success(
               editingService
