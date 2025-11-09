@@ -30,7 +30,7 @@ export default function HeroSectionDisplay() {
           key={section._id}
           className="bg-gradient-to-br from-amber-50 to-white rounded-3xl overflow-hidden shadow-lg"
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-stretch py-0 md:py-0">
+          <div className="grid grid-cols-1 md:grid-cols-3 items-stretch py-0 md:py-0">
             {/* Left Section - Text Content */}
             <div className="p-8 md:p-12 md:pl-6 flex flex-col justify-center bg-white/50 backdrop-blur-sm animate-slideInLeft">
               <h2 className="text-3xl md:text-5xl lg:text-5xl mb-6 leading-tight font-script text-brand-900">
