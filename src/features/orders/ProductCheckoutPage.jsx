@@ -4,6 +4,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { OrdersAPI } from "./orders.api";
 import { ProductsAPI } from "../products/products.api";
+import { calculateShipping } from "../shipping/shipping.api";
 import { clearCart } from "../cart/cartSlice";
 import Button from "../../components/ui/Button";
 import { useAuth } from "../../app/AuthContext";
@@ -17,7 +18,10 @@ export default function ProductCheckoutPage() {
 
   const [loading, setLoading] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [loadingShipping, setLoadingShipping] = useState(false);
   const [products, setProducts] = useState({});
+  const [shippingOptions, setShippingOptions] = useState([]);
+  const [selectedShipping, setSelectedShipping] = useState(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -54,6 +58,23 @@ export default function ProductCheckoutPage() {
     }
   }, [cartItems]);
 
+  // Calculate shipping when postal code/city changes and products are loaded
+  useEffect(() => {
+    if (
+      formData.postalCode &&
+      formData.postalCode.length >= 5 &&
+      formData.city &&
+      cartItems.length > 0 &&
+      Object.keys(products).length > 0
+    ) {
+      calculateShippingCost();
+    } else {
+      // Reset shipping options if postal code/city is incomplete
+      setShippingOptions([]);
+      setSelectedShipping(null);
+    }
+  }, [formData.postalCode, formData.city, cartItems, products]);
+
   const loadProductDetails = async () => {
     setLoadingProducts(true);
     try {
@@ -72,12 +93,123 @@ export default function ProductCheckoutPage() {
     }
   };
 
+  const calculateShippingCost = async () => {
+    setLoadingShipping(true);
+    try {
+      // Prepare items with weights for shipping calculation
+      const itemsWithWeights = cartItems.map((item) => {
+        const product = products[item.productId];
+
+        // Get weight from variant or product
+        let weight = 0;
+        if (item.variantId && product?.variants) {
+          const variant = product.variants.find(
+            (v) => v._id === item.variantId
+          );
+          weight = variant?.weight || 0;
+        } else {
+          weight = product?.weight || 0;
+        }
+
+        // Convert grams to kilograms
+        const weightInKg = weight / 1000 || 0.1; // Default to 100g if no weight
+
+        return {
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity: item.quantity,
+          weight: weightInKg,
+          productName: product?.title || "Unknown",
+          weightInGrams: weight,
+        };
+      });
+
+      // Calculate total weight for logging
+      const totalWeight = itemsWithWeights.reduce(
+        (sum, item) => sum + item.weight * item.quantity,
+        0
+      );
+
+      console.log(
+        "📦 Cart items with weights:",
+        itemsWithWeights.map((item) => ({
+          name: item.productName,
+          quantity: item.quantity,
+          weightPerItem: `${item.weightInGrams}g (${item.weight}kg)`,
+          totalWeight: `${(item.weight * item.quantity).toFixed(3)}kg`,
+        }))
+      );
+
+      console.log("⚖️ Total cart weight:", totalWeight.toFixed(3), "kg");
+
+      console.log("📮 Shipping calculation request:", {
+        postalCode: formData.postalCode,
+        city: formData.city,
+        country: formData.country,
+        itemCount: itemsWithWeights.length,
+      });
+
+      const result = await calculateShipping({
+        postalCode: formData.postalCode,
+        countryCode: formData.country === "United Kingdom" ? "GB" : "GB",
+        city: formData.city || "London",
+        items: itemsWithWeights,
+      });
+
+      console.log("🚚 Shipping options received:", result);
+      console.log("🚚 Number of options:", result.options?.length);
+      console.log(
+        "🚚 Options details:",
+        JSON.stringify(result.options, null, 2)
+      );
+
+      if (result.options && result.options.length > 0) {
+        setShippingOptions(result.options);
+        // Auto-select the first (usually cheapest) option
+        setSelectedShipping(result.options[0]);
+      } else {
+        // Fallback
+        setShippingOptions([
+          {
+            id: "standard",
+            name: "Standard Shipping",
+            price: 4.99,
+            estimatedDays: "3-5 business days",
+            description: "Standard delivery",
+          },
+        ]);
+        setSelectedShipping({
+          id: "standard",
+          name: "Standard Shipping",
+          price: 4.99,
+          estimatedDays: "3-5 business days",
+          description: "Standard delivery",
+        });
+      }
+    } catch (error) {
+      console.error("Error calculating shipping:", error);
+      // Fallback to default shipping
+      const fallbackOption = {
+        id: "standard",
+        name: "Standard Shipping",
+        price: 4.99,
+        estimatedDays: "3-5 business days",
+        description: "Standard delivery",
+      };
+      setShippingOptions([fallbackOption]);
+      setSelectedShipping(fallbackOption);
+    } finally {
+      setLoadingShipping(false);
+    }
+  };
+
   // Calculate order totals
   const subtotal = cartItems.reduce((sum, item) => {
     return sum + (item.product?.price || 0) * item.quantity;
   }, 0);
 
-  const shipping = subtotal >= 50 ? 0 : 5.99;
+  // Use selected shipping option price
+  const shipping = selectedShipping?.price || 0;
   const total = subtotal + shipping;
 
   const handleSubmit = async (e) => {
@@ -453,6 +585,68 @@ export default function ProductCheckoutPage() {
                 ))}
               </div>
 
+              {/* Shipping Options Selector */}
+              {shippingOptions.length > 0 && (
+                <div className="border-t border-gray-200 pt-4 mb-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                    Shipping Method
+                  </h3>
+
+                  {loadingShipping ? (
+                    <div className="flex items-center justify-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand-600"></div>
+                      <span className="ml-2 text-xs text-gray-600">
+                        Loading options...
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {shippingOptions.map((option) => (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => setSelectedShipping(option)}
+                          className={`w-full text-left p-3 rounded-lg border transition-all ${
+                            selectedShipping?.id === option.id
+                              ? "border-brand-600 bg-brand-50"
+                              : "border-gray-200 hover:border-gray-300 bg-white"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-start gap-2 flex-1">
+                              <div
+                                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                                  selectedShipping?.id === option.id
+                                    ? "border-brand-600"
+                                    : "border-gray-300"
+                                }`}
+                              >
+                                {selectedShipping?.id === option.id && (
+                                  <div className="w-2 h-2 rounded-full bg-brand-600"></div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-baseline justify-between gap-2">
+                                  <h4 className="text-sm font-semibold text-gray-900 break-words">
+                                    {option.name}
+                                  </h4>
+                                  <span className="text-sm font-bold text-gray-900 whitespace-nowrap">
+                                    £{option.price.toFixed(2)}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-gray-600 break-words">
+                                  {option.estimatedDays}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Totals */}
               <div className="border-t border-gray-200 pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
@@ -461,13 +655,26 @@ export default function ProductCheckoutPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Shipping</span>
-                  <span className="font-medium">
-                    {shipping === 0 ? (
-                      <span className="text-green-600">FREE</span>
+                  <div className="text-right">
+                    {loadingShipping ? (
+                      <span className="text-gray-500 text-xs">
+                        Calculating...
+                      </span>
+                    ) : selectedShipping ? (
+                      <div>
+                        <span className="font-medium">
+                          £{selectedShipping.price.toFixed(2)}
+                        </span>
+                        <div className="text-xs text-gray-500">
+                          {selectedShipping.name}
+                        </div>
+                      </div>
                     ) : (
-                      `£${shipping.toFixed(2)}`
+                      <span className="font-medium text-gray-500">
+                        Select shipping
+                      </span>
                     )}
-                  </span>
+                  </div>
                 </div>
                 <div className="border-t border-gray-200 pt-2 mt-2">
                   <div className="flex justify-between">
@@ -484,14 +691,26 @@ export default function ProductCheckoutPage() {
                 </div>
               </div>
 
-              {/* Free Shipping Message */}
-              {subtotal < 50 && (
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    Add £{(50 - subtotal).toFixed(2)} more for free shipping
-                  </p>
-                </div>
-              )}
+              {/* Shipping Info */}
+              {!loadingShipping &&
+                shippingOptions.length === 0 &&
+                (formData.postalCode.length < 5 || !formData.city) && (
+                  <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-xs text-amber-800">
+                      📮 Enter city and postal code to see shipping options
+                    </p>
+                  </div>
+                )}
+
+              {!loadingShipping &&
+                selectedShipping &&
+                shippingOptions.length > 1 && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-xs text-blue-800">
+                      💡 {shippingOptions.length} shipping options available
+                    </p>
+                  </div>
+                )}
 
               {/* Place Order Button - Desktop */}
               <div className="hidden lg:block mt-6">

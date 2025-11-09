@@ -62,6 +62,7 @@ const OnboardingComplete = lazy(() =>
   import("../admin/pages/OnboardingComplete")
 );
 const ReauthOnboarding = lazy(() => import("../admin/pages/ReauthOnboarding"));
+const ShippingRates = lazy(() => import("../admin/pages/ShippingRates"));
 
 function CustomerLayout() {
   const dispatch = useDispatch();
@@ -592,6 +593,14 @@ export default function AppRoutes() {
             element={
               <Suspense fallback={<LoadingSpinner center size="lg" />}>
                 <ReauthOnboarding />
+              </Suspense>
+            }
+          />
+          <Route
+            path="shipping-rates"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <ShippingRates />
               </Suspense>
             }
           />
