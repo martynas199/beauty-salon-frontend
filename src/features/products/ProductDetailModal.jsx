@@ -579,9 +579,6 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
                           />
                         </svg>
                       </button>
-                      <span className="text-sm text-gray-500 ml-2">
-                        {displayStock} available
-                      </span>
                     </div>
                   </div>
                 )}
