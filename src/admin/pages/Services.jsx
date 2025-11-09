@@ -96,8 +96,9 @@ export default function Services() {
           if (imageFile && imageFile instanceof File) {
             // For now, we'll skip image upload and show a warning
             // TODO: Create separate image upload mutation
-            toast.warning(
-              "Service saved! Image upload will be implemented in next update."
+            toast(
+              "Service saved! Image upload will be implemented in next update.",
+              { icon: "⚠️" }
             );
           } else {
             toast.success(
