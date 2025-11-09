@@ -484,7 +484,8 @@ export default function ServiceForm({
             </Button>
           </div>
 
-          {formData.variants.map((variant, index) => (
+          <div className="max-h-96 overflow-y-auto space-y-3">
+            {formData.variants.map((variant, index) => (
             <div
               key={index}
               className="p-4 border border-gray-200 rounded-lg space-y-3"
@@ -622,6 +623,7 @@ export default function ServiceForm({
               </div>
             </div>
           ))}
+          </div>
 
           {errors.variants && (
             <p className="text-red-500 text-sm">{errors.variants}</p>
