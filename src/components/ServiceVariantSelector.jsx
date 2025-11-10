@@ -43,7 +43,7 @@ export default function ServiceVariantSelector({
         <div className="p-3 sm:p-6 border-b border-gray-200 overflow-x-hidden">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0 overflow-x-hidden">
-              <div className="flex items-center gap-2 sm:gap-4 mb-1 sm:mb-2">
+              <div className="flex items-center gap-2 sm:gap-4 mb-5 sm:mb-5">
                 {imageUrl && (
                   <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
                     <img
@@ -54,7 +54,7 @@ export default function ServiceVariantSelector({
                   </div>
                 )}
                 <div className="min-w-0 overflow-x-hidden">
-                  <h2 className="text-base sm:text-2xl font-serif font-bold text-gray-900 mb-0.5 sm:mb-1 truncate">
+                  <h2 className="text-base sm:text-2xl font-serif font-bold text-gray-900 mb-1 truncate">
                     {service.name}
                   </h2>
                   {service.category && (
@@ -127,8 +127,8 @@ export default function ServiceVariantSelector({
           </div>
         </div>
 
-        <div className="p-2 sm:p-6 pb-2 sm:pb-8 overflow-x-hidden flex flex-col flex-1">
-          <h3 className="text-sm sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-4">
+        <div className="p-3 sm:p-6 pb-2 sm:pb-8 overflow-x-hidden flex flex-col flex-1">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
             Choose Service Option
           </h3>
 
@@ -267,11 +267,11 @@ export default function ServiceVariantSelector({
           )}
         </div>
 
-        <div className="p-2 sm:p-6 border-t border-gray-200 bg-gray-50 overflow-x-hidden flex-shrink-0">
+        <div className="p-3 sm:p-6 border-t border-gray-200 bg-gray-50 overflow-x-hidden flex-shrink-0">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             <button
               onClick={onCancel}
-              className="px-3 sm:px-6 py-2 text-sm sm:text-base text-gray-600 hover:text-gray-800 transition-colors"
+              className="px-4 sm:px-6 py-2.5 sm:py-2 text-base sm:text-base text-gray-600 hover:text-gray-800 transition-colors"
             >
               Cancel
             </button>
@@ -281,8 +281,8 @@ export default function ServiceVariantSelector({
               disabled={!selectedVariant && service.variants?.length > 0}
               className={
                 selectedVariant || !service.variants?.length
-                  ? "px-4 sm:px-8 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 whitespace-nowrap bg-brand-600 hover:bg-brand-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
-                  : "px-4 sm:px-8 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 whitespace-nowrap bg-gray-300 text-gray-500 cursor-not-allowed"
+                  ? "px-5 sm:px-8 py-2.5 sm:py-3 rounded-lg text-base sm:text-base font-semibold transition-all duration-200 whitespace-nowrap bg-brand-600 hover:bg-brand-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
+                  : "px-5 sm:px-8 py-2.5 sm:py-3 rounded-lg text-base sm:text-base font-semibold transition-all duration-200 whitespace-nowrap bg-gray-300 text-gray-500 cursor-not-allowed"
               }
             >
               <span className="hidden sm:inline">
