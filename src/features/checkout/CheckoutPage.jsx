@@ -262,6 +262,16 @@ export default function CheckoutPage() {
                   £{Number(booking.price || 0).toFixed(2)}
                 </div>
               </div>
+              <div className="flex items-center justify-between mb-2 pt-2 border-t border-gray-200">
+                <div className="text-sm text-gray-600">Booking Fee</div>
+                <div className="text-sm font-semibold">£0.50</div>
+              </div>
+              <div className="flex items-center justify-between mb-3 pt-2 border-t border-gray-300">
+                <div className="font-semibold">Total</div>
+                <div className="font-bold text-brand-600">
+                  £{(Number(booking.price || 0) + 0.50).toFixed(2)}
+                </div>
+              </div>
               {booking.startISO && (
                 <>
                   <div className="text-sm text-gray-600 mt-3">Time</div>

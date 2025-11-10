@@ -214,7 +214,9 @@ export default function ProfitAnalytics() {
             <div className="text-xl sm:text-2xl font-bold text-green-600 mb-1">
               {formatCurrency(summary.totalRevenue || 0)}
             </div>
-            <div className="text-sm sm:text-base text-gray-600">Total Revenue</div>
+            <div className="text-sm sm:text-base text-gray-600">
+              Total Revenue
+            </div>
           </div>
         </Card>
 
@@ -232,7 +234,9 @@ export default function ProfitAnalytics() {
             <div className="text-xl sm:text-2xl font-bold text-brand-600 mb-1">
               {formatCurrency(summary.totalProfit || 0)}
             </div>
-            <div className="text-sm sm:text-base text-gray-600">Total Profit</div>
+            <div className="text-sm sm:text-base text-gray-600">
+              Total Profit
+            </div>
           </div>
         </Card>
 
@@ -241,7 +245,9 @@ export default function ProfitAnalytics() {
             <div className="text-xl sm:text-2xl font-bold text-blue-600 mb-1">
               {formatPercentage(summary.overallMargin || 0)}
             </div>
-            <div className="text-sm sm:text-base text-gray-600">Overall Margin</div>
+            <div className="text-sm sm:text-base text-gray-600">
+              Overall Margin
+            </div>
           </div>
         </Card>
 
@@ -250,7 +256,9 @@ export default function ProfitAnalytics() {
             <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
               {summary.totalOrders || 0}
             </div>
-            <div className="text-sm sm:text-base text-gray-600">Total Orders</div>
+            <div className="text-sm sm:text-base text-gray-600">
+              Total Orders
+            </div>
           </div>
         </Card>
 
@@ -268,7 +276,9 @@ export default function ProfitAnalytics() {
             <div className="text-xl sm:text-2xl font-bold text-green-600 mb-1">
               {formatCurrency(summary.averageOrderValue || 0)}
             </div>
-            <div className="text-sm sm:text-base text-gray-600">Avg Order Value</div>
+            <div className="text-sm sm:text-base text-gray-600">
+              Avg Order Value
+            </div>
           </div>
         </Card>
 
@@ -277,7 +287,9 @@ export default function ProfitAnalytics() {
             <div className="text-xl sm:text-2xl font-bold text-brand-600 mb-1">
               {formatPercentage(summary.profitabilityRate || 0)}
             </div>
-            <div className="text-sm sm:text-base text-gray-600">Profitability Rate</div>
+            <div className="text-sm sm:text-base text-gray-600">
+              Profitability Rate
+            </div>
           </div>
         </Card>
       </div>
@@ -344,7 +356,9 @@ export default function ProfitAnalytics() {
 
           {/* Category Performance */}
           <Card className="p-4 sm:p-6">
-            <h3 className="text-base sm:text-lg font-semibold mb-4">Category Performance</h3>
+            <h3 className="text-base sm:text-lg font-semibold mb-4">
+              Category Performance
+            </h3>
             <div className="space-y-3">
               {categories.slice(0, 5).map((category) => (
                 <div
@@ -376,7 +390,9 @@ export default function ProfitAnalytics() {
 
       {activeTab === "products" && (
         <Card className="p-3 sm:p-6">
-          <h3 className="text-base sm:text-lg font-semibold mb-4">Product Performance</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4">
+            Product Performance
+          </h3>
           <div className="overflow-x-auto -mx-3 sm:mx-0">
             <div className="inline-block min-w-full align-middle">
               <table className="min-w-full divide-y divide-gray-200">
@@ -449,7 +465,9 @@ export default function ProfitAnalytics() {
 
       {activeTab === "categories" && (
         <Card className="p-3 sm:p-6">
-          <h3 className="text-base sm:text-lg font-semibold mb-4">Category Performance</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4">
+            Category Performance
+          </h3>
           <div className="overflow-x-auto -mx-3 sm:mx-0">
             <div className="inline-block min-w-full align-middle">
               <table className="min-w-full divide-y divide-gray-200">
@@ -517,7 +535,9 @@ export default function ProfitAnalytics() {
 
       {activeTab === "beauticians" && (
         <Card className="p-3 sm:p-6">
-          <h3 className="text-base sm:text-lg font-semibold mb-4">Beautician Performance</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4">
+            Beautician Performance
+          </h3>
           <div className="overflow-x-auto -mx-3 sm:mx-0">
             <div className="inline-block min-w-full align-middle">
               <table className="min-w-full divide-y divide-gray-200">
@@ -596,7 +616,9 @@ export default function ProfitAnalytics() {
 
       {activeTab === "trends" && (
         <Card className="p-3 sm:p-6">
-          <h3 className="text-base sm:text-lg font-semibold mb-4">Monthly Trends</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4">
+            Monthly Trends
+          </h3>
           <div className="overflow-x-auto -mx-3 sm:mx-0">
             <div className="inline-block min-w-full align-middle">
               <table className="min-w-full divide-y divide-gray-200">
