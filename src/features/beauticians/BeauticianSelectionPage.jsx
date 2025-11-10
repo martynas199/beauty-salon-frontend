@@ -311,7 +311,7 @@ export default function BeauticianSelectionPage() {
                 </p>
               </div>
             ) : (
-              <StaggerContainer className="grid gap-6 sm:grid-cols-2">
+              <StaggerContainer className="grid gap-6 sm:grid-cols-2 overflow-x-hidden">
                 {services.map((service) => (
                   <StaggerItem key={service._id}>
                     <ServiceCard

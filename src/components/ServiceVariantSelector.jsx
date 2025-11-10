@@ -32,8 +32,14 @@ export default function ServiceVariantSelector({
   const imageAlt = service.image?.alt || service.name;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-x-hidden">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden overflow-x-hidden">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto overflow-x-hidden"
+      onClick={onCancel}
+    >
+      <div 
+        className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto overflow-x-hidden my-4 sm:my-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-3 sm:p-6 border-b border-gray-200 overflow-x-hidden">
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0 overflow-x-hidden">
@@ -125,7 +131,7 @@ export default function ServiceVariantSelector({
           </h3>
 
           {service.variants && service.variants.length > 0 ? (
-            <div className="max-h-[400px] overflow-y-auto space-y-2 sm:space-y-3 mb-4 sm:mb-6 pr-1 sm:pr-2 pb-4 custom-scrollbar overflow-x-hidden">
+            <div className="max-h-[250px] sm:max-h-[400px] overflow-y-auto space-y-2 sm:space-y-3 mb-4 sm:mb-6 pr-1 sm:pr-2 pb-4 custom-scrollbar overflow-x-hidden">
               {service.variants.map((variant, index) => (
                 <Card
                   key={variant.name || index}

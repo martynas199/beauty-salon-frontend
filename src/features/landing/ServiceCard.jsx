@@ -22,12 +22,12 @@ function ServiceCard({ service, onClick }) {
     <Card
       hoverable
       clickable
-      className="p-0 overflow-hidden cursor-pointer group border border-gray-200 hover:border-brand-300"
+      className="p-0 overflow-hidden cursor-pointer group border border-gray-200 hover:border-brand-300 min-h-[140px] flex"
       onClick={onClick}
     >
-      <div className="flex flex-row overflow-x-hidden">
+      <div className="flex flex-row overflow-x-hidden w-full">
         {imageUrl && (
-          <div className="relative w-20 sm:w-32 h-auto overflow-hidden bg-gray-100 flex-shrink-0">
+          <div className="relative w-20 sm:w-32 h-full overflow-hidden bg-gray-100 flex-shrink-0">
             <img
               src={imageUrl}
               alt={imageAlt}
