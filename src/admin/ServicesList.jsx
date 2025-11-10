@@ -86,12 +86,12 @@ export default function ServicesList({
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 overflow-x-hidden">
         <div className="flex items-center justify-between mb-6">
           <div className="h-8 w-32 bg-gray-200 animate-pulse rounded" />
           <div className="h-10 w-32 bg-gray-200 animate-pulse rounded-lg" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-x-hidden">
           {[...Array(6)].map((_, i) => (
             <ServiceCardSkeleton key={i} />
           ))}
@@ -101,7 +101,7 @@ export default function ServicesList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 overflow-x-hidden">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Services</h2>
@@ -171,7 +171,7 @@ export default function ServicesList({
       ) : (
         <>
           {/* Mobile Card View */}
-          <div className="block md:hidden space-y-4">
+          <div className="block md:hidden space-y-4 overflow-x-hidden">
             {filteredServices.map((service) => (
               <div
                 key={service._id}
