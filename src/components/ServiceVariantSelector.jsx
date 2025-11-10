@@ -37,13 +37,13 @@ export default function ServiceVariantSelector({
       onClick={onCancel}
     >
       <div
-        className="bg-white sm:rounded-xl shadow-2xl max-w-2xl w-full h-full sm:h-auto max-h-full sm:max-h-[90vh] overflow-y-auto overflow-x-hidden"
+        className="bg-white sm:rounded-xl shadow-2xl max-w-2xl w-full h-full sm:h-auto max-h-full sm:max-h-[90vh] overflow-y-auto overflow-x-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-3 sm:p-6 border-b border-gray-200 overflow-x-hidden">
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0 overflow-x-hidden">
-              <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
+              <div className="flex items-center gap-2 sm:gap-4 mb-1 sm:mb-2">
                 {imageUrl && (
                   <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
                     <img
@@ -54,7 +54,7 @@ export default function ServiceVariantSelector({
                   </div>
                 )}
                 <div className="min-w-0 overflow-x-hidden">
-                  <h2 className="text-lg sm:text-2xl font-serif font-bold text-gray-900 mb-1 truncate">
+                  <h2 className="text-base sm:text-2xl font-serif font-bold text-gray-900 mb-0.5 sm:mb-1 truncate">
                     {service.name}
                   </h2>
                   {service.category && (
@@ -66,7 +66,7 @@ export default function ServiceVariantSelector({
               </div>
 
               {selectedBeautician && (
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 mb-2 overflow-x-hidden">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2 overflow-x-hidden">
                   <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200">
                     {selectedBeautician.image?.url ? (
                       <img
@@ -127,13 +127,13 @@ export default function ServiceVariantSelector({
           </div>
         </div>
 
-        <div className="p-3 sm:p-6 pb-4 sm:pb-8 overflow-x-hidden">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+        <div className="p-2 sm:p-6 pb-2 sm:pb-8 overflow-x-hidden flex flex-col flex-1">
+          <h3 className="text-sm sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-4">
             Choose Service Option
           </h3>
 
           {service.variants && service.variants.length > 0 ? (
-            <div className="max-h-[250px] sm:max-h-[400px] overflow-y-auto space-y-2 sm:space-y-3 mb-4 sm:mb-6 pr-1 sm:pr-2 pb-4 custom-scrollbar overflow-x-hidden">
+            <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-3 mb-2 sm:mb-6 pr-1 sm:pr-2 custom-scrollbar overflow-x-hidden">
               {service.variants.map((variant, index) => (
                 <Card
                   key={variant.name || index}
@@ -145,7 +145,7 @@ export default function ServiceVariantSelector({
                   }`}
                   onClick={() => handleVariantSelect(variant)}
                 >
-                  <div className="p-3 sm:p-4 overflow-x-hidden">
+                  <div className="p-2 sm:p-4 overflow-x-hidden">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         {variant.name && (
@@ -267,7 +267,7 @@ export default function ServiceVariantSelector({
           )}
         </div>
 
-        <div className="p-3 sm:p-6 border-t border-gray-200 bg-gray-50 overflow-x-hidden">
+        <div className="p-2 sm:p-6 border-t border-gray-200 bg-gray-50 overflow-x-hidden flex-shrink-0">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             <button
               onClick={onCancel}
