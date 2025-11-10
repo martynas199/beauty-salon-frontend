@@ -277,11 +277,11 @@ export default function ServiceVariantSelector({
             <button
               onClick={handleConfirm}
               disabled={!selectedVariant && service.variants?.length > 0}
-              className={`px-4 sm:px-8 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 whitespace-nowrap ${
+              className={
                 selectedVariant || !service.variants?.length
-                  ? "bg-brand-600 hover:bg-brand-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }}
+                  ? "px-4 sm:px-8 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 whitespace-nowrap bg-brand-600 hover:bg-brand-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
+                  : "px-4 sm:px-8 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 whitespace-nowrap bg-gray-300 text-gray-500 cursor-not-allowed"
+              }
             >
               <span className="hidden sm:inline">
                 {selectedVariant || !service.variants?.length
