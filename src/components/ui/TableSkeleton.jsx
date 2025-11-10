@@ -2,10 +2,10 @@
  * TableSkeleton - Loading skeleton for table views
  * Provides a skeleton for table headers and rows
  */
-export default function TableSkeleton({ 
-  columns = 4, 
+export default function TableSkeleton({
+  columns = 4,
   rows = 5,
-  showHeader = true 
+  showHeader = true,
 }) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -17,9 +17,9 @@ export default function TableSkeleton({
               <div
                 key={i}
                 className="animate-pulse bg-gray-300 h-4 rounded"
-                style={{ 
-                  width: i === 0 ? '30%' : `${70 / (columns - 1)}%`,
-                  flex: i === 0 ? '0 0 30%' : '1'
+                style={{
+                  width: i === 0 ? "30%" : `${70 / (columns - 1)}%`,
+                  flex: i === 0 ? "0 0 30%" : "1",
                 }}
               />
             ))}
@@ -36,10 +36,10 @@ export default function TableSkeleton({
                 <div
                   key={colIndex}
                   className="animate-pulse bg-gray-200 h-5 rounded"
-                  style={{ 
-                    width: colIndex === 0 ? '30%' : `${70 / (columns - 1)}%`,
-                    flex: colIndex === 0 ? '0 0 30%' : '1',
-                    animationDelay: `${rowIndex * 50}ms`
+                  style={{
+                    width: colIndex === 0 ? "30%" : `${70 / (columns - 1)}%`,
+                    flex: colIndex === 0 ? "0 0 30%" : "1",
+                    animationDelay: `${rowIndex * 50}ms`,
                   }}
                 />
               ))}

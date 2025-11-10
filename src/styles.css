@@ -19,18 +19,21 @@
   html {
     /* Use dvh (dynamic viewport height) for better mobile browser chrome handling */
     height: 100dvh;
+    overflow-x: hidden;
   }
 
   body {
     /* Ensure body respects safe areas on mobile devices */
     min-height: 100dvh;
     min-height: -webkit-fill-available;
+    overflow-x: hidden;
   }
 
   /* Root element should also respect dynamic viewport */
   #root {
     min-height: 100dvh;
     min-height: -webkit-fill-available;
+    overflow-x: hidden;
   }
 
   /* Headings: Playfair Display with elegant spacing */

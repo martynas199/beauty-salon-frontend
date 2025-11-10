@@ -2,11 +2,11 @@
  * CardSkeleton - Generic loading skeleton for card layouts
  * Flexible skeleton for various card designs
  */
-export default function CardSkeleton({ 
+export default function CardSkeleton({
   hasImage = false,
   imageHeight = "h-48",
   hasAvatar = false,
-  lines = 3 
+  lines = 3,
 }) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -40,8 +40,8 @@ export default function CardSkeleton({
               key={i}
               className="animate-pulse bg-gray-200 h-4 rounded"
               style={{
-                width: i === lines - 1 ? '60%' : '100%',
-                animationDelay: `${i * 100}ms`
+                width: i === lines - 1 ? "60%" : "100%",
+                animationDelay: `${i * 100}ms`,
               }}
             />
           ))}

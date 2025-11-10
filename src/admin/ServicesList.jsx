@@ -31,10 +31,7 @@ export default function ServicesList({
 
   // Extract unique categories with useMemo
   const categories = useMemo(() => {
-    return [
-      "all",
-      ...new Set(services.map((s) => s.category).filter(Boolean)),
-    ];
+    return ["all", ...new Set(services.map((s) => s.category).filter(Boolean))];
   }, [services]);
 
   // Filter services with useMemo for performance

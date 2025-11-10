@@ -170,8 +170,8 @@ export default function BeauticianSelectionPage() {
   }
 
   return (
-    <PageTransition className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <PageTransition className="min-h-screen bg-gray-50 py-8 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-hidden">
         {!selectedBeautician ? (
           // Step 1: Select a Beautician
           <>

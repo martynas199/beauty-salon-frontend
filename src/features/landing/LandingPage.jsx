@@ -35,7 +35,10 @@ export default function LandingPage() {
     Promise.all([
       ServicesAPI.list(),
       SalonAPI.get().catch(() => null),
-      api.get("/beauticians").then(res => res.data.filter(b => b.active)).catch(() => [])
+      api
+        .get("/beauticians")
+        .then((res) => res.data.filter((b) => b.active))
+        .catch(() => []),
     ])
       .then(([servicesData, salonData, beauticiansData]) => {
         setServices(servicesData);
@@ -160,9 +163,9 @@ export default function LandingPage() {
         />
       </motion.div>
 
-      <PageTransition className="-mt-8 relative z-0">
+      <PageTransition className="-mt-8 relative z-0 overflow-x-hidden">
         {/* Hero Section Display */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-12 overflow-x-hidden">
           <HeroSectionDisplay />
         </div>
 
@@ -175,7 +178,7 @@ export default function LandingPage() {
         />
 
         {/* Popular Collections Section */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 overflow-x-hidden">
           <PopularCollections />
         </div>
 
@@ -189,7 +192,7 @@ export default function LandingPage() {
         /> */}
 
         {/* Beauticians Section */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 overflow-x-hidden">
           {/* Section Header */}
           <div className="mb-6 sm:mb-8">
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-2 tracking-wide">
