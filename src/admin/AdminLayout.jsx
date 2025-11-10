@@ -314,7 +314,7 @@ export default function AdminLayout() {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+            <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto pb-20 lg:pb-3">
               {filteredItems.map((it, idx) => {
                 // Render divider
                 if (it.divider) {
