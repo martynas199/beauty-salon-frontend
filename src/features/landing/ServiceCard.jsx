@@ -27,7 +27,7 @@ function ServiceCard({ service, onClick }) {
     >
       <div className="flex flex-row overflow-x-hidden w-full min-h-[140px]">
         {imageUrl && (
-          <div className="relative w-20 sm:w-32 self-stretch overflow-hidden bg-gray-100 flex-shrink-0">
+            <div className="relative w-28 sm:w-40 self-stretch overflow-hidden bg-gray-100 flex-shrink-0">
             <img
               src={imageUrl}
               alt={imageAlt}
@@ -83,9 +83,9 @@ function ServiceCard({ service, onClick }) {
           )}
 
           {/* Price and Action Section */}
-          <div className="flex items-center justify-between mt-auto pt-1.5 sm:pt-2 border-t border-gray-100 gap-2 min-w-0 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-auto pt-1.5 sm:pt-2 border-t border-gray-100 gap-1.5 sm:gap-2 min-w-0 flex-shrink-0">
             {/* Price and Duration Display */}
-            <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-wrap">
+            <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-wrap w-full sm:w-auto">
               {minPrice !== null && (
                 <div className="flex items-baseline gap-0.5 sm:gap-1">
                   <span className="text-[10px] sm:text-xs text-gray-500">
@@ -139,7 +139,7 @@ function ServiceCard({ service, onClick }) {
                 e.stopPropagation();
                 onClick?.();
               }}
-              className="px-3 sm:px-6 py-1.5 sm:py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-[11px] sm:text-sm font-semibold rounded-full shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-250 whitespace-nowrap flex-shrink-0"
+                className="px-2 sm:px-6 py-1 sm:py-2 bg-brand-600 hover:bg-brand-700 text-white text-[10px] sm:text-sm font-semibold rounded-full shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-250 whitespace-nowrap flex-shrink-0 w-auto"
             >
               {service.variants && service.variants.length > 1
                 ? "Choose Option"
