@@ -19,7 +19,7 @@ export default function Card({
   return (
     <div
       className={[
-        "rounded-2xl border bg-white",
+        "rounded-2xl border bg-white w-full",
         hoverClass,
         cursorClass,
         className,

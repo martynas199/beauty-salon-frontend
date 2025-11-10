@@ -22,12 +22,12 @@ function ServiceCard({ service, onClick }) {
     <Card
       hoverable
       clickable
-      className="p-0 overflow-hidden cursor-pointer group border border-gray-200 hover:border-brand-300 min-h-[140px] flex"
+      className="p-0 overflow-hidden cursor-pointer group border border-gray-200 hover:border-brand-300"
       onClick={onClick}
     >
-      <div className="flex flex-row overflow-x-hidden w-full">
+      <div className="flex flex-row overflow-x-hidden w-full min-h-[140px]">
         {imageUrl && (
-          <div className="relative w-20 sm:w-32 h-full overflow-hidden bg-gray-100 flex-shrink-0">
+          <div className="relative w-20 sm:w-32 self-stretch overflow-hidden bg-gray-100 flex-shrink-0">
             <img
               src={imageUrl}
               alt={imageAlt}
@@ -39,7 +39,7 @@ function ServiceCard({ service, onClick }) {
           </div>
         )}
         <div className="flex flex-col flex-1 p-2.5 sm:p-4 min-w-0 overflow-x-hidden">
-          <div className="flex flex-col gap-0.5 mb-1 min-w-0">
+          <div className="flex flex-col gap-0.5 mb-1 min-w-0 flex-shrink-0">
             <div className="font-bold text-sm sm:text-lg text-gray-900 leading-tight truncate">
               {service.name}
             </div>
@@ -57,14 +57,14 @@ function ServiceCard({ service, onClick }) {
             )}
           </div>
           {service.description && (
-            <div className="text-gray-500 text-[11px] sm:text-sm mb-1.5 sm:mb-3 line-clamp-2">
+            <div className="text-gray-500 text-[11px] sm:text-sm mb-1.5 sm:mb-3 line-clamp-2 flex-shrink-0">
               {service.description}
             </div>
           )}
 
           {/* Variants indicator */}
           {service.variants && service.variants.length > 1 && (
-            <div className="flex items-center gap-1 text-[10px] sm:text-xs text-brand-600 font-medium mb-1">
+            <div className="flex items-center gap-1 text-[10px] sm:text-xs text-brand-600 font-medium mb-1 flex-shrink-0">
               <svg
                 className="w-3 h-3 sm:w-4 sm:h-4"
                 fill="none"
@@ -83,7 +83,7 @@ function ServiceCard({ service, onClick }) {
           )}
 
           {/* Price and Action Section */}
-          <div className="flex items-center justify-between mt-auto pt-1.5 sm:pt-2 border-t border-gray-100 gap-2 min-w-0">
+          <div className="flex items-center justify-between mt-auto pt-1.5 sm:pt-2 border-t border-gray-100 gap-2 min-w-0 flex-shrink-0">
             {/* Price and Duration Display */}
             <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-wrap">
               {minPrice !== null && (
