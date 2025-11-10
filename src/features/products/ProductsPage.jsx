@@ -21,7 +21,6 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState("featured");
   const [searchQuery, setSearchQuery] = useState("");
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
-  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     loadProducts();
@@ -185,9 +184,9 @@ export default function ProductsPage() {
         {/* Search and Filter Bar */}
         <div className="mb-8">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Search */}
-              <div className="md:col-span-5">
+              <div>
                 <div className="relative">
                   <svg
                     className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -234,7 +233,7 @@ export default function ProductsPage() {
               </div>
 
               {/* Category Filter */}
-              <div className="md:col-span-3">
+              <div>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
@@ -257,7 +256,7 @@ export default function ProductsPage() {
               </div>
 
               {/* Sort */}
-              <div className="md:col-span-3">
+              <div>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
@@ -277,29 +276,6 @@ export default function ProductsPage() {
                   <option value="name-za">Name: Z-A</option>
                   <option value="newest">Newest First</option>
                 </select>
-              </div>
-
-              {/* Mobile Filter Toggle */}
-              <div className="md:col-span-1">
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="w-full md:w-auto px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-                >
-                  <svg
-                    className="w-5 h-5 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-                    />
-                  </svg>
-                  <span className="md:hidden">Filters</span>
-                </button>
               </div>
             </div>
 

@@ -240,14 +240,14 @@ export default function CheckoutPage() {
               >
                 Pay deposit
               </Button>
-              <Button
+              {/* <Button
                 disabled={loading}
                 onClick={() => submit("pay_in_salon")}
                 variant="outline"
                 className="w-full"
               >
                 Pay at salon
-              </Button>
+              </Button> */}
             </div>
           </div>
           <div>
