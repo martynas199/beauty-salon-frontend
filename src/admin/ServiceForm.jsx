@@ -486,132 +486,111 @@ export default function ServiceForm({
 
           <div className="max-h-96 overflow-y-auto space-y-3">
             {formData.variants.map((variant, index) => (
-            <div
-              key={index}
-              className="p-4 border border-gray-200 rounded-lg space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium">Variant {index + 1}</h4>
-                {formData.variants.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeVariant(index)}
-                    className="text-red-500 hover:text-red-700 text-sm"
-                  >
-                    Remove
-                  </button>
-                )}
-              </div>
+              <div
+                key={index}
+                className="p-4 border border-gray-200 rounded-lg space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">Variant {index + 1}</h4>
+                  {formData.variants.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(index)}
+                      className="text-red-500 hover:text-red-700 text-sm"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <FormField
-                  label="Name"
-                  error={errors[`variant_${index}_name`]}
-                  required
-                  htmlFor={`variant-${index}-name`}
-                >
-                  <input
-                    type="text"
-                    id={`variant-${index}-name`}
-                    value={variant.name}
-                    onChange={(e) =>
-                      handleVariantChange(index, "name", e.target.value)
-                    }
-                    className={`w-full px-3 py-2 border rounded-lg ${
-                      errors[`variant_${index}_name`]
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="e.g., Standard"
-                  />
-                </FormField>
-
-                <FormField
-                  label="Duration (min)"
-                  error={errors[`variant_${index}_duration`]}
-                  required
-                  htmlFor={`variant-${index}-duration`}
-                >
-                  <input
-                    type="number"
-                    id={`variant-${index}-duration`}
-                    value={variant.durationMin}
-                    onChange={(e) =>
-                      handleVariantChange(
-                        index,
-                        "durationMin",
-                        parseInt(e.target.value) || 0
-                      )
-                    }
-                    className={`w-full px-3 py-2 border rounded-lg ${
-                      errors[`variant_${index}_duration`]
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    min="1"
-                  />
-                </FormField>
-
-                <FormField
-                  label="Price (£)"
-                  error={errors[`variant_${index}_price`]}
-                  required
-                  htmlFor={`variant-${index}-price`}
-                >
-                  <input
-                    type="text"
-                    id={`variant-${index}-price`}
-                    inputMode="decimal"
-                    value={variant.price}
-                    onChange={(e) =>
-                      handleVariantChange(
-                        index,
-                        "price",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className={`w-full px-3 py-2 border rounded-lg ${
-                      errors[`variant_${index}_price`]
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="0.00"
-                  />
-                </FormField>
-
-                <FormField
-                  label="Buffer Before (min)"
-                  htmlFor={`variant-${index}-buffer-before`}
-                >
-                  <input
-                    type="number"
-                    id={`variant-${index}-buffer-before`}
-                    value={variant.bufferBeforeMin}
-                    onChange={(e) =>
-                      handleVariantChange(
-                        index,
-                        "bufferBeforeMin",
-                        parseInt(e.target.value) || 0
-                      )
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    min="0"
-                  />
-                </FormField>
-
-                <div className="col-span-2">
+                <div className="grid grid-cols-2 gap-3">
                   <FormField
-                    label="Buffer After (min)"
-                    htmlFor={`variant-${index}-buffer-after`}
+                    label="Name"
+                    error={errors[`variant_${index}_name`]}
+                    required
+                    htmlFor={`variant-${index}-name`}
+                  >
+                    <input
+                      type="text"
+                      id={`variant-${index}-name`}
+                      value={variant.name}
+                      onChange={(e) =>
+                        handleVariantChange(index, "name", e.target.value)
+                      }
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        errors[`variant_${index}_name`]
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
+                      placeholder="e.g., Standard"
+                    />
+                  </FormField>
+
+                  <FormField
+                    label="Duration (min)"
+                    error={errors[`variant_${index}_duration`]}
+                    required
+                    htmlFor={`variant-${index}-duration`}
                   >
                     <input
                       type="number"
-                      id={`variant-${index}-buffer-after`}
-                      value={variant.bufferAfterMin}
+                      id={`variant-${index}-duration`}
+                      value={variant.durationMin}
                       onChange={(e) =>
                         handleVariantChange(
                           index,
-                          "bufferAfterMin",
+                          "durationMin",
+                          parseInt(e.target.value) || 0
+                        )
+                      }
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        errors[`variant_${index}_duration`]
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
+                      min="1"
+                    />
+                  </FormField>
+
+                  <FormField
+                    label="Price (£)"
+                    error={errors[`variant_${index}_price`]}
+                    required
+                    htmlFor={`variant-${index}-price`}
+                  >
+                    <input
+                      type="text"
+                      id={`variant-${index}-price`}
+                      inputMode="decimal"
+                      value={variant.price}
+                      onChange={(e) =>
+                        handleVariantChange(
+                          index,
+                          "price",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        errors[`variant_${index}_price`]
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
+                      placeholder="0.00"
+                    />
+                  </FormField>
+
+                  <FormField
+                    label="Buffer Before (min)"
+                    htmlFor={`variant-${index}-buffer-before`}
+                  >
+                    <input
+                      type="number"
+                      id={`variant-${index}-buffer-before`}
+                      value={variant.bufferBeforeMin}
+                      onChange={(e) =>
+                        handleVariantChange(
+                          index,
+                          "bufferBeforeMin",
                           parseInt(e.target.value) || 0
                         )
                       }
@@ -619,10 +598,31 @@ export default function ServiceForm({
                       min="0"
                     />
                   </FormField>
+
+                  <div className="col-span-2">
+                    <FormField
+                      label="Buffer After (min)"
+                      htmlFor={`variant-${index}-buffer-after`}
+                    >
+                      <input
+                        type="number"
+                        id={`variant-${index}-buffer-after`}
+                        value={variant.bufferAfterMin}
+                        onChange={(e) =>
+                          handleVariantChange(
+                            index,
+                            "bufferAfterMin",
+                            parseInt(e.target.value) || 0
+                          )
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        min="0"
+                      />
+                    </FormField>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
           </div>
 
           {errors.variants && (

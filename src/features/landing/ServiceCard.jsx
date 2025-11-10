@@ -1,4 +1,5 @@
-﻿import Card from "../../components/ui/Card";
+﻿import { memo } from "react";
+import Card from "../../components/ui/Card";
 
 /**
  * ServiceCard - reusable card for displaying a service with image, name, category, description, and variants (price & duration)
@@ -6,7 +7,7 @@
  * @param {object} props.service - The service object
  * @param {function} props.onClick - Click handler for the card
  */
-export default function ServiceCard({ service, onClick }) {
+function ServiceCard({ service, onClick }) {
   // Support both new image object and legacy imageUrl string
   const imageUrl = service.image?.url || service.imageUrl;
   const imageAlt = service.image?.alt || service.name;
@@ -194,3 +195,5 @@ export default function ServiceCard({ service, onClick }) {
     </Card>
   );
 }
+
+export default memo(ServiceCard);

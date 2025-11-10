@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Button from "../components/ui/Button";
 import ConfirmDeleteModal from "../components/forms/ConfirmDeleteModal";
+import { BeauticianCardSkeleton } from "../components/ui/Skeleton";
 
 /**
  * StaffList - Display and manage staff/beauticians in admin panel
@@ -99,8 +100,16 @@ export default function StaffList({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-gray-500">Loading staff...</div>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between mb-6">
+          <div className="h-8 w-24 bg-gray-200 animate-pulse rounded" />
+          <div className="h-10 w-40 bg-gray-200 animate-pulse rounded-lg" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <BeauticianCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }

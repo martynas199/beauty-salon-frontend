@@ -2,6 +2,7 @@
 import toast from "react-hot-toast";
 import { api } from "../../lib/apiClient";
 import Button from "../../components/ui/Button";
+import { SkeletonBox } from "../../components/ui/Skeleton";
 
 const DAYS = [
   { key: "mon", label: "Monday" },
@@ -177,13 +178,15 @@ export default function Hours() {
         </h2>
 
         {loading ? (
-          <div className="text-center py-8">
-            <div className="text-gray-500 mb-2">Loading schedule...</div>
-            {retryCount > 0 && (
-              <div className="text-sm text-gray-400">
-                Retry attempt {retryCount}/2
+          <div className="space-y-3">
+            {DAYS.map((day) => (
+              <div key={day.key} className="border rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <SkeletonBox className="h-6 w-24" />
+                  <SkeletonBox className="h-9 w-16 rounded-lg" />
+                </div>
               </div>
-            )}
+            ))}
           </div>
         ) : message.type === "error" &&
           Object.keys(workingHours).length === 0 ? (

@@ -31,21 +31,19 @@ export default function LandingPage() {
   const y = useTransform(scrollYProgress, [0, 1], [0, -20]);
 
   useEffect(() => {
-    ServicesAPI.list()
-      .then(setServices)
-      .finally(() => setLoading(false));
-    SalonAPI.get()
-      .then(setSalon)
-      .catch(() => setSalon(null));
-
-    // Fetch beauticians
-    api
-      .get("/beauticians")
-      .then((res) => {
-        const activeBeauticians = res.data.filter((b) => b.active);
-        setBeauticians(activeBeauticians);
+    // Parallelize all API calls for faster loading
+    Promise.all([
+      ServicesAPI.list(),
+      SalonAPI.get().catch(() => null),
+      api.get("/beauticians").then(res => res.data.filter(b => b.active)).catch(() => [])
+    ])
+      .then(([servicesData, salonData, beauticiansData]) => {
+        setServices(servicesData);
+        setSalon(salonData);
+        setBeauticians(beauticiansData);
       })
-      .catch((err) => console.error("Failed to fetch beauticians:", err));
+      .catch((err) => console.error("Failed to fetch landing page data:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   // Format working hours for display

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Button from "../components/ui/Button";
 import ConfirmDeleteModal from "../components/forms/ConfirmDeleteModal";
+import { ServiceCardSkeleton } from "../components/ui/Skeleton";
 
 /**
  * ServicesList - Display and manage services in admin panel
@@ -28,28 +29,32 @@ export default function ServicesList({
   const [filterCategory, setFilterCategory] = useState("all");
   const [deleteConfirm, setDeleteConfirm] = useState(null); // serviceId being deleted
 
-  // Extract unique categories
-  const categories = [
-    "all",
-    ...new Set(services.map((s) => s.category).filter(Boolean)),
-  ];
+  // Extract unique categories with useMemo
+  const categories = useMemo(() => {
+    return [
+      "all",
+      ...new Set(services.map((s) => s.category).filter(Boolean)),
+    ];
+  }, [services]);
 
-  // Filter services
-  const filteredServices = services.filter((service) => {
-    const matchesSearch =
-      service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.description?.toLowerCase().includes(searchTerm.toLowerCase());
+  // Filter services with useMemo for performance
+  const filteredServices = useMemo(() => {
+    return services.filter((service) => {
+      const matchesSearch =
+        service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.description?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesActive =
-      filterActive === "all" ||
-      (filterActive === "active" && service.active) ||
-      (filterActive === "inactive" && !service.active);
+      const matchesActive =
+        filterActive === "all" ||
+        (filterActive === "active" && service.active) ||
+        (filterActive === "inactive" && !service.active);
 
-    const matchesCategory =
-      filterCategory === "all" || service.category === filterCategory;
+      const matchesCategory =
+        filterCategory === "all" || service.category === filterCategory;
 
-    return matchesSearch && matchesActive && matchesCategory;
-  });
+      return matchesSearch && matchesActive && matchesCategory;
+    });
+  }, [services, searchTerm, filterActive, filterCategory]);
 
   const handleDeleteClick = (service) => {
     setDeleteConfirm(service);
@@ -84,8 +89,16 @@ export default function ServicesList({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-gray-500">Loading services...</div>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between mb-6">
+          <div className="h-8 w-32 bg-gray-200 animate-pulse rounded" />
+          <div className="h-10 w-32 bg-gray-200 animate-pulse rounded-lg" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <ServiceCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }
