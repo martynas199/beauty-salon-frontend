@@ -269,7 +269,7 @@ export default function CheckoutPage() {
               <div className="flex items-center justify-between mb-3 pt-2 border-t border-gray-300">
                 <div className="font-semibold">Total</div>
                 <div className="font-bold text-brand-600">
-                  £{(Number(booking.price || 0) + 0.50).toFixed(2)}
+                  £{(Number(booking.price || 0) + 0.5).toFixed(2)}
                 </div>
               </div>
               {booking.startISO && (

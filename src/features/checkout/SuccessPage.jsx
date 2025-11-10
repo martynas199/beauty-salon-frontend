@@ -154,11 +154,58 @@ export default function SuccessPage() {
             When: {new Date(appt.start).toLocaleString()}
           </div>
           <div className="text-gray-700">
-            Total: £{Number(appt.price || 0).toFixed(2)}
+            Service Price: £{Number(appt.price || 0).toFixed(2)}
           </div>
-          <div className="text-green-700 mt-2 font-semibold">
-            Status: {appt.status}
-          </div>
+
+          {/* Show payment breakdown for deposits */}
+          {appt.payment?.mode === "deposit" && appt.payment?.amountTotal && (
+            <div className="mt-3 pt-3 border-t border-gray-300">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-2">
+                <div className="text-xs font-semibold text-green-800 mb-2">
+                  💳 Payment Details
+                </div>
+                <div className="text-sm text-green-700 flex justify-between">
+                  <span>Deposit:</span>
+                  <span className="font-semibold">
+                    £{((appt.payment.amountTotal - 50) / 100).toFixed(2)}
+                  </span>
+                </div>
+                <div className="text-sm text-green-700 flex justify-between">
+                  <span>Booking Fee:</span>
+                  <span className="font-semibold">£0.50</span>
+                </div>
+                <div className="text-sm text-green-700 flex justify-between pt-2 mt-2 border-t border-green-200">
+                  <span className="font-semibold">Total Paid:</span>
+                  <span className="font-bold">
+                    £{(appt.payment.amountTotal / 100).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3">
+                <div className="text-xs font-semibold text-yellow-800 mb-1">
+                  💰 Remaining Balance
+                </div>
+                <div className="text-lg font-bold text-yellow-900">
+                  £
+                  {(
+                    Number(appt.price || 0) -
+                    (appt.payment.amountTotal - 50) / 100
+                  ).toFixed(2)}
+                </div>
+                <div className="text-xs text-yellow-700 mt-1">
+                  To be paid at the salon
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Show simple status for full payment or pay at salon */}
+          {appt.payment?.mode !== "deposit" && (
+            <div className="text-green-700 mt-2 font-semibold">
+              Status: {appt.status}
+            </div>
+          )}
         </div>
       )}
       {status === "error" && (
