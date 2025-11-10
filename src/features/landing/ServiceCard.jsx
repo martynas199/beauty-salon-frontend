@@ -25,7 +25,7 @@ function ServiceCard({ service, onClick }) {
       className="p-0 overflow-hidden cursor-pointer group border border-gray-200 hover:border-brand-300"
       onClick={onClick}
     >
-      <div className="flex flex-row">
+      <div className="flex flex-row overflow-x-hidden">
         {imageUrl && (
           <div className="relative w-20 sm:w-32 h-auto overflow-hidden bg-gray-100 flex-shrink-0">
             <img
@@ -38,19 +38,19 @@ function ServiceCard({ service, onClick }) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
         )}
-        <div className="flex flex-col flex-1 p-2.5 sm:p-4">
-          <div className="flex flex-col gap-0.5 mb-1">
-            <div className="font-bold text-sm sm:text-lg text-gray-900 leading-tight">
+        <div className="flex flex-col flex-1 p-2.5 sm:p-4 min-w-0 overflow-x-hidden">
+          <div className="flex flex-col gap-0.5 mb-1 min-w-0">
+            <div className="font-bold text-sm sm:text-lg text-gray-900 leading-tight truncate">
               {service.name}
             </div>
             {service.category && (
-              <div className="text-brand-600 text-[9px] sm:text-xs font-medium uppercase tracking-wide">
+              <div className="text-brand-600 text-[9px] sm:text-xs font-medium uppercase tracking-wide truncate">
                 {service.category}
               </div>
             )}
             {(service.primaryBeauticianId?.name ||
               service.beautician?.name) && (
-              <div className="text-[9px] sm:text-xs text-gray-500">
+              <div className="text-[9px] sm:text-xs text-gray-500 truncate">
                 By{" "}
                 {service.primaryBeauticianId?.name || service.beautician?.name}
               </div>
@@ -83,9 +83,9 @@ function ServiceCard({ service, onClick }) {
           )}
 
           {/* Price and Action Section */}
-          <div className="flex items-center justify-between mt-auto pt-1.5 sm:pt-2 border-t border-gray-100">
+          <div className="flex items-center justify-between mt-auto pt-1.5 sm:pt-2 border-t border-gray-100 gap-2 min-w-0">
             {/* Price and Duration Display */}
-            <div className="flex items-center gap-1.5 sm:gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-wrap">
               {minPrice !== null && (
                 <div className="flex items-baseline gap-0.5 sm:gap-1">
                   <span className="text-[10px] sm:text-xs text-gray-500">
@@ -139,7 +139,7 @@ function ServiceCard({ service, onClick }) {
                 e.stopPropagation();
                 onClick?.();
               }}
-              className="px-3 sm:px-6 py-1.5 sm:py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-[11px] sm:text-sm font-semibold rounded-full shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-250 whitespace-nowrap"
+              className="px-3 sm:px-6 py-1.5 sm:py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-[11px] sm:text-sm font-semibold rounded-full shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-250 whitespace-nowrap flex-shrink-0"
             >
               {service.variants && service.variants.length > 1
                 ? "Choose Option"
