@@ -27,7 +27,7 @@ function ServiceCard({ service, onClick }) {
     >
       <div className="flex flex-row overflow-x-hidden w-full min-h-[140px]">
         {imageUrl && (
-            <div className="relative w-28 sm:w-40 self-stretch overflow-hidden bg-gray-100 flex-shrink-0">
+          <div className="relative w-28 sm:w-40 self-stretch overflow-hidden bg-gray-100 flex-shrink-0">
             <img
               src={imageUrl}
               alt={imageAlt}
@@ -139,7 +139,7 @@ function ServiceCard({ service, onClick }) {
                 e.stopPropagation();
                 onClick?.();
               }}
-                className="px-2 sm:px-6 py-1 sm:py-2 bg-brand-600 hover:bg-brand-700 text-white text-[10px] sm:text-sm font-semibold rounded-full shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-250 whitespace-nowrap flex-shrink-0 w-auto"
+              className="px-2 sm:px-6 py-1 sm:py-2 bg-brand-600 hover:bg-brand-700 text-white text-[10px] sm:text-sm font-semibold rounded-full shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-250 whitespace-nowrap flex-shrink-0 w-auto"
             >
               {service.variants && service.variants.length > 1
                 ? "Choose Option"

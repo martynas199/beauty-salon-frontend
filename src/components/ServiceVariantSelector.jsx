@@ -32,12 +32,12 @@ export default function ServiceVariantSelector({
   const imageAlt = service.image?.alt || service.name;
 
   return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto overflow-x-hidden"
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-0 sm:p-4 overflow-y-auto overflow-x-hidden"
       onClick={onCancel}
     >
-      <div 
-        className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto overflow-x-hidden my-4 sm:my-auto"
+      <div
+        className="bg-white sm:rounded-xl shadow-2xl max-w-2xl w-full h-full sm:h-auto max-h-full sm:max-h-[90vh] overflow-y-auto overflow-x-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-3 sm:p-6 border-b border-gray-200 overflow-x-hidden">
@@ -92,7 +92,9 @@ export default function ServiceVariantSelector({
                       </div>
                     )}
                   </div>
-                  <span className="truncate">with {selectedBeautician.name}</span>
+                  <span className="truncate">
+                    with {selectedBeautician.name}
+                  </span>
                 </div>
               )}
 
