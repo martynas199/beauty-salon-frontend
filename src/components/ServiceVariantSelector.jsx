@@ -33,19 +33,19 @@ export default function ServiceVariantSelector({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-0 sm:p-4 overflow-y-auto"
       onClick={onCancel}
     >
       <div
-        className="bg-white rounded-xl shadow-2xl w-full max-w-2xl my-8 flex flex-col max-h-[calc(100vh-4rem)]"
+        className="bg-white sm:rounded-xl shadow-2xl w-full sm:w-auto sm:min-w-[640px] sm:max-w-2xl h-full sm:h-auto my-0 sm:my-8 flex flex-col max-h-full sm:max-h-[calc(100vh-4rem)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 border-b border-gray-200 flex-shrink-0">
+        <div className="p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-4 mb-5">
+              <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-5">
                 {imageUrl && (
-                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
                     <img
                       src={imageUrl}
                       alt={imageAlt}
@@ -54,11 +54,11 @@ export default function ServiceVariantSelector({
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-2xl font-serif font-bold text-gray-900 mb-1 truncate">
+                  <h2 className="text-lg sm:text-2xl font-serif font-bold text-gray-900 mb-1 truncate">
                     {service.name}
                   </h2>
                   {service.category && (
-                    <div className="text-brand-600 text-sm font-medium uppercase tracking-wide truncate">
+                    <div className="text-brand-600 text-xs sm:text-sm font-medium uppercase tracking-wide truncate">
                       {service.category}
                     </div>
                   )}
@@ -66,8 +66,8 @@ export default function ServiceVariantSelector({
               </div>
 
               {selectedBeautician && (
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
                     {selectedBeautician.image?.url ? (
                       <img
                         src={selectedBeautician.image.url}
@@ -99,7 +99,7 @@ export default function ServiceVariantSelector({
               )}
 
               {service.description && (
-                <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+                <p className="text-gray-600 text-xs sm:text-sm leading-relaxed line-clamp-2">
                   {service.description}
                 </p>
               )}
@@ -107,11 +107,11 @@ export default function ServiceVariantSelector({
 
             <button
               onClick={onCancel}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+              className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
               aria-label="Close"
             >
               <svg
-                className="w-6 h-6 text-gray-600"
+                className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -127,13 +127,13 @@ export default function ServiceVariantSelector({
           </div>
         </div>
 
-        <div className="p-6 flex-1 overflow-y-auto">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="p-4 sm:p-6 flex-1 overflow-y-auto">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
             Choose Service Option
           </h3>
 
           {service.variants && service.variants.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {service.variants.map((variant, index) => (
                 <Card
                   key={variant.name || index}
@@ -267,11 +267,11 @@ export default function ServiceVariantSelector({
           )}
         </div>
 
-        <div className="p-6 border-t border-gray-200 bg-gray-50 flex-shrink-0">
-          <div className="flex items-center justify-between gap-4">
+        <div className="p-4 sm:p-6 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
             <button
               onClick={onCancel}
-              className="px-6 py-2 text-base text-gray-600 hover:text-gray-800 transition-colors"
+              className="px-4 py-2.5 text-sm sm:text-base text-gray-600 hover:text-gray-800 transition-colors order-2 sm:order-1"
             >
               Cancel
             </button>
@@ -281,13 +281,20 @@ export default function ServiceVariantSelector({
               disabled={!selectedVariant && service.variants?.length > 0}
               className={
                 selectedVariant || !service.variants?.length
-                  ? "px-8 py-3 rounded-lg text-base font-semibold transition-all duration-200 whitespace-nowrap bg-brand-600 hover:bg-brand-700 text-white shadow-md hover:shadow-lg"
-                  : "px-8 py-3 rounded-lg text-base font-semibold transition-all duration-200 whitespace-nowrap bg-gray-300 text-gray-500 cursor-not-allowed"
+                  ? "px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 bg-brand-600 hover:bg-brand-700 text-white shadow-md hover:shadow-lg order-1 sm:order-2"
+                  : "px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 bg-gray-300 text-gray-500 cursor-not-allowed order-1 sm:order-2"
               }
             >
-              {selectedVariant || !service.variants?.length
-                ? "Continue to Time Selection"
-                : "Please select an option"}
+              <span className="hidden sm:inline">
+                {selectedVariant || !service.variants?.length
+                  ? "Continue to Time Selection"
+                  : "Please select an option"}
+              </span>
+              <span className="sm:hidden">
+                {selectedVariant || !service.variants?.length
+                  ? "Continue"
+                  : "Select option"}
+              </span>
             </button>
           </div>
         </div>
