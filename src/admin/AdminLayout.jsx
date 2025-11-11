@@ -70,6 +70,12 @@ const items = [
   },
   { to: "/admin/stripe-connect", label: "Stripe Connect", icon: "💳" },
   {
+    to: "/admin/subscription",
+    label: "E-Commerce Subscription",
+    icon: "💎",
+    superAdminOnly: true,
+  },
+  {
     to: "/admin/admin-links",
     label: "Admin Links",
     icon: "🔗",

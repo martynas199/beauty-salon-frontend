@@ -58,6 +58,7 @@ const AdminBeauticianLink = lazy(() =>
   import("../admin/pages/AdminBeauticianLink")
 );
 const StripeConnect = lazy(() => import("../admin/pages/StripeConnect"));
+const Subscription = lazy(() => import("../admin/pages/Subscription"));
 const OnboardingComplete = lazy(() =>
   import("../admin/pages/OnboardingComplete")
 );
@@ -569,6 +570,14 @@ export default function AppRoutes() {
             element={
               <Suspense fallback={<LoadingSpinner center size="lg" />}>
                 <StripeConnect />
+              </Suspense>
+            }
+          />
+          <Route
+            path="subscription"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <Subscription />
               </Suspense>
             }
           />
