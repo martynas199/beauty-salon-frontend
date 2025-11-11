@@ -237,12 +237,14 @@ export default function ProductCheckoutPage() {
           postalCode: formData.postalCode,
           country: formData.country,
         },
-        shippingMethod: selectedShipping ? {
-          id: selectedShipping.id,
-          name: selectedShipping.name,
-          price: selectedShipping.price,
-          estimatedDays: selectedShipping.estimatedDays,
-        } : null,
+        shippingMethod: selectedShipping
+          ? {
+              id: selectedShipping.id,
+              name: selectedShipping.name,
+              price: selectedShipping.price,
+              estimatedDays: selectedShipping.estimatedDays,
+            }
+          : null,
         notes: formData.notes,
         ...(user ? { userId: user._id } : {}), // Add userId if logged in
       });
