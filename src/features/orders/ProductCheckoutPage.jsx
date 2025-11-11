@@ -4,7 +4,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { OrdersAPI } from "./orders.api";
 import { ProductsAPI } from "../products/products.api";
-import { calculateShipping } from "../shipping/shipping.api";
+import { calculateShippingOptions } from "../../utils/shippingCalculator";
 import { clearCart } from "../cart/cartSlice";
 import Button from "../../components/ui/Button";
 import { useAuth } from "../../app/AuthContext";
@@ -144,21 +144,20 @@ export default function ProductCheckoutPage() {
 
       console.log("⚖️ Total cart weight:", totalWeight.toFixed(3), "kg");
 
-      console.log("📮 Shipping calculation request:", {
-        postalCode: formData.postalCode,
-        city: formData.city,
+      console.log("📮 Shipping calculation:", {
+        currency: currency,
         country: formData.country,
         itemCount: itemsWithWeights.length,
       });
 
-      const result = await calculateShipping({
-        postalCode: formData.postalCode,
-        countryCode: formData.country === "United Kingdom" ? "GB" : "GB",
-        city: formData.city || "London",
+      // Calculate shipping locally (no backend call needed)
+      const result = calculateShippingOptions({
         items: itemsWithWeights,
+        currency: currency, // EUR triggers EU rates, GBP triggers UK rates
+        countryCode: formData.country === "United Kingdom" ? "GB" : "GB",
       });
 
-      console.log("🚚 Shipping options received:", result);
+      console.log("🚚 Shipping options calculated:", result);
       console.log("🚚 Number of options:", result.options?.length);
       console.log(
         "🚚 Options details:",
