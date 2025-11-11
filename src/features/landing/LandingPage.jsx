@@ -215,7 +215,7 @@ export default function LandingPage() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.1 }}
-            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 overflow-hidden"
           >
             {beauticians.map((beautician) => (
               <motion.div
@@ -237,57 +237,55 @@ export default function LandingPage() {
                   transition: { duration: 0.3 },
                 }}
               >
-                <motion.div style={{ y }}>
-                  <Card
-                    hoverable
-                    className="cursor-pointer overflow-hidden p-0 h-96"
-                    onClick={() =>
-                      navigate(`/beauticians?selected=${beautician._id}`)
-                    }
-                  >
-                    {/* Full Card Image with Name Overlay */}
-                    <div className="relative h-full w-full bg-gray-200">
-                      {beautician.image?.url ? (
-                        <img
-                          src={beautician.image.url}
-                          alt={beautician.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <svg
-                            className="w-20 h-20"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                      {/* Strong gradient overlay for text readability */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-
-                      {/* Name at bottom */}
-                      <div className="absolute bottom-0 left-0 right-0 p-6">
-                        <h3 className="text-2xl font-semibold text-white mb-1">
-                          {beautician.name}
-                        </h3>
-                        {beautician.specialties &&
-                          beautician.specialties.length > 0 && (
-                            <p className="text-white/90 text-sm">
-                              {beautician.specialties.slice(0, 2).join(" • ")}
-                            </p>
-                          )}
+                <Card
+                  hoverable
+                  className="cursor-pointer overflow-hidden p-0 h-96"
+                  onClick={() =>
+                    navigate(`/beauticians?selected=${beautician._id}`)
+                  }
+                >
+                  {/* Full Card Image with Name Overlay */}
+                  <div className="relative h-full w-full bg-gray-200">
+                    {beautician.image?.url ? (
+                      <img
+                        src={beautician.image.url}
+                        alt={beautician.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        <svg
+                          className="w-20 h-20"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
+                        </svg>
                       </div>
+                    )}
+                    {/* Strong gradient overlay for text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+
+                    {/* Name at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <h3 className="text-2xl font-semibold text-white mb-1">
+                        {beautician.name}
+                      </h3>
+                      {beautician.specialties &&
+                        beautician.specialties.length > 0 && (
+                          <p className="text-white/90 text-sm">
+                            {beautician.specialties.slice(0, 2).join(" • ")}
+                          </p>
+                        )}
                     </div>
-                  </Card>
-                </motion.div>
+                  </div>
+                </Card>
               </motion.div>
             ))}
           </motion.div>
