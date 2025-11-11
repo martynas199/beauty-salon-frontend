@@ -32,6 +32,7 @@ import LoadingSpinner from "../components/ui/LoadingSpinner";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminLogin from "../admin/pages/Login";
 import ScrollToTop from "../components/ScrollToTop";
+import CurrencySelector from "../components/CurrencySelector";
 
 // Lazy load admin pages for better performance (code splitting)
 const Dashboard = lazy(() => import("../admin/pages/Dashboard"));
@@ -224,6 +225,8 @@ function CustomerLayout() {
                   Sign In
                 </Link>
               )}
+              {/* Currency Selector */}
+              <CurrencySelector />
               <button
                 onClick={() => dispatch(toggleCart())}
                 className="p-2 text-gray-700 hover:text-brand-600 transition-colors relative"
@@ -252,6 +255,8 @@ function CustomerLayout() {
 
             {/* Mobile Cart & Hamburger Buttons */}
             <div className="md:hidden flex items-center gap-2">
+              {/* Mobile Currency Selector */}
+              <CurrencySelector className="scale-90" />
               {/* Mobile Cart Button */}
               <button
                 onClick={() => dispatch(toggleCart())}

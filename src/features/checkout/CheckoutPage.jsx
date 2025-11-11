@@ -11,6 +11,7 @@ import { ServicesAPI } from "../landing/services.api";
 import BackBar from "../../components/ui/BackBar";
 import FormField from "../../components/forms/FormField";
 import { useAuth } from "../../app/AuthContext";
+import { useCurrency } from "../../contexts/CurrencyContext";
 import PageTransition from "../../components/ui/PageTransition";
 import toast from "react-hot-toast";
 
@@ -20,6 +21,7 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { currency, formatPrice } = useCurrency();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -103,6 +105,7 @@ export default function CheckoutPage() {
         startISO: booking.startISO,
         client: form,
         mode: mode === "pay_in_salon" ? "pay_in_salon" : mode,
+        currency, // Add selected currency
         ...(user ? { userId: user._id } : {}), // Add userId if logged in
       };
 
@@ -259,17 +262,17 @@ export default function CheckoutPage() {
                   {service?.name} — {booking.variantName}
                 </div>
                 <div className="font-semibold">
-                  £{Number(booking.price || 0).toFixed(2)}
+                  {formatPrice(booking.price || 0)}
                 </div>
               </div>
               <div className="flex items-center justify-between mb-2 pt-2 border-t border-gray-200">
                 <div className="text-sm text-gray-600">Booking Fee</div>
-                <div className="text-sm font-semibold">£0.50</div>
+                <div className="text-sm font-semibold">{formatPrice(0.5)}</div>
               </div>
               <div className="flex items-center justify-between mb-3 pt-2 border-t border-gray-300">
                 <div className="font-semibold">Total</div>
                 <div className="font-bold text-brand-600">
-                  £{(Number(booking.price || 0) + 0.5).toFixed(2)}
+                  {formatPrice(Number(booking.price || 0) + 0.5)}
                 </div>
               </div>
               {booking.startISO && (

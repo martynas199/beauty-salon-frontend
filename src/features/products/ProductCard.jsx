@@ -1,4 +1,7 @@
+import { useCurrency } from "../../contexts/CurrencyContext";
+
 export default function ProductCard({ product, onClick }) {
+  const { formatPrice } = useCurrency();
   // Check if product has variants
   const hasVariants = product.variants && product.variants.length > 0;
 
@@ -79,11 +82,12 @@ export default function ProductCard({ product, onClick }) {
         {/* Price */}
         <div className="flex items-center gap-2">
           <span className="text-lg font-bold" style={{ color: "#76540E" }}>
-            {showPriceRange && "from "}£{displayPrice.toFixed(2)}
+            {showPriceRange && "from "}
+            {formatPrice(displayPrice)}
           </span>
           {hasDiscount && !showPriceRange && displayOriginalPrice && (
             <span className="text-sm text-gray-400 line-through">
-              £{displayOriginalPrice.toFixed(2)}
+              {formatPrice(displayOriginalPrice)}
             </span>
           )}
         </div>

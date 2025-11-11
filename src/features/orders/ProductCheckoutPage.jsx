@@ -8,12 +8,14 @@ import { calculateShipping } from "../shipping/shipping.api";
 import { clearCart } from "../cart/cartSlice";
 import Button from "../../components/ui/Button";
 import { useAuth } from "../../app/AuthContext";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 export default function ProductCheckoutPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { currency, formatPrice } = useCurrency();
   const cartItems = useSelector((state) => state.cart.items);
 
   const [loading, setLoading] = useState(false);
@@ -246,6 +248,7 @@ export default function ProductCheckoutPage() {
             }
           : null,
         notes: formData.notes,
+        currency, // Add selected currency
         ...(user ? { userId: user._id } : {}), // Add userId if logged in
       });
 
@@ -518,7 +521,7 @@ export default function ProductCheckoutPage() {
                 >
                   {loading
                     ? "Processing..."
-                    : `Place Order • £${total.toFixed(2)}`}
+                    : `Place Order • ${formatPrice(total)}`}
                 </Button>
               </div>
 
@@ -583,9 +586,8 @@ export default function ProductCheckoutPage() {
 
                     <div className="text-right flex-shrink-0">
                       <p className="text-sm font-semibold text-gray-900">
-                        £
-                        {((item.product?.price || 0) * item.quantity).toFixed(
-                          2
+                        {formatPrice(
+                          (item.product?.price || 0) * item.quantity
                         )}
                       </p>
                     </div>
@@ -639,7 +641,7 @@ export default function ProductCheckoutPage() {
                                     {option.name}
                                   </h4>
                                   <span className="text-sm font-bold text-gray-900 whitespace-nowrap">
-                                    £{option.price.toFixed(2)}
+                                    {formatPrice(option.price)}
                                   </span>
                                 </div>
                                 <p className="text-xs text-gray-600 break-words">
@@ -659,7 +661,7 @@ export default function ProductCheckoutPage() {
               <div className="border-t border-gray-200 pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">£{subtotal.toFixed(2)}</span>
+                  <span className="font-medium">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Shipping</span>
@@ -671,7 +673,7 @@ export default function ProductCheckoutPage() {
                     ) : selectedShipping ? (
                       <div>
                         <span className="font-medium">
-                          £{selectedShipping.price.toFixed(2)}
+                          {formatPrice(selectedShipping.price)}
                         </span>
                         <div className="text-xs text-gray-500">
                           {selectedShipping.name}
@@ -693,7 +695,7 @@ export default function ProductCheckoutPage() {
                       className="text-xl font-bold"
                       style={{ color: "#76540E" }}
                     >
-                      £{total.toFixed(2)}
+                      {formatPrice(total)}
                     </span>
                   </div>
                 </div>

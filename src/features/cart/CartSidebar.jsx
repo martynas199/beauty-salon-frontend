@@ -2,11 +2,13 @@ import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { closeCart, removeFromCart, updateQuantity } from "./cartSlice";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 export default function CartSidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, isOpen } = useSelector((state) => state.cart);
+  const { formatPrice } = useCurrency();
 
   // Calculate total
   const total = items.reduce((sum, item) => {
@@ -239,13 +241,12 @@ export default function CartSidebar() {
                         className="font-bold text-gray-900"
                         style={{ color: "#76540E" }}
                       >
-                        £
-                        {((item.product?.price || 0) * item.quantity).toFixed(
-                          2
+                        {formatPrice(
+                          (item.product?.price || 0) * item.quantity
                         )}
                       </p>
                       <p className="text-xs text-gray-500">
-                        £{(item.product?.price || 0).toFixed(2)} each
+                        {formatPrice(item.product?.price || 0)} each
                       </p>
                     </div>
                   </div>
@@ -262,7 +263,7 @@ export default function CartSidebar() {
             <div className="flex items-center justify-between text-lg">
               <span className="font-semibold text-gray-900">Subtotal</span>
               <span className="font-bold text-2xl" style={{ color: "#76540E" }}>
-                £{total.toFixed(2)}
+                {formatPrice(total)}
               </span>
             </div>
 

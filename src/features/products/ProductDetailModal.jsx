@@ -4,9 +4,11 @@ import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import { addToCart, openCart } from "../cart/cartSlice";
 import Button from "../../components/ui/Button";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 export default function ProductDetailModal({ product, isOpen, onClose }) {
   const dispatch = useDispatch();
+  const { formatPrice } = useCurrency();
   const [expandedSections, setExpandedSections] = useState({
     benefits: false,
     howToUse: false,
@@ -245,11 +247,11 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
                     className="text-3xl font-bold"
                     style={{ color: "#76540E" }}
                   >
-                    £{displayPrice.toFixed(2)}
+                    {formatPrice(displayPrice)}
                   </span>
                   {hasDiscount && (
                     <span className="text-xl text-gray-400 line-through">
-                      £{displayOriginalPrice.toFixed(2)}
+                      {formatPrice(displayOriginalPrice)}
                     </span>
                   )}
                   {!hasVariants && displaySize && (
@@ -283,7 +285,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
                         >
                           <div className="text-sm">{variant.size}</div>
                           <div className="text-xs text-gray-500 mt-0.5">
-                            £{variant.price.toFixed(2)}
+                            {formatPrice(variant.price)}
                           </div>
                         </button>
                       ))}

@@ -1,5 +1,6 @@
 ﻿import { memo } from "react";
 import Card from "../../components/ui/Card";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 /**
  * ServiceCard - reusable card for displaying a service with image, name, category, description, and variants (price & duration)
@@ -8,6 +9,7 @@ import Card from "../../components/ui/Card";
  * @param {function} props.onClick - Click handler for the card
  */
 function ServiceCard({ service, onClick }) {
+  const { formatPrice } = useCurrency();
   // Support both new image object and legacy imageUrl string
   const imageUrl = service.image?.url || service.imageUrl;
   const imageAlt = service.image?.alt || service.name;
@@ -92,11 +94,11 @@ function ServiceCard({ service, onClick }) {
                     From
                   </span>
                   <span className="text-base sm:text-xl font-bold text-brand-700">
-                    £{minPrice.toFixed(2)}
+                    {formatPrice(minPrice)}
                   </span>
                   {maxPrice > minPrice && (
                     <span className="text-[10px] sm:text-xs text-gray-400">
-                      - £{maxPrice.toFixed(2)}
+                      - {formatPrice(maxPrice)}
                     </span>
                   )}
                 </div>

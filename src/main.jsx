@@ -8,6 +8,7 @@ import { store } from "./app/store";
 import AppRoutes from "./app/routes";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { AuthProvider } from "./app/AuthContext";
+import { CurrencyProvider } from "./contexts/CurrencyContext";
 import ToastProvider from "./components/ui/ToastProvider";
 import { queryClient } from "./lib/queryClient";
 import "./styles.css";
@@ -19,8 +20,10 @@ createRoot(document.getElementById("root")).render(
         <Provider store={store}>
           <BrowserRouter>
             <AuthProvider>
-              <AppRoutes />
-              <ToastProvider />
+              <CurrencyProvider>
+                <AppRoutes />
+                <ToastProvider />
+              </CurrencyProvider>
             </AuthProvider>
           </BrowserRouter>
         </Provider>
