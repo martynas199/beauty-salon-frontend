@@ -247,7 +247,7 @@ export default function ProductCheckoutPage() {
             }
           : null,
         notes: formData.notes,
-        currency: "GBP", // Force GBP since all product prices in database are in GBP
+        currency: currency, // Use selected currency from context
         ...(user ? { userId: user._id } : {}), // Add userId if logged in
       });
 
