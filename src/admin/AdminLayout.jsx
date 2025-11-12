@@ -6,82 +6,94 @@ import { useAdminLogout } from "../hooks/useAuthQueries";
 import { api } from "../lib/apiClient";
 import toast from "react-hot-toast";
 import logo from "../assets/logo.svg";
+import { useLanguage } from "../contexts/LanguageContext";
+import { t } from "../locales/adminTranslations";
 
 const items = [
-  { to: "/", label: "Back to Home", icon: "🏠", external: true },
-  { divider: "Core" },
-  { to: "/admin", label: "Dashboard", icon: "📊" },
-  { to: "/admin/appointments", label: "Appointments", icon: "📅" },
-  { to: "/admin/orders", label: "Orders", icon: "📦", superAdminOnly: true },
+  { to: "/", labelKey: "backToHome", label: "Back to Home", icon: "🏠", external: true },
+  { dividerKey: "core", divider: "Core" },
+  { to: "/admin", labelKey: "dashboard", label: "Dashboard", icon: "📊" },
+  { to: "/admin/appointments", labelKey: "appointments", label: "Appointments", icon: "📅" },
+  { to: "/admin/orders", labelKey: "orders", label: "Orders", icon: "📦", superAdminOnly: true },
   {
     to: "/admin/revenue",
+    labelKey: "revenueAnalytics",
     label: "Revenue Analytics",
     icon: "💰",
     superAdminOnly: true,
   },
   {
     to: "/admin/profit-analytics",
+    labelKey: "profitAnalytics",
     label: "Profit Analytics",
     icon: "📈",
     superAdminOnly: true,
   },
-  { divider: "Booking Setup" },
-  { to: "/admin/services", label: "Services", icon: "💅" },
-  { to: "/admin/staff", label: "Staff", icon: "👥", superAdminOnly: true },
+  { dividerKey: "bookingSetup", divider: "Booking Setup" },
+  { to: "/admin/services", labelKey: "services", label: "Services", icon: "💅" },
+  { to: "/admin/staff", labelKey: "staff", label: "Staff", icon: "👥", superAdminOnly: true },
   {
     to: "/admin/hours",
+    labelKey: "workingHours",
     label: "Working Hours",
     icon: "🕐",
     superAdminOnly: true,
   },
-  { to: "/admin/timeoff", label: "Time Off", icon: "🏖️" },
-  { divider: "Website Content" },
+  { to: "/admin/timeoff", labelKey: "timeOff", label: "Time Off", icon: "🏖️" },
+  { dividerKey: "websiteContent", divider: "Website Content" },
   {
     to: "/admin/hero-sections",
+    labelKey: "heroSections",
     label: "Hero Sections",
     icon: "✨",
     superAdminOnly: true,
   },
   {
     to: "/admin/about-us",
+    labelKey: "aboutUsPage",
     label: "About Us Page",
     icon: "ℹ️",
     superAdminOnly: true,
   },
   {
     to: "/admin/products",
+    labelKey: "products",
     label: "Products",
     icon: "🛍️",
     superAdminOnly: true,
   },
   {
     to: "/admin/products-hero",
+    labelKey: "productsHeroImage",
     label: "Products Hero Image",
     icon: "🖼️",
     superAdminOnly: true,
   },
-  { to: "/admin/cancellation", label: "Cancellation Policy", icon: "📋" },
-  { divider: "Configuration" },
+  { to: "/admin/cancellation", labelKey: "cancellationPolicy", label: "Cancellation Policy", icon: "📋" },
+  { dividerKey: "settings", divider: "Configuration" },
   {
     to: "/admin/settings",
+    labelKey: "salonSettings",
     label: "Salon Settings",
     icon: "⚙️",
     superAdminOnly: true,
   },
-  { to: "/admin/stripe-connect", label: "Stripe Connect", icon: "💳" },
+  { to: "/admin/stripe-connect", labelKey: "stripeConnect", label: "Stripe Connect", icon: "💳" },
   {
     to: "/admin/subscription",
+    labelKey: "ecommerceSubscription",
     label: "E-Commerce Subscription",
     icon: "💎",
     superAdminOnly: true,
   },
   {
     to: "/admin/admin-links",
+    labelKey: "adminLinks",
     label: "Admin Links",
     icon: "🔗",
     superAdminOnly: true,
   },
-  { to: "/admin/profile", label: "My Profile", icon: "👤" },
+  { to: "/admin/profile", labelKey: "myProfile", label: "My Profile", icon: "👤" },
 ];
 
 export default function AdminLayout() {
@@ -89,6 +101,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const admin = useSelector(selectAdmin);
+  const { language, toggleLanguage } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [salonName, setSalonName] = useState("Beauty Salon");
@@ -178,11 +191,20 @@ export default function AdminLayout() {
           <img src={logo} alt="Logo" className="h-8 w-8 object-contain" />
           <div>
             <div className="font-bold text-lg">{salonName}</div>
-            <div className="text-xs text-brand-100">Admin Portal</div>
+            <div className="text-xs text-brand-100">{t("adminPortal", language)}</div>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Language Selector */}
+          <button
+            onClick={toggleLanguage}
+            className="px-3 py-1.5 rounded-lg bg-white/20 backdrop-blur-sm text-white text-xs font-semibold hover:bg-white/30 transition-colors shadow-md"
+            aria-label="Toggle language"
+          >
+            {language}
+          </button>
+
           {/* User Dropdown Button */}
           <div className="relative">
             <button
@@ -203,7 +225,7 @@ export default function AdminLayout() {
                 />
 
                 {/* Dropdown Content */}
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                <div className="absolute right-0 mt-2 w-64 sm:w-64 min-w-[16rem] bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
                   {/* User Info */}
                   <div className="px-4 py-3 border-b border-gray-200">
                     <div className="flex items-center gap-3">
@@ -215,7 +237,7 @@ export default function AdminLayout() {
                           {admin?.name || "Admin User"}
                         </div>
                         <div className="text-xs text-gray-500 capitalize">
-                          {isSuperAdmin ? "Super Admin" : "Beautician"}
+                          {isSuperAdmin ? t("superAdmin", language) : t("beautician", language)}
                         </div>
                       </div>
                     </div>
@@ -242,7 +264,7 @@ export default function AdminLayout() {
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                       />
                     </svg>
-                    Logout
+                    {t("logout", language)}
                   </button>
                 </div>
               </>
@@ -327,7 +349,7 @@ export default function AdminLayout() {
                   return (
                     <div key={`divider-${idx}`} className="pt-3 pb-1.5 px-2">
                       <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-                        {it.divider}
+                        {it.dividerKey ? t(it.dividerKey, language) : it.divider}
                       </div>
                     </div>
                   );
@@ -358,7 +380,7 @@ export default function AdminLayout() {
                     >
                       {it.icon}
                     </span>
-                    <span className="text-sm">{it.label}</span>
+                    <span className="text-sm">{it.labelKey ? t(it.labelKey, language) : it.label}</span>
                     {isActive && (
                       <span className="ml-auto">
                         <svg

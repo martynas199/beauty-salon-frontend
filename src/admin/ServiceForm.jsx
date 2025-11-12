@@ -4,6 +4,8 @@ import { useImageUpload } from "../hooks/useImageUpload";
 import FormField from "../components/forms/FormField";
 import ConfirmDeleteModal from "../components/forms/ConfirmDeleteModal";
 import Button from "../components/ui/Button";
+import { useLanguage } from "../contexts/LanguageContext";
+import { t } from "../locales/adminTranslations";
 
 /**
  * ServiceForm - Create or Edit a service
@@ -27,6 +29,7 @@ export default function ServiceForm({
   admin,
 }) {
   const isEditMode = Boolean(service);
+  const { language } = useLanguage();
   const {
     uploadImage,
     isUploading: isUploadingImage,
@@ -287,16 +290,16 @@ export default function ServiceForm({
         {/* Basic Info Section */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold border-b pb-2">
-            Basic Information
+            {t("basicInformation", language)}
           </h3>
 
           {/* Name */}
           <FormField
-            label="Service Name"
+            label={t("serviceName", language)}
             error={errors.name}
             required
             htmlFor="name"
-            hint="The display name shown to customers in the services catalog"
+            hint={t("serviceNameHint", language)}
           >
             <input
               type="text"
@@ -312,11 +315,11 @@ export default function ServiceForm({
 
           {/* Category */}
           <FormField
-            label="Category"
+            label={t("category", language)}
             error={errors.category}
             required
             htmlFor="category"
-            hint="Used to group similar services together (e.g., Hair, Nails, Spa, Massage)"
+            hint={t("categoryHint", language)}
           >
             <input
               type="text"
@@ -332,10 +335,10 @@ export default function ServiceForm({
           </FormField>
 
           {/* Description */}
-          <FormField
-            label="Description"
+          <FormField 
+            label={t("description", language)}
             htmlFor="description"
-            hint="Detailed information about what's included and what customers can expect"
+            hint={t("descriptionHint", language)}
           >
             <textarea
               id="description"
@@ -348,11 +351,11 @@ export default function ServiceForm({
 
           {/* Primary Beautician */}
           <FormField
-            label="Primary Beautician"
+            label={t("primaryBeautician", language)}
             error={errors.primaryBeauticianId}
             required
             htmlFor="primaryBeauticianId"
-            hint="The main beautician responsible for providing this service"
+            hint={t("primaryBeauticianHint", language)}
           >
             <select
               id="primaryBeauticianId"
@@ -368,7 +371,7 @@ export default function ServiceForm({
               } ${!isSuperAdmin ? "bg-gray-100 cursor-not-allowed" : ""}`}
               aria-invalid={!!errors.primaryBeauticianId}
             >
-              <option value="">Select a beautician</option>
+              <option value="">{t("selectBeautician", language)}</option>
               {beauticians.map((b) => (
                 <option key={b._id} value={b._id}>
                   {b.name}
@@ -377,20 +380,20 @@ export default function ServiceForm({
             </select>
             {!isSuperAdmin && (
               <p className="text-sm text-gray-500 mt-1">
-                You can only create services for yourself
+                {t("youCanOnlyCreateForYourself", language)}
               </p>
             )}
           </FormField>
 
           {/* Image Upload */}
           <FormField
-            label="Service Image"
+            label={t("serviceImage", language)}
             error={errors.image}
             htmlFor="image"
             hint={
               isUploadingImage
-                ? "Uploading..."
-                : "Upload an image shown to customers (recommended: 800x600px or larger)"
+                ? t("uploading", language)
+                : t("serviceImageHint", language)
             }
           >
             <input
@@ -472,12 +475,11 @@ export default function ServiceForm({
                 className="w-4 h-4 text-brand-600 rounded focus:ring-brand-500"
               />
               <label htmlFor="active" className="text-sm font-medium">
-                Active (visible to customers)
+                {t("activeVisible", language)}
               </label>
             </div>
             <p className="text-xs text-gray-500 ml-6">
-              Toggle to show or hide this service in the customer booking
-              catalog
+              {t("activeHint", language)}
             </p>
           </div>
         </div>
@@ -486,7 +488,7 @@ export default function ServiceForm({
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
             <div>
-              <h3 className="text-lg font-semibold">Service Variants</h3>
+              <h3 className="text-lg font-semibold">{t("serviceVariants", language)}</h3>
               {errors.variants && (
                 <p className="text-red-500 text-sm mt-1">{errors.variants}</p>
               )}
@@ -497,7 +499,7 @@ export default function ServiceForm({
               variant="brand"
               size="sm"
             >
-              + Add Variant
+              + {t("addVariant", language)}
             </Button>
           </div>
 
@@ -508,25 +510,25 @@ export default function ServiceForm({
                 className="p-4 border border-gray-200 rounded-lg space-y-3"
               >
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Variant {index + 1}</h4>
+                  <h4 className="font-medium">{t("variantName", language)} {index + 1}</h4>
                   {formData.variants.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeVariant(index)}
                       className="text-red-500 hover:text-red-700 text-sm"
                     >
-                      Remove
+                      {t("remove", language)}
                     </button>
                   )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <FormField
-                    label="Name"
+                    label={t("variantName", language)}
                     error={errors[`variant_${index}_name`]}
                     required
                     htmlFor={`variant-${index}-name`}
-                    hint="Variant name (e.g., Standard, Premium, Express)"
+                    hint={t("variantNameHint", language)}
                   >
                     <input
                       type="text"
@@ -545,11 +547,11 @@ export default function ServiceForm({
                   </FormField>
 
                   <FormField
-                    label="Duration (min)"
+                    label={t("duration", language)}
                     error={errors[`variant_${index}_duration`]}
                     required
                     htmlFor={`variant-${index}-duration`}
-                    hint="How long the service takes in minutes"
+                    hint={t("durationHint", language)}
                   >
                     <input
                       type="number"
@@ -572,11 +574,11 @@ export default function ServiceForm({
                   </FormField>
 
                   <FormField
-                    label="Price (£)"
+                    label={t("price", language)}
                     error={errors[`variant_${index}_price`]}
                     required
                     htmlFor={`variant-${index}-price`}
-                    hint="Price in pounds sterling (GBP)"
+                    hint={t("priceHint", language)}
                   >
                     <input
                       type="text"
@@ -600,9 +602,9 @@ export default function ServiceForm({
                   </FormField>
 
                   <FormField
-                    label="Buffer Before (min)"
+                    label={t("bufferBefore", language)}
                     htmlFor={`variant-${index}-buffer-before`}
-                    hint="Preparation time needed before appointment starts"
+                    hint={t("bufferBeforeHint", language)}
                   >
                     <input
                       type="number"
@@ -622,9 +624,9 @@ export default function ServiceForm({
 
                   <div className="col-span-2">
                     <FormField
-                      label="Buffer After (min)"
+                      label={t("bufferAfter", language)}
                       htmlFor={`variant-${index}-buffer-after`}
-                      hint="Cleanup time needed after appointment ends"
+                      hint={t("bufferAfterHint", language)}
                     >
                       <input
                         type="number"
@@ -663,7 +665,7 @@ export default function ServiceForm({
                 variant="danger"
                 className="w-full sm:w-auto"
               >
-                Delete Service
+                {t("deleteService", language)}
               </Button>
             )}
           </div>
@@ -676,7 +678,7 @@ export default function ServiceForm({
               variant="outline"
               className="w-full sm:w-auto"
             >
-              Cancel
+              {t("cancel", language)}
             </Button>
             <Button
               type="submit"
@@ -685,7 +687,7 @@ export default function ServiceForm({
               variant="brand"
               className="w-full sm:w-auto"
             >
-              {isEditMode ? "Update Service" : "Create Service"}
+              {isEditMode ? t("saveService", language) : t("createService", language)}
             </Button>
           </div>
         </div>

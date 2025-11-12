@@ -9,6 +9,7 @@ import AppRoutes from "./app/routes";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { AuthProvider } from "./app/AuthContext";
 import { CurrencyProvider } from "./contexts/CurrencyContext";
+import { LanguageProvider } from "./contexts/LanguageContext";
 import ToastProvider from "./components/ui/ToastProvider";
 import { queryClient } from "./lib/queryClient";
 import "./styles.css";
@@ -21,8 +22,10 @@ createRoot(document.getElementById("root")).render(
           <BrowserRouter>
             <AuthProvider>
               <CurrencyProvider>
-                <AppRoutes />
-                <ToastProvider />
+                <LanguageProvider>
+                  <AppRoutes />
+                  <ToastProvider />
+                </LanguageProvider>
               </CurrencyProvider>
             </AuthProvider>
           </BrowserRouter>
