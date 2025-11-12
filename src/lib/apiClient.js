@@ -10,9 +10,13 @@ export const api = axios.create({
 // Request interceptor: Add auth token to requests
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Only add authToken if Authorization header is not already set
+    // This allows individual API calls to override with their own token
+    if (!config.headers.Authorization) {
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },

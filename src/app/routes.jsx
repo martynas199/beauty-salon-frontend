@@ -25,6 +25,7 @@ import ProfilePage from "../features/profile/ProfilePage";
 import ProfileEditPage from "../features/profile/ProfileEditPage";
 import BeauticianSelectionPage from "../features/beauticians/BeauticianSelectionPage";
 import AboutUsPage from "../features/about/AboutUsPage";
+import TokenDebugPage from "../features/auth/TokenDebugPage";
 import { useAuth } from "./AuthContext";
 
 import AdminLayout from "../admin/AdminLayout";
@@ -91,7 +92,7 @@ function CustomerLayout() {
   return (
     <div className="min-h-screen overflow-x-hidden">
       <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
           <div className="flex items-center justify-between h-20 md:h-24">
             {/* Left Navigation - Desktop */}
             <nav className="hidden md:flex items-center gap-8 flex-1">
@@ -187,20 +188,20 @@ function CustomerLayout() {
 
                   {/* Profile Dropdown with elegant animation */}
                   {profileMenuOpen && (
-                    <div className="absolute right-0 top-full pt-2 w-48 z-50 animate-slide-down">
-                      <div className="bg-white rounded-lg shadow-xl border border-gray-200 py-1">
-                        <div className="px-4 py-2 border-b border-gray-100">
-                          <p className="text-sm font-medium text-gray-900">
+                    <div className="absolute right-0 top-full mt-2 w-56 z-[100] animate-fade-in">
+                      <div className="bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[220px]">
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <p className="text-sm font-medium text-gray-900 leading-tight whitespace-normal break-words">
                             {user.name}
                           </p>
-                          <p className="text-xs text-gray-500 truncate">
+                          <p className="text-xs text-gray-500 mt-0.5 whitespace-normal break-all">
                             {user.email}
                           </p>
                         </div>
                         <Link
                           to="/profile"
                           onClick={() => setProfileMenuOpen(false)}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-all duration-200"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-all duration-200 whitespace-nowrap"
                         >
                           My Profile
                         </Link>
@@ -209,7 +210,7 @@ function CustomerLayout() {
                             setProfileMenuOpen(false);
                             logout();
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-all duration-200"
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 whitespace-nowrap"
                         >
                           Sign Out
                         </button>
@@ -427,6 +428,7 @@ function CustomerLayout() {
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/token-debug" element={<TokenDebugPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profile/edit" element={<ProfileEditPage />} />
         </Routes>

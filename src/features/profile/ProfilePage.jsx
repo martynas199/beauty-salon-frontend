@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/AuthContext";
 import { getUserBookings, getUserOrders, cancelBooking } from "./profile.api";
+import { getWishlist, removeFromWishlist } from "./wishlist.api";
+import { useCurrency } from "../../contexts/CurrencyContext";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Chip from "../../components/ui/Chip";
@@ -14,6 +16,7 @@ import toast from "react-hot-toast";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
   const {
     user,
     token,
@@ -24,8 +27,10 @@ const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("bookings");
   const [bookings, setBookings] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [loadingWishlist, setLoadingWishlist] = useState(false);
   const [error, setError] = useState("");
   const [dataFetched, setDataFetched] = useState(false);
 
@@ -46,12 +51,14 @@ const ProfilePage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [bookingsData, ordersData] = await Promise.all([
+      const [bookingsData, ordersData, wishlistData] = await Promise.all([
         getUserBookings(token),
         getUserOrders(token),
+        getWishlist(token),
       ]);
       setBookings(bookingsData.bookings || []);
       setOrders(ordersData.orders || []);
+      setWishlist(wishlistData.wishlist || []);
       setDataFetched(true);
     } catch (err) {
       setError(err.message);
@@ -102,6 +109,36 @@ const ProfilePage = () => {
     } finally {
       setLoadingOrders(false);
     }
+  };
+
+  const handleRefreshWishlist = async () => {
+    try {
+      setLoadingWishlist(true);
+      const wishlistData = await getWishlist(token);
+      setWishlist(wishlistData.wishlist || []);
+      toast.success("Wishlist refreshed");
+    } catch (err) {
+      toast.error("Failed to refresh wishlist");
+    } finally {
+      setLoadingWishlist(false);
+    }
+  };
+
+  const handleRemoveFromWishlist = async (productId) => {
+    try {
+      await removeFromWishlist(token, productId);
+      setWishlist((prev) => prev.filter((item) => item._id !== productId));
+      toast.success("Removed from wishlist");
+    } catch (err) {
+      toast.error("Failed to remove from wishlist");
+    }
+  };
+
+  const getProductPrice = (product) => {
+    if (product.variants && product.variants.length > 0) {
+      return Math.min(...product.variants.map((v) => v.price));
+    }
+    return product.price;
   };
 
   const getStatusColor = (status) => {
@@ -196,6 +233,16 @@ const ProfilePage = () => {
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
             >
               My Orders ({orders.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("wishlist")}
+              className={`${
+                activeTab === "wishlist"
+                  ? "border-rose-500 text-rose-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+            >
+              Wishlist ({wishlist.length})
             </button>
             <button
               onClick={() => setActiveTab("settings")}
@@ -418,6 +465,167 @@ const ProfilePage = () => {
                             className="w-full"
                           >
                             View Order
+                          </Button>
+                        </div>
+                      </Card>
+                    </StaggerItem>
+                  ))}
+                </StaggerContainer>
+              )}
+            </div>
+          )}
+
+          {/* Wishlist Tab */}
+          {activeTab === "wishlist" && (
+            <div className="space-y-4">
+              {/* Refresh Button */}
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  My Wishlist
+                </h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRefreshWishlist}
+                  disabled={loadingWishlist}
+                  className="flex items-center gap-2"
+                >
+                  <svg
+                    className={`w-4 h-4 ${
+                      loadingWishlist ? "animate-spin" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  Refresh
+                </Button>
+              </div>
+
+              {wishlist.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
+                    <svg
+                      className="w-10 h-10 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-gray-600 mb-4">Your wishlist is empty</p>
+                  <Button onClick={() => navigate("/products")}>
+                    Browse Products
+                  </Button>
+                </Card>
+              ) : (
+                <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {wishlist.map((product) => (
+                    <StaggerItem key={product._id}>
+                      <Card
+                        hoverable
+                        className="group relative overflow-hidden"
+                      >
+                        {/* Product Image */}
+                        <div
+                          className="relative h-48 overflow-hidden cursor-pointer"
+                          onClick={() => navigate(`/products`)}
+                        >
+                          {product.image?.url ? (
+                            <img
+                              src={product.image.url}
+                              alt={product.title}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                              <svg
+                                className="w-12 h-12 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                />
+                              </svg>
+                            </div>
+                          )}
+
+                          {/* Remove Button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveFromWishlist(product._id);
+                            }}
+                            className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-colors"
+                          >
+                            <svg
+                              className="w-5 h-5 text-red-500"
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                              />
+                            </svg>
+                          </button>
+
+                          {/* Featured Badge */}
+                          {product.featured && (
+                            <div className="absolute top-2 left-2 bg-brand-600 text-white text-xs font-bold px-2 py-1 rounded">
+                              Featured
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="p-4">
+                          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                            {product.title}
+                          </h3>
+                          <div className="flex items-center justify-between">
+                            <span className="text-lg font-bold text-brand-600">
+                              {formatPrice(getProductPrice(product))}
+                            </span>
+                            {product.variants &&
+                              product.variants.length > 1 && (
+                                <span className="text-xs text-gray-500">
+                                  from
+                                </span>
+                              )}
+                          </div>
+                          {product.category && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              {product.category}
+                            </p>
+                          )}
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => navigate(`/products`)}
+                            className="w-full mt-3"
+                          >
+                            View Product
                           </Button>
                         </div>
                       </Card>

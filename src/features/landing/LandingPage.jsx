@@ -17,6 +17,7 @@ import Card from "../../components/ui/Card";
 import { motion, useScroll, useTransform } from "framer-motion";
 import logo from "../../assets/logo.svg";
 import ScrollRevealText from "../../components/ui/ScrollRevealText";
+import ProductCarousel from "../products/ProductCarousel";
 
 export default function LandingPage() {
   const [services, setServices] = useState([]);
@@ -298,6 +299,9 @@ export default function LandingPage() {
           revealColor="#d4a710"
           captionColor="text-brand-700"
         />
+
+        {/* Product Carousel */}
+        <ProductCarousel />
       </PageTransition>
     </>
   );
