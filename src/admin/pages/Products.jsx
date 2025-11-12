@@ -9,8 +9,10 @@ import ConfirmDeleteModal from "../../components/forms/ConfirmDeleteModal";
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [beauticians, setBeauticians] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     brand: "",
@@ -59,6 +61,14 @@ export default function Products() {
       ]);
       setProducts(productsData);
       setBeauticians(beauticiansData.data || []);
+      
+      // Extract unique brands from products
+      const uniqueBrands = [...new Set(
+        productsData
+          .map(p => p.brand)
+          .filter(brand => brand && brand.trim() !== '')
+      )].sort();
+      setBrands(uniqueBrands);
     } catch (error) {
       console.error("Failed to load data:", error);
     } finally {
@@ -70,6 +80,14 @@ export default function Products() {
     try {
       const data = await ProductsAPI.list();
       setProducts(data);
+      
+      // Update brands list
+      const uniqueBrands = [...new Set(
+        data
+          .map(p => p.brand)
+          .filter(brand => brand && brand.trim() !== '')
+      )].sort();
+      setBrands(uniqueBrands);
     } catch (error) {
       console.error("Failed to load products:", error);
     }
@@ -386,6 +404,11 @@ export default function Products() {
     );
   }
 
+  // Filter products by selected brand
+  const filteredProducts = selectedBrand
+    ? products.filter((p) => p.brand === selectedBrand)
+    : products;
+
   return (
     <div className="space-y-6 sm:space-y-8 p-4 sm:p-6">
       {/* Header */}
@@ -409,6 +432,43 @@ export default function Products() {
           </Button>
         )}
       </div>
+
+      {/* Brand Filter Pills */}
+      {!showForm && brands.length > 0 && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-gray-700 mr-2">
+              Filter by Brand:
+            </span>
+            <button
+              onClick={() => setSelectedBrand(null)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                selectedBrand === null
+                  ? "bg-brand-600 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              All ({products.length})
+            </button>
+            {brands.map((brand) => {
+              const count = products.filter((p) => p.brand === brand).length;
+              return (
+                <button
+                  key={brand}
+                  onClick={() => setSelectedBrand(brand)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    selectedBrand === brand
+                      ? "bg-brand-600 text-white shadow-md"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {brand} ({count})
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Form */}
       {showForm && (
@@ -446,6 +506,7 @@ export default function Products() {
                 <input
                   type="text"
                   id="brand"
+                  list="brand-suggestions"
                   value={formData.brand}
                   onChange={(e) =>
                     setFormData({ ...formData, brand: e.target.value })
@@ -453,6 +514,11 @@ export default function Products() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   placeholder="e.g., Chanel, L'Oréal, Nivea"
                 />
+                <datalist id="brand-suggestions">
+                  {brands.map((brand, index) => (
+                    <option key={index} value={brand} />
+                  ))}
+                </datalist>
               </FormField>
 
               {/* Category */}
@@ -968,16 +1034,24 @@ export default function Products() {
       {/* Products List */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 overflow-hidden">
         <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 break-words">
-          All Products ({products.length})
+          {selectedBrand ? (
+            <>
+              {selectedBrand} Products ({filteredProducts.length})
+            </>
+          ) : (
+            <>All Products ({filteredProducts.length})</>
+          )}
         </h2>
 
-        {products.length === 0 ? (
+        {filteredProducts.length === 0 ? (
           <p className="text-sm sm:text-base text-gray-500 text-center py-8">
-            No products yet. Create your first product above.
+            {selectedBrand
+              ? `No products found for ${selectedBrand}.`
+              : "No products yet. Create your first product above."}
           </p>
         ) : (
           <div className="grid gap-3 sm:gap-4">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <div
                 key={product._id}
                 className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 border border-gray-200 rounded-lg hover:border-brand-300 transition-colors overflow-hidden"
