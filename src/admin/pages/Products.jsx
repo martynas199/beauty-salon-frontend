@@ -70,11 +70,14 @@ export default function Products() {
             .filter((brand) => brand && brand.trim() !== "")
         ),
       ].sort();
-      
+
       console.log("Products loaded:", productsData.length);
-      console.log("Products with brands:", productsData.filter(p => p.brand).length);
+      console.log(
+        "Products with brands:",
+        productsData.filter((p) => p.brand).length
+      );
       console.log("Unique brands found:", uniqueBrands);
-      
+
       setBrands(uniqueBrands);
     } catch (error) {
       console.error("Failed to load data:", error);
@@ -444,37 +447,39 @@ export default function Products() {
 
       {/* Brand Filter Pills */}
       {!showForm && brands.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-gray-700 mr-2">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <span className="text-sm font-medium text-gray-700 flex-shrink-0">
               Filter by Brand:
             </span>
-            <button
-              onClick={() => setSelectedBrand(null)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                selectedBrand === null
-                  ? "bg-brand-600 text-white shadow-md"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              All ({products.length})
-            </button>
-            {brands.map((brand) => {
-              const count = products.filter((p) => p.brand === brand).length;
-              return (
-                <button
-                  key={brand}
-                  onClick={() => setSelectedBrand(brand)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                    selectedBrand === brand
-                      ? "bg-brand-600 text-white shadow-md"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {brand} ({count})
-                </button>
-              );
-            })}
+            <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap scrollbar-hide">
+              <button
+                onClick={() => setSelectedBrand(null)}
+                className={`px-4 py-2 sm:px-3 sm:py-1.5 rounded-full text-sm sm:text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                  selectedBrand === null
+                    ? "bg-brand-600 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300"
+                }`}
+              >
+                All ({products.length})
+              </button>
+              {brands.map((brand) => {
+                const count = products.filter((p) => p.brand === brand).length;
+                return (
+                  <button
+                    key={brand}
+                    onClick={() => setSelectedBrand(brand)}
+                    className={`px-4 py-2 sm:px-3 sm:py-1.5 rounded-full text-sm sm:text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                      selectedBrand === brand
+                        ? "bg-brand-600 text-white shadow-md"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300"
+                    }`}
+                  >
+                    {brand} ({count})
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

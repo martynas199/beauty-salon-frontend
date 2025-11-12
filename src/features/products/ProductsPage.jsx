@@ -536,41 +536,43 @@ export default function ProductsPage() {
         </div>
 
         {/* Brand Filter Pills */}
-        {/* {brands.length > 0 && (
-          <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-gray-700 mr-2">
+        {brands.length > 0 && (
+          <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <span className="text-sm font-medium text-gray-700 flex-shrink-0">
                 Filter by Brand:
               </span>
-              <button
-                onClick={() => setSelectedBrand("all")}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  selectedBrand === "all"
-                    ? "bg-brand-600 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                All ({products.length})
-              </button>
-              {brands.map((brand) => {
-                const count = products.filter((p) => p.brand === brand).length;
-                return (
-                  <button
-                    key={brand}
-                    onClick={() => setSelectedBrand(brand)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      selectedBrand === brand
-                        ? "bg-brand-600 text-white shadow-md"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {brand} ({count})
-                  </button>
-                );
-              })}
+              <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap scrollbar-hide">
+                <button
+                  onClick={() => setSelectedBrand("all")}
+                  className={`px-4 py-2 sm:px-3 sm:py-1.5 rounded-full text-sm sm:text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                    selectedBrand === "all"
+                      ? "bg-brand-600 text-white shadow-md"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300"
+                  }`}
+                >
+                  Show All
+                </button>
+                {brands.map((brand) => {
+                  const count = products.filter((p) => p.brand === brand).length;
+                  return (
+                    <button
+                      key={brand}
+                      onClick={() => setSelectedBrand(brand)}
+                      className={`px-4 py-2 sm:px-3 sm:py-1.5 rounded-full text-sm sm:text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                        selectedBrand === brand
+                          ? "bg-brand-600 text-white shadow-md"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300"
+                      }`}
+                    >
+                      {brand}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        )} */}
+        )}
 
         {/* Expandable Filters Panel */}
         <AnimatePresence>
