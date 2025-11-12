@@ -8,8 +8,11 @@ import FormField from "../../components/forms/FormField";
 import Button from "../../components/ui/Button";
 import { SkeletonBox, TableRowSkeleton } from "../../components/ui/Skeleton";
 import { SlowRequestWarning } from "../../components/ui/SlowRequestWarning";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { t } from "../../locales/adminTranslations";
 
 export default function Appointments() {
+  const { language } = useLanguage();
   const admin = useSelector(selectAdmin);
   const isSuperAdmin = admin?.role === "super_admin";
   const [rows, setRows] = useState([]);
@@ -416,7 +419,7 @@ export default function Appointments() {
       <SlowRequestWarning isLoading={loading} threshold={2000} />
 
       <h1 className="text-2xl lg:text-3xl font-bold mb-4 lg:mb-6">
-        Appointments
+        {t("appointments", language)}
       </h1>
 
       {/* Show warning for regular admins without linked beautician */}
@@ -438,12 +441,10 @@ export default function Appointments() {
             </svg>
             <div>
               <p className="text-sm font-medium text-amber-900">
-                Account Not Linked
+                {t("accountNotLinked", language)}
               </p>
               <p className="text-xs text-amber-700 mt-1">
-                Your admin account is not linked to a beautician. You cannot
-                view appointments until your account is linked. Please contact
-                the super administrator.
+                {t("contactSuperAdmin", language)}
               </p>
             </div>
           </div>
@@ -453,11 +454,11 @@ export default function Appointments() {
       {/* Show subtitle for different admin types */}
       {isSuperAdmin ? (
         <p className="text-gray-600 mb-6">
-          View and manage all appointments from all beauticians
+          {t("viewManageAllAppointmentsFromAllBeauticians", language)}
         </p>
       ) : admin?.beauticianId ? (
         <p className="text-gray-600 mb-6">
-          View appointments for your linked beautician only
+          {t("viewAppointmentsLinkedBeauticianOnly", language)}
         </p>
       ) : null}
 

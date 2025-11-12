@@ -6,10 +6,13 @@ import { Calendar, dayjsLocalizer } from "react-big-calendar";
 import dayjs from "dayjs";
 import toast from "react-hot-toast";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { t } from "../../locales/adminTranslations";
 
 const localizer = dayjsLocalizer(dayjs);
 
 export default function Dashboard() {
+  const { language } = useLanguage();
   const admin = useSelector(selectAdmin);
   const isSuperAdmin = admin?.role === "super_admin";
   const [allAppointments, setAllAppointments] = useState([]);
@@ -164,13 +167,13 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t("dashboard", language)}</h1>
           <p className="text-gray-600 mt-1">
             {isSuperAdmin
-              ? "View and manage all appointments"
+              ? t("viewManageAllAppointments", language)
               : admin?.beauticianId
-              ? `View appointments for your linked beautician`
-              : "No beautician linked - contact administrator"}
+              ? t("viewAppointmentsLinkedBeautician", language)
+              : t("noBeauticianLinked", language)}
           </p>
         </div>
 
@@ -181,7 +184,7 @@ export default function Dashboard() {
               htmlFor="beautician-filter"
               className="text-sm font-medium text-gray-700"
             >
-              Filter by Beautician:
+              {t("filterByBeautician", language)}:
             </label>
             <select
               id="beautician-filter"
@@ -189,7 +192,7 @@ export default function Dashboard() {
               onChange={(e) => setSelectedBeautician(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white"
             >
-              <option value="all">All Beauticians</option>
+              <option value="all">{t("allBeauticians", language)}</option>
               {beauticians.map((beautician) => (
                 <option key={beautician._id} value={beautician._id}>
                   {beautician.name}
@@ -218,11 +221,10 @@ export default function Dashboard() {
               </svg>
               <div>
                 <p className="text-sm font-medium text-amber-900">
-                  Account Not Linked
+                  {t("accountNotLinked", language)}
                 </p>
                 <p className="text-xs text-amber-700 mt-1">
-                  Your admin account is not linked to a beautician. Please
-                  contact the super administrator to link your account.
+                  {t("contactSuperAdmin", language)}
                 </p>
               </div>
             </div>
@@ -268,7 +270,7 @@ export default function Dashboard() {
                 />
               </svg>
               <h2 className="text-lg font-bold text-brand-900">
-                Today's Appointments ({todaysAppointments.length})
+                {t("todaysAppointments", language)} ({todaysAppointments.length})
               </h2>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

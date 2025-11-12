@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import Button from "../components/ui/Button";
 import ConfirmDeleteModal from "../components/forms/ConfirmDeleteModal";
 import { ServiceCardSkeleton } from "../components/ui/Skeleton";
+import { useLanguage } from "../contexts/LanguageContext";
+import { t } from "../locales/adminTranslations";
 
 /**
  * ServicesList - Display and manage services in admin panel
@@ -24,6 +26,7 @@ export default function ServicesList({
   isSuperAdmin = false,
   isBeautician = false,
 }) {
+  const { language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterActive, setFilterActive] = useState("all"); // 'all', 'active', 'inactive'
   const [filterCategory, setFilterCategory] = useState("all");
@@ -104,9 +107,9 @@ export default function ServicesList({
     <div className="space-y-4 overflow-x-hidden">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Services</h2>
+        <h2 className="text-2xl font-bold">{t("services", language)}</h2>
         <Button onClick={onCreate} variant="brand">
-          + Add Service
+          + {t("addService", language)}
         </Button>
       </div>
 
@@ -117,7 +120,7 @@ export default function ServicesList({
           <div className="flex-1">
             <input
               type="text"
-              placeholder="Search services..."
+              placeholder={t("searchServices", language)}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"
@@ -130,9 +133,9 @@ export default function ServicesList({
             onChange={(e) => setFilterActive(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"
           >
-            <option value="all">All Status</option>
-            <option value="active">Active Only</option>
-            <option value="inactive">Inactive Only</option>
+            <option value="all">{t("allStatus", language)}</option>
+            <option value="active">{t("activeOnly", language)}</option>
+            <option value="inactive">{t("inactiveOnly", language)}</option>
           </select>
 
           {/* Category Filter */}
@@ -143,14 +146,16 @@ export default function ServicesList({
           >
             {categories.map((cat) => (
               <option key={cat} value={cat}>
-                {cat === "all" ? "All Categories" : cat}
+                {cat === "all" ? t("allCategories", language) : cat}
               </option>
             ))}
           </select>
         </div>
 
         <div className="text-sm text-gray-500">
-          Showing {filteredServices.length} of {services.length} services
+          {language === "LT" 
+            ? `Rodoma ${filteredServices.length} iš ${services.length} paslaugų`
+            : `Showing ${filteredServices.length} of ${services.length} services`}
         </div>
       </div>
 
@@ -159,12 +164,12 @@ export default function ServicesList({
         <div className="bg-white rounded-lg shadow p-12 text-center">
           <p className="text-gray-500 text-lg mb-4">
             {services.length === 0
-              ? "No services yet"
-              : "No services match your filters"}
+              ? t("noServicesFound", language)
+              : t("noServicesFound", language)}
           </p>
           {services.length === 0 && (
             <Button onClick={onCreate} variant="brand">
-              Add Your First Service
+              {t("addService", language)}
             </Button>
           )}
         </div>

@@ -5,8 +5,11 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { t } from "../../locales/adminTranslations";
 
 export default function TimeOff() {
+  const { language } = useLanguage();
   const [timeOffList, setTimeOffList] = useState([]);
   const [beauticians, setBeauticians] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -168,21 +171,21 @@ export default function TimeOff() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Time Off Management
+            {t("timeOffManagement", language)}
           </h1>
           <p className="text-gray-600 mt-1">
-            Block dates when staff are unavailable
+            {t("blockDatesWhenStaffUnavailable", language)}
           </p>
         </div>
         <Button onClick={() => setShowAddForm(!showAddForm)} variant="brand">
-          {showAddForm ? "Cancel" : "+ Add Time Off"}
+          {showAddForm ? t("cancel", language) : `+ ${t("addTimeOff", language)}`}
         </Button>
       </div>
 
       {/* Add Time Off Form */}
       {showAddForm && (
         <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Add Time Off Period</h2>
+          <h2 className="text-lg font-semibold mb-4">{t("addTimeOffPeriod", language)}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               {/* Beautician Selection */}

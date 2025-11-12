@@ -3,8 +3,11 @@ import toast from "react-hot-toast";
 import { OrdersAPI } from "../../features/orders/orders.api";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { t } from "../../locales/adminTranslations";
 
 export default function Orders() {
+  const { language } = useLanguage();
   const [allOrders, setAllOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -151,32 +154,32 @@ export default function Orders() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t("orders", language)}</h1>
         <p className="text-gray-600 mt-1">
-          Manage customer orders and fulfillment
+          {t("manageCustomerOrders", language)}
         </p>
       </div>
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">
         {[
-          "all",
-          "pending",
-          "processing",
-          "shipped",
-          "delivered",
-          "cancelled",
+          { value: "all", label: t("all", language) },
+          { value: "pending", label: t("pending", language) },
+          { value: "processing", label: t("processing", language) },
+          { value: "shipped", label: t("shipped", language) },
+          { value: "delivered", label: t("delivered", language) },
+          { value: "cancelled", label: t("cancelled", language) },
         ].map((status) => (
           <button
-            key={status}
-            onClick={() => setFilter(status)}
+            key={status.value}
+            onClick={() => setFilter(status.value)}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              filter === status
+              filter === status.value
                 ? "bg-brand-600 text-white"
                 : "bg-white text-gray-700 border border-gray-300 hover:border-brand-600"
             }`}
           >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+            {status.label}
           </button>
         ))}
       </div>

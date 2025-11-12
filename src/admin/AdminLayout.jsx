@@ -10,11 +10,28 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { t } from "../locales/adminTranslations";
 
 const items = [
-  { to: "/", labelKey: "backToHome", label: "Back to Home", icon: "🏠", external: true },
+  {
+    to: "/",
+    labelKey: "backToHome",
+    label: "Back to Home",
+    icon: "🏠",
+    external: true,
+  },
   { dividerKey: "core", divider: "Core" },
   { to: "/admin", labelKey: "dashboard", label: "Dashboard", icon: "📊" },
-  { to: "/admin/appointments", labelKey: "appointments", label: "Appointments", icon: "📅" },
-  { to: "/admin/orders", labelKey: "orders", label: "Orders", icon: "📦", superAdminOnly: true },
+  {
+    to: "/admin/appointments",
+    labelKey: "appointments",
+    label: "Appointments",
+    icon: "📅",
+  },
+  {
+    to: "/admin/orders",
+    labelKey: "orders",
+    label: "Orders",
+    icon: "📦",
+    superAdminOnly: true,
+  },
   {
     to: "/admin/revenue",
     labelKey: "revenueAnalytics",
@@ -30,8 +47,19 @@ const items = [
     superAdminOnly: true,
   },
   { dividerKey: "bookingSetup", divider: "Booking Setup" },
-  { to: "/admin/services", labelKey: "services", label: "Services", icon: "💅" },
-  { to: "/admin/staff", labelKey: "staff", label: "Staff", icon: "👥", superAdminOnly: true },
+  {
+    to: "/admin/services",
+    labelKey: "services",
+    label: "Services",
+    icon: "💅",
+  },
+  {
+    to: "/admin/staff",
+    labelKey: "staff",
+    label: "Staff",
+    icon: "👥",
+    superAdminOnly: true,
+  },
   {
     to: "/admin/hours",
     labelKey: "workingHours",
@@ -69,7 +97,12 @@ const items = [
     icon: "🖼️",
     superAdminOnly: true,
   },
-  { to: "/admin/cancellation", labelKey: "cancellationPolicy", label: "Cancellation Policy", icon: "📋" },
+  {
+    to: "/admin/cancellation",
+    labelKey: "cancellationPolicy",
+    label: "Cancellation Policy",
+    icon: "📋",
+  },
   { dividerKey: "settings", divider: "Configuration" },
   {
     to: "/admin/settings",
@@ -78,7 +111,12 @@ const items = [
     icon: "⚙️",
     superAdminOnly: true,
   },
-  { to: "/admin/stripe-connect", labelKey: "stripeConnect", label: "Stripe Connect", icon: "💳" },
+  {
+    to: "/admin/stripe-connect",
+    labelKey: "stripeConnect",
+    label: "Stripe Connect",
+    icon: "💳",
+  },
   {
     to: "/admin/subscription",
     labelKey: "ecommerceSubscription",
@@ -93,7 +131,12 @@ const items = [
     icon: "🔗",
     superAdminOnly: true,
   },
-  { to: "/admin/profile", labelKey: "myProfile", label: "My Profile", icon: "👤" },
+  {
+    to: "/admin/profile",
+    labelKey: "myProfile",
+    label: "My Profile",
+    icon: "👤",
+  },
 ];
 
 export default function AdminLayout() {
@@ -191,7 +234,9 @@ export default function AdminLayout() {
           <img src={logo} alt="Logo" className="h-8 w-8 object-contain" />
           <div>
             <div className="font-bold text-lg">{salonName}</div>
-            <div className="text-xs text-brand-100">{t("adminPortal", language)}</div>
+            <div className="text-xs text-brand-100">
+              {t("adminPortal", language)}
+            </div>
           </div>
         </div>
 
@@ -237,7 +282,9 @@ export default function AdminLayout() {
                           {admin?.name || "Admin User"}
                         </div>
                         <div className="text-xs text-gray-500 capitalize">
-                          {isSuperAdmin ? t("superAdmin", language) : t("beautician", language)}
+                          {isSuperAdmin
+                            ? t("superAdmin", language)
+                            : t("beautician", language)}
                         </div>
                       </div>
                     </div>
@@ -349,7 +396,9 @@ export default function AdminLayout() {
                   return (
                     <div key={`divider-${idx}`} className="pt-3 pb-1.5 px-2">
                       <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-                        {it.dividerKey ? t(it.dividerKey, language) : it.divider}
+                        {it.dividerKey
+                          ? t(it.dividerKey, language)
+                          : it.divider}
                       </div>
                     </div>
                   );
@@ -380,7 +429,9 @@ export default function AdminLayout() {
                     >
                       {it.icon}
                     </span>
-                    <span className="text-sm">{it.labelKey ? t(it.labelKey, language) : it.label}</span>
+                    <span className="text-sm">
+                      {it.labelKey ? t(it.labelKey, language) : it.label}
+                    </span>
                     {isActive && (
                       <span className="ml-auto">
                         <svg

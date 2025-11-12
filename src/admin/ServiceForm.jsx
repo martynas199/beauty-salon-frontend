@@ -252,7 +252,7 @@ export default function ServiceForm({
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-8">
       <h2 className="text-2xl font-bold mb-6">
-        {isEditMode ? "Edit Service" : "Create New Service"}
+        {isEditMode ? t("editService", language) : t("createNewService", language)}
       </h2>
 
       {errorCount > 0 && (
@@ -271,8 +271,7 @@ export default function ServiceForm({
             </svg>
             <div>
               <h3 className="text-sm font-semibold text-red-800">
-                Please fix the following {errorCount} error
-                {errorCount !== 1 ? "s" : ""}:
+                {t("pleaseFixErrors", language)} {errorCount} {errorCount !== 1 ? t("errors", language) : t("error", language)}:
               </h3>
               <ul className="mt-2 text-sm text-red-700 list-disc list-inside space-y-1">
                 {Object.entries(errors)
@@ -335,7 +334,7 @@ export default function ServiceForm({
           </FormField>
 
           {/* Description */}
-          <FormField 
+          <FormField
             label={t("description", language)}
             htmlFor="description"
             hint={t("descriptionHint", language)}
@@ -488,7 +487,9 @@ export default function ServiceForm({
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
             <div>
-              <h3 className="text-lg font-semibold">{t("serviceVariants", language)}</h3>
+              <h3 className="text-lg font-semibold">
+                {t("serviceVariants", language)}
+              </h3>
               {errors.variants && (
                 <p className="text-red-500 text-sm mt-1">{errors.variants}</p>
               )}
@@ -510,7 +511,9 @@ export default function ServiceForm({
                 className="p-4 border border-gray-200 rounded-lg space-y-3"
               >
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium">{t("variantName", language)} {index + 1}</h4>
+                  <h4 className="font-medium">
+                    {t("variantName", language)} {index + 1}
+                  </h4>
                   {formData.variants.length > 1 && (
                     <button
                       type="button"
@@ -687,7 +690,9 @@ export default function ServiceForm({
               variant="brand"
               className="w-full sm:w-auto"
             >
-              {isEditMode ? t("saveService", language) : t("createService", language)}
+              {isEditMode
+                ? t("saveService", language)
+                : t("createService", language)}
             </Button>
           </div>
         </div>
