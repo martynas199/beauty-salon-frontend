@@ -18,7 +18,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../lib/apiClient";
 import { useAuth } from "../../app/AuthContext";
 import { toggleWishlist as toggleWishlistAPI } from "../profile/wishlist.api";
@@ -28,6 +28,7 @@ import toast from "react-hot-toast";
 
 export default function ProductsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, token, isAuthenticated } = useAuth();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -71,6 +72,12 @@ export default function ProductsPage() {
       loadWishlist();
     }
 
+    // Check for brand query parameter
+    const brandParam = searchParams.get("brand");
+    if (brandParam) {
+      setSelectedBrand(brandParam);
+    }
+
     // Scroll listener for back to top button
     const handleScroll = () => {
       setShowBackToTop(window.scrollY > 400);
@@ -78,7 +85,7 @@ export default function ProductsPage() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, token, searchParams]);
 
   useEffect(() => {
     applyFiltersAndSort();
@@ -554,7 +561,9 @@ export default function ProductsPage() {
                   Show All
                 </button>
                 {brands.map((brand) => {
-                  const count = products.filter((p) => p.brand === brand).length;
+                  const count = products.filter(
+                    (p) => p.brand === brand
+                  ).length;
                   return (
                     <button
                       key={brand}

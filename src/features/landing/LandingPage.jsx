@@ -18,6 +18,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import logo from "../../assets/logo.svg";
 import ScrollRevealText from "../../components/ui/ScrollRevealText";
 import ProductCarousel from "../products/ProductCarousel";
+import ShopByBrand from "./ShopByBrand";
 
 export default function LandingPage() {
   const [services, setServices] = useState([]);
@@ -302,6 +303,28 @@ export default function LandingPage() {
 
         {/* Product Carousel */}
         <ProductCarousel />
+        {/* Shop by Brand Section */}
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-8 md:pt-16 lg:pt-20 mb-16 overflow-x-hidden">
+          {/* Section Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mb-8 sm:mb-10 text-center"
+          >
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-3 tracking-wide">
+              Shop by Brand
+            </h2>
+            <p className="text-gray-600 font-light text-base sm:text-lg max-w-2xl mx-auto">
+              Explore our curated selection from the world's finest beauty
+              brands
+            </p>
+          </motion.div>
+
+          {/* Brand Cards Grid */}
+          <ShopByBrand />
+        </div>
       </PageTransition>
     </>
   );
