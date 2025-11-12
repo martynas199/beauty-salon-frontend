@@ -268,53 +268,67 @@ export default function ProductCarousel() {
       </div>
 
       {/* Custom Styles for Swiper Navigation */}
-      <style jsx>{`
-        .product-carousel :global(.swiper-button-next),
-        .product-carousel :global(.swiper-button-prev) {
-          width: 48px;
-          height: 48px;
-          background: white;
-          border-radius: 50%;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-          transition: all 0.3s;
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        .product-carousel {
+          --swiper-navigation-color: #d4a710 !important;
+          --swiper-theme-color: #d4a710 !important;
         }
 
-        .product-carousel :global(.swiper-button-next:hover),
-        .product-carousel :global(.swiper-button-prev:hover) {
-          background: #d4a373;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        .product-carousel .swiper-button-next,
+        .product-carousel .swiper-button-prev {
+          width: 48px !important;
+          height: 48px !important;
+          background: transparent !important;
+          border-radius: 50% !important;
+          transition: all 0.3s !important;
+          color: #d4a710 !important;
         }
 
-        .product-carousel :global(.swiper-button-next::after),
-        .product-carousel :global(.swiper-button-prev::after) {
-          font-size: 20px;
-          font-weight: bold;
-          color: #1f2937;
+        .product-carousel .swiper-button-next:hover,
+        .product-carousel .swiper-button-prev:hover {
+          background: rgba(212, 167, 16, 0.1) !important;
+          transform: scale(1.1) !important;
+          color: #b8910e !important;
         }
 
-        .product-carousel :global(.swiper-button-next:hover::after),
-        .product-carousel :global(.swiper-button-prev:hover::after) {
-          color: white;
+        .product-carousel .swiper-button-next::after,
+        .product-carousel .swiper-button-prev::after {
+          font-size: 24px !important;
+          font-weight: 900 !important;
+          color: #d4a710 !important;
         }
 
-        .product-carousel :global(.swiper-pagination-bullet) {
-          width: 12px;
-          height: 12px;
-          background: #d1d5db;
-          opacity: 1;
-          transition: all 0.3s;
+        .product-carousel .swiper-button-next:hover::after,
+        .product-carousel .swiper-button-prev:hover::after {
+          color: #b8910e !important;
         }
 
-        .product-carousel :global(.swiper-pagination-bullet-active) {
-          background: #d4a373;
-          width: 32px;
-          border-radius: 6px;
+        .product-carousel .swiper-button-disabled {
+          opacity: 0.3 !important;
         }
 
-        .product-carousel :global(.swiper-pagination) {
+        .product-carousel .swiper-pagination-bullet {
+          width: 12px !important;
+          height: 12px !important;
+          background: #d1d5db !important;
+          opacity: 1 !important;
+          transition: all 0.3s !important;
+        }
+
+        .product-carousel .swiper-pagination-bullet-active {
+          background: #d4a710 !important;
+          width: 32px !important;
+          border-radius: 6px !important;
+        }
+
+        .product-carousel .swiper-pagination {
           bottom: -40px !important;
         }
-      `}</style>
+      `,
+        }}
+      />
 
       {/* Product Detail Modal */}
       {selectedProduct && (
