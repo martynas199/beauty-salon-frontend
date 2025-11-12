@@ -15,7 +15,7 @@ export default function ProductCheckoutPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { currency, formatPrice } = useCurrency();
+  const { currency, formatPrice, convertPrice } = useCurrency();
   const cartItems = useSelector((state) => state.cart.items);
 
   const [loading, setLoading] = useState(false);
@@ -247,7 +247,7 @@ export default function ProductCheckoutPage() {
             }
           : null,
         notes: formData.notes,
-        currency, // Add selected currency
+        currency: "GBP", // Force GBP since all product prices in database are in GBP
         ...(user ? { userId: user._id } : {}), // Add userId if logged in
       });
 
@@ -731,7 +731,9 @@ export default function ProductCheckoutPage() {
                   disabled={loading}
                   className="w-full"
                 >
-                  Place Order • £{total.toFixed(2)}
+                  {loading
+                    ? "Processing..."
+                    : `Place Order • ${formatPrice(total)}`}
                 </Button>
               </div>
             </div>

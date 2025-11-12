@@ -1,36 +1,46 @@
 import { useCurrency } from "../../contexts/CurrencyContext";
 
 export default function ProductCard({ product, onClick }) {
-  const { formatPrice } = useCurrency();
+  const { formatPrice, getPrice, getOriginalPrice, currency } = useCurrency();
+  
   // Check if product has variants
   const hasVariants = product.variants && product.variants.length > 0;
 
-  // Calculate price display based on variants
+  // Calculate price display based on variants and currency
   let displayPrice, displayOriginalPrice, hasDiscount, showPriceRange;
 
   if (hasVariants) {
-    const prices = product.variants.map((v) => v.price);
+    // Get prices for current currency
+    const prices = product.variants.map((v) => 
+      currency === "EUR" && v.priceEUR != null ? v.priceEUR : v.price
+    );
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
     showPriceRange = prices.length > 1 && minPrice !== maxPrice;
 
-    displayPrice = showPriceRange ? minPrice : product.variants[0].price;
+    displayPrice = showPriceRange ? minPrice : prices[0];
 
-    // Check if any variant has a discount
-    const variantsWithDiscount = product.variants.filter(
-      (v) => v.originalPrice && v.originalPrice > v.price
-    );
+    // Check if any variant has a discount for current currency
+    const variantsWithDiscount = product.variants.filter((v) => {
+      const price = currency === "EUR" && v.priceEUR != null ? v.priceEUR : v.price;
+      const originalPrice = currency === "EUR" && v.originalPriceEUR != null ? v.originalPriceEUR : v.originalPrice;
+      return originalPrice && originalPrice > price;
+    });
     hasDiscount = variantsWithDiscount.length > 0;
 
     if (hasDiscount && !showPriceRange) {
-      displayOriginalPrice = product.variants[0].originalPrice;
+      const firstVariant = product.variants[0];
+      displayOriginalPrice = currency === "EUR" && firstVariant.originalPriceEUR != null 
+        ? firstVariant.originalPriceEUR 
+        : firstVariant.originalPrice;
     }
   } else {
-    // Fallback to legacy fields
-    displayPrice = product.price;
-    displayOriginalPrice = product.originalPrice;
-    hasDiscount =
-      product.originalPrice && product.originalPrice > product.price;
+    // Fallback to legacy fields with currency selection
+    displayPrice = currency === "EUR" && product.priceEUR != null ? product.priceEUR : product.price;
+    displayOriginalPrice = currency === "EUR" && product.originalPriceEUR != null 
+      ? product.originalPriceEUR 
+      : product.originalPrice;
+    hasDiscount = displayOriginalPrice && displayOriginalPrice > displayPrice;
     showPriceRange = false;
   }
 

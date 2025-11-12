@@ -25,104 +25,51 @@ export function CurrencyProvider({ children }) {
     return stored && CURRENCIES[stored] ? stored : "GBP";
   });
 
-  const [exchangeRate, setExchangeRate] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Fetch exchange rate when currency changes
+  // Store selected currency when it changes
   useEffect(() => {
-    const fetchExchangeRate = async () => {
-      if (currency === "GBP") {
-        setExchangeRate(1);
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-
-        // Use exchangerate-api.com (free, no auth required, browser-friendly)
-        const response = await fetch(
-          `https://api.exchangerate-api.com/v4/latest/GBP`
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch exchange rate");
-        }
-
-        const data = await response.json();
-        const rate = data.rates[currency];
-
-        if (rate) {
-          setExchangeRate(rate);
-          console.log(`Exchange rate updated: 1 GBP = ${rate} ${currency}`);
-        } else {
-          throw new Error(`Currency ${currency} not found`);
-        }
-      } catch (error) {
-        console.error("Failed to fetch exchange rate:", error);
-        // Fallback to approximate rate if API fails
-        const fallbackRates = {
-          EUR: 1.17,
-          USD: 1.27,
-        };
-        setExchangeRate(fallbackRates[currency] || 1);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchExchangeRate();
-    // Store selected currency
     localStorage.setItem("selectedCurrency", currency);
   }, [currency]);
 
-  // Convert price from GBP to selected currency
-  const convertPrice = (gbpPrice) => {
-    if (!gbpPrice || isNaN(gbpPrice)) return 0;
-    return gbpPrice * exchangeRate;
+  // Get price for current currency from product object
+  const getPrice = (product) => {
+    if (!product) return 0;
+    
+    // If EUR is selected and product has EUR price, use it
+    if (currency === "EUR" && product.priceEUR != null) {
+      return product.priceEUR;
+    }
+    
+    // Otherwise use GBP price
+    return product.price || 0;
   };
 
-  // Format price with currency symbol
-  const formatPrice = (gbpPrice, options = {}) => {
-    const {
-      showDecimals = true,
-      showSymbol = true,
-      showCode = false,
-    } = options;
+  // Get original price for current currency from product object
+  const getOriginalPrice = (product) => {
+    if (!product) return null;
+    
+    // If EUR is selected and product has EUR original price, use it
+    if (currency === "EUR" && product.originalPriceEUR != null) {
+      return product.originalPriceEUR;
+    }
+    
+    // Otherwise use GBP original price
+    return product.originalPrice;
+  };
 
-    const converted = convertPrice(gbpPrice);
+  // Format price with currency symbol (for displaying raw amounts)
+  const formatPrice = (amount) => {
+    if (!amount || isNaN(amount)) return `${CURRENCIES[currency].symbol}0.00`;
     const currencyInfo = CURRENCIES[currency];
-
-    let formatted = showDecimals
-      ? converted.toFixed(2)
-      : Math.round(converted).toString();
-
-    if (showSymbol) {
-      formatted = `${currencyInfo.symbol}${formatted}`;
-    }
-
-    if (showCode) {
-      formatted = `${formatted} ${currencyInfo.code}`;
-    }
-
-    return formatted;
-  };
-
-  // Convert price back to GBP (for backend)
-  const convertToGBP = (localPrice) => {
-    if (!localPrice || isNaN(localPrice)) return 0;
-    if (currency === "GBP") return localPrice;
-    return localPrice / exchangeRate;
+    return `${currencyInfo.symbol}${Number(amount).toFixed(2)}`;
   };
 
   const value = {
     currency,
     setCurrency,
     currencyInfo: CURRENCIES[currency],
-    exchangeRate,
-    isLoading,
-    convertPrice,
+    getPrice,
+    getOriginalPrice,
     formatPrice,
-    convertToGBP,
     allCurrencies: CURRENCIES,
   };
 

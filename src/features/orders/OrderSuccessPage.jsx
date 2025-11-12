@@ -16,6 +16,9 @@ export default function OrderSuccessPage() {
   useEffect(() => {
     if (!location.state?.order && orderNumber) {
       loadOrder();
+    } else if (location.state?.order) {
+      console.log("Order from state:", location.state.order);
+      console.log("Order currency from state:", location.state.order.currency);
     }
   }, [orderNumber]);
 
@@ -24,6 +27,8 @@ export default function OrderSuccessPage() {
       setLoading(true);
       setError(null);
       const data = await OrdersAPI.getByOrderNumber(orderNumber);
+      console.log("Loaded order data:", data);
+      console.log("Order currency:", data.currency);
       setOrder(data);
     } catch (err) {
       console.error("Error loading order:", err);

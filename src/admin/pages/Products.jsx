@@ -29,7 +29,9 @@ export default function Products() {
       {
         size: "",
         price: "",
+        priceEUR: "",
         originalPrice: "",
+        originalPriceEUR: "",
         purchasePrice: "",
         stock: 0,
         sku: "",
@@ -234,7 +236,9 @@ export default function Products() {
         variants: validVariants.map((v) => ({
           size: v.size.trim(),
           price: parseFloat(v.price),
+          priceEUR: v.priceEUR ? parseFloat(v.priceEUR) : null,
           originalPrice: v.originalPrice ? parseFloat(v.originalPrice) : null,
+          originalPriceEUR: v.originalPriceEUR ? parseFloat(v.originalPriceEUR) : null,
           purchasePrice: v.purchasePrice ? parseFloat(v.purchasePrice) : null,
           stock: parseInt(v.stock) || 0,
           sku: v.sku?.trim() || "",
@@ -296,7 +300,9 @@ export default function Products() {
           ? product.variants.map((v) => ({
               size: v.size || "",
               price: v.price?.toString() || "",
+              priceEUR: v.priceEUR?.toString() || "",
               originalPrice: v.originalPrice?.toString() || "",
+              originalPriceEUR: v.originalPriceEUR?.toString() || "",
               purchasePrice: v.purchasePrice?.toString() || "",
               stock: v.stock || 0,
               sku: v.sku || "",
@@ -306,7 +312,9 @@ export default function Products() {
               {
                 size: product.size || "",
                 price: product.price?.toString() || "",
+                priceEUR: product.priceEUR?.toString() || "",
                 originalPrice: product.originalPrice?.toString() || "",
+                originalPriceEUR: product.originalPriceEUR?.toString() || "",
                 purchasePrice: product.purchasePrice?.toString() || "",
                 stock: product.stock || 0,
                 sku: "",
@@ -692,6 +700,27 @@ export default function Products() {
                         />
                       </div>
 
+                      {/* Price EUR */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Price (€)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={variant.priceEUR}
+                          onChange={(e) =>
+                            updateVariant(index, "priceEUR", e.target.value)
+                          }
+                          className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-blue-50"
+                          placeholder="119.99"
+                        />
+                        <p className="text-xs text-blue-600 mt-1">
+                          EUR price for multi-currency
+                        </p>
+                      </div>
+
                       {/* Original Price */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -714,6 +743,31 @@ export default function Products() {
                         />
                         <p className="text-xs text-gray-500 mt-1">
                           RRP/Strike-through price
+                        </p>
+                      </div>
+
+                      {/* Original Price EUR */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Original Price (€)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={variant.originalPriceEUR}
+                          onChange={(e) =>
+                            updateVariant(
+                              index,
+                              "originalPriceEUR",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-blue-50"
+                          placeholder="179.99"
+                        />
+                        <p className="text-xs text-blue-600 mt-1">
+                          EUR strike-through price
                         </p>
                       </div>
 
