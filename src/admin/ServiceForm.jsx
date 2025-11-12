@@ -296,6 +296,7 @@ export default function ServiceForm({
             error={errors.name}
             required
             htmlFor="name"
+            hint="The display name shown to customers in the services catalog"
           >
             <input
               type="text"
@@ -315,6 +316,7 @@ export default function ServiceForm({
             error={errors.category}
             required
             htmlFor="category"
+            hint="Used to group similar services together (e.g., Hair, Nails, Spa, Massage)"
           >
             <input
               type="text"
@@ -330,7 +332,11 @@ export default function ServiceForm({
           </FormField>
 
           {/* Description */}
-          <FormField label="Description" htmlFor="description">
+          <FormField
+            label="Description"
+            htmlFor="description"
+            hint="Detailed information about what's included and what customers can expect"
+          >
             <textarea
               id="description"
               value={formData.description}
@@ -346,6 +352,7 @@ export default function ServiceForm({
             error={errors.primaryBeauticianId}
             required
             htmlFor="primaryBeauticianId"
+            hint="The main beautician responsible for providing this service"
           >
             <select
               id="primaryBeauticianId"
@@ -380,7 +387,11 @@ export default function ServiceForm({
             label="Service Image"
             error={errors.image}
             htmlFor="image"
-            hint={isUploadingImage ? "Uploading..." : undefined}
+            hint={
+              isUploadingImage
+                ? "Uploading..."
+                : "Upload an image shown to customers (recommended: 800x600px or larger)"
+            }
           >
             <input
               type="file"
@@ -451,17 +462,23 @@ export default function ServiceForm({
           </FormField>
 
           {/* Active Status */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="active"
-              checked={formData.active}
-              onChange={(e) => handleChange("active", e.target.checked)}
-              className="w-4 h-4 text-brand-600 rounded focus:ring-brand-500"
-            />
-            <label htmlFor="active" className="text-sm font-medium">
-              Active (visible to customers)
-            </label>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="active"
+                checked={formData.active}
+                onChange={(e) => handleChange("active", e.target.checked)}
+                className="w-4 h-4 text-brand-600 rounded focus:ring-brand-500"
+              />
+              <label htmlFor="active" className="text-sm font-medium">
+                Active (visible to customers)
+              </label>
+            </div>
+            <p className="text-xs text-gray-500 ml-6">
+              Toggle to show or hide this service in the customer booking
+              catalog
+            </p>
           </div>
         </div>
 
@@ -509,6 +526,7 @@ export default function ServiceForm({
                     error={errors[`variant_${index}_name`]}
                     required
                     htmlFor={`variant-${index}-name`}
+                    hint="Variant name (e.g., Standard, Premium, Express)"
                   >
                     <input
                       type="text"
@@ -531,6 +549,7 @@ export default function ServiceForm({
                     error={errors[`variant_${index}_duration`]}
                     required
                     htmlFor={`variant-${index}-duration`}
+                    hint="How long the service takes in minutes"
                   >
                     <input
                       type="number"
@@ -557,6 +576,7 @@ export default function ServiceForm({
                     error={errors[`variant_${index}_price`]}
                     required
                     htmlFor={`variant-${index}-price`}
+                    hint="Price in pounds sterling (GBP)"
                   >
                     <input
                       type="text"
@@ -582,6 +602,7 @@ export default function ServiceForm({
                   <FormField
                     label="Buffer Before (min)"
                     htmlFor={`variant-${index}-buffer-before`}
+                    hint="Preparation time needed before appointment starts"
                   >
                     <input
                       type="number"
@@ -603,6 +624,7 @@ export default function ServiceForm({
                     <FormField
                       label="Buffer After (min)"
                       htmlFor={`variant-${index}-buffer-after`}
+                      hint="Cleanup time needed after appointment ends"
                     >
                       <input
                         type="number"
