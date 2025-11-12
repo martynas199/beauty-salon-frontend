@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { OrdersAPI } from "./orders.api";
 import Button from "../../components/ui/Button";
+import { formatCurrency } from "../../utils/currency";
 
 export default function OrderSuccessPage() {
   const { orderNumber } = useParams();
@@ -165,13 +166,14 @@ export default function OrderSuccessPage() {
                   <p className="text-sm text-gray-500">Size: {item.size}</p>
                 )}
                 <p className="text-sm text-gray-600 mt-1">
-                  Qty: {item.quantity} × £{item.price.toFixed(2)}
+                  Qty: {item.quantity} ×{" "}
+                  {formatCurrency(item.price, order.currency)}
                 </p>
               </div>
 
               <div className="text-right">
                 <p className="font-semibold text-gray-900">
-                  £{(item.price * item.quantity).toFixed(2)}
+                  {formatCurrency(item.price * item.quantity, order.currency)}
                 </p>
               </div>
             </div>
@@ -182,7 +184,9 @@ export default function OrderSuccessPage() {
         <div className="border-t border-gray-200 pt-4 space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Subtotal</span>
-            <span className="font-medium">£{order.subtotal.toFixed(2)}</span>
+            <span className="font-medium">
+              {formatCurrency(order.subtotal, order.currency)}
+            </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Shipping</span>
@@ -190,7 +194,7 @@ export default function OrderSuccessPage() {
               {order.shipping === 0 ? (
                 <span className="text-green-600">FREE</span>
               ) : (
-                `£${order.shipping.toFixed(2)}`
+                formatCurrency(order.shipping, order.currency)
               )}
             </span>
           </div>
@@ -200,7 +204,7 @@ export default function OrderSuccessPage() {
                 Total
               </span>
               <span className="text-xl font-bold" style={{ color: "#76540E" }}>
-                £{order.total.toFixed(2)}
+                {formatCurrency(order.total, order.currency)}
               </span>
             </div>
           </div>

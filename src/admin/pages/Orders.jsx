@@ -5,6 +5,7 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { t } from "../../locales/adminTranslations";
+import { formatCurrency } from "../../utils/currency";
 
 export default function Orders() {
   const { language } = useLanguage();
@@ -262,8 +263,8 @@ export default function Orders() {
                           {order.items.length !== 1 ? "s" : ""}
                         </p>
                         <p>
-                          <span className="font-medium">Total:</span> £
-                          {order.total.toFixed(2)}
+                          <span className="font-medium">Total:</span>{" "}
+                          {formatCurrency(order.total, order.currency)}
                         </p>
                         <p className="text-xs text-gray-500">
                           Placed on {new Date(order.createdAt).toLocaleString()}
@@ -447,12 +448,16 @@ export default function Orders() {
                           </p>
                         )}
                         <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                          Qty: {item.quantity} × £{item.price.toFixed(2)}
+                          Qty: {item.quantity} ×{" "}
+                          {formatCurrency(item.price, selectedOrder.currency)}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p className="text-sm sm:text-base font-semibold text-gray-900">
-                          £{(item.price * item.quantity).toFixed(2)}
+                          {formatCurrency(
+                            item.price * item.quantity,
+                            selectedOrder.currency
+                          )}
                         </p>
                       </div>
                     </div>
@@ -466,7 +471,10 @@ export default function Orders() {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-medium">
-                      £{selectedOrder.subtotal.toFixed(2)}
+                      {formatCurrency(
+                        selectedOrder.subtotal,
+                        selectedOrder.currency
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
@@ -474,18 +482,29 @@ export default function Orders() {
                     <span className="font-medium">
                       {selectedOrder.shipping === 0
                         ? "FREE"
-                        : `£${selectedOrder.shipping.toFixed(2)}`}
+                        : formatCurrency(
+                            selectedOrder.shipping,
+                            selectedOrder.currency
+                          )}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">VAT (20%)</span>
                     <span className="font-medium">
-                      £{selectedOrder.tax.toFixed(2)}
+                      {formatCurrency(
+                        selectedOrder.tax,
+                        selectedOrder.currency
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between text-lg font-bold pt-2 border-t">
                     <span>Total</span>
-                    <span>£{selectedOrder.total.toFixed(2)}</span>
+                    <span>
+                      {formatCurrency(
+                        selectedOrder.total,
+                        selectedOrder.currency
+                      )}
+                    </span>
                   </div>
                 </div>
               </div>
