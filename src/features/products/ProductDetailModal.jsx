@@ -8,7 +8,7 @@ import { useCurrency } from "../../contexts/CurrencyContext";
 
 export default function ProductDetailModal({ product, isOpen, onClose }) {
   const dispatch = useDispatch();
-  const { formatPrice } = useCurrency();
+  const { formatPrice, currency, getPrice, getOriginalPrice } = useCurrency();
   const [expandedSections, setExpandedSections] = useState({
     benefits: false,
     howToUse: false,
@@ -35,9 +35,23 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
     ? product.variants[selectedVariantIndex]
     : null;
 
-  const displayPrice = currentVariant?.price ?? product?.price ?? 0;
-  const displayOriginalPrice =
-    currentVariant?.originalPrice ?? product?.originalPrice;
+  // Use currency-aware pricing
+  const displayPrice = currentVariant
+    ? currency === "eur" && currentVariant.priceEUR != null
+      ? currentVariant.priceEUR
+      : currentVariant.price
+    : currency === "eur" && product?.priceEUR != null
+    ? product.priceEUR
+    : product?.price ?? 0;
+
+  const displayOriginalPrice = currentVariant
+    ? currency === "eur" && currentVariant.originalPriceEUR != null
+      ? currentVariant.originalPriceEUR
+      : currentVariant.originalPrice
+    : currency === "eur" && product?.originalPriceEUR != null
+    ? product.originalPriceEUR
+    : product?.originalPrice;
+
   const displayStock = currentVariant?.stock ?? product?.stock ?? 0;
   const displaySize = currentVariant?.size ?? product?.size;
   const hasDiscount =
@@ -268,27 +282,34 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
                       Select Size
                     </label>
                     <div className="grid grid-cols-3 gap-2">
-                      {product.variants.map((variant, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setSelectedVariantIndex(index)}
-                          className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
-                            selectedVariantIndex === index
-                              ? "border-brand-600 bg-brand-50 text-brand-700"
-                              : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
-                          } ${
-                            variant.stock === 0
-                              ? "opacity-50 cursor-not-allowed line-through"
-                              : ""
-                          }`}
-                          disabled={variant.stock === 0}
-                        >
-                          <div className="text-sm">{variant.size}</div>
-                          <div className="text-xs text-gray-500 mt-0.5">
-                            {formatPrice(variant.price)}
-                          </div>
-                        </button>
-                      ))}
+                      {product.variants.map((variant, index) => {
+                        const variantPrice =
+                          currency === "eur" && variant.priceEUR != null
+                            ? variant.priceEUR
+                            : variant.price;
+
+                        return (
+                          <button
+                            key={index}
+                            onClick={() => setSelectedVariantIndex(index)}
+                            className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
+                              selectedVariantIndex === index
+                                ? "border-brand-600 bg-brand-50 text-brand-700"
+                                : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                            } ${
+                              variant.stock === 0
+                                ? "opacity-50 cursor-not-allowed line-through"
+                                : ""
+                            }`}
+                            disabled={variant.stock === 0}
+                          >
+                            <div className="text-sm">{variant.size}</div>
+                            <div className="text-xs text-gray-500 mt-0.5">
+                              {formatPrice(variantPrice)}
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
