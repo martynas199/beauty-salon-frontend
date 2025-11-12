@@ -16,7 +16,7 @@ export default function ProductCarousel() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const { formatPrice } = useCurrency();
+  const { formatPrice, currency } = useCurrency();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -116,7 +116,7 @@ export default function ProductCarousel() {
             className="product-carousel"
           >
             {products.map((product) => {
-              // Calculate price display (same logic as ProductCard)
+              // Calculate price display with currency awareness
               const hasVariants =
                 product.variants && product.variants.length > 0;
               let displayPrice;
@@ -125,28 +125,57 @@ export default function ProductCarousel() {
               let displayOriginalPrice;
 
               if (hasVariants) {
-                const prices = product.variants.map((v) => v.price);
+                // Get prices based on selected currency
+                const prices = product.variants.map((v) =>
+                  currency === "EUR" && v.priceEUR != null
+                    ? v.priceEUR
+                    : v.price
+                );
                 const minPrice = Math.min(...prices);
                 const maxPrice = Math.max(...prices);
                 showPriceRange = prices.length > 1 && minPrice !== maxPrice;
                 displayPrice = showPriceRange
                   ? minPrice
+                  : currency === "EUR" && product.variants[0].priceEUR != null
+                  ? product.variants[0].priceEUR
                   : product.variants[0].price;
 
                 // Check for discounts in variants
-                const firstVariantWithDiscount = product.variants.find(
-                  (v) => v.originalPrice && v.originalPrice > v.price
-                );
+                const firstVariantWithDiscount = product.variants.find((v) => {
+                  const variantPrice =
+                    currency === "EUR" && v.priceEUR != null
+                      ? v.priceEUR
+                      : v.price;
+                  const variantOriginalPrice =
+                    currency === "EUR" && v.originalPriceEUR != null
+                      ? v.originalPriceEUR
+                      : v.originalPrice;
+                  return (
+                    variantOriginalPrice && variantOriginalPrice > variantPrice
+                  );
+                });
+
                 if (firstVariantWithDiscount && !showPriceRange) {
                   hasDiscount = true;
-                  displayOriginalPrice = firstVariantWithDiscount.originalPrice;
+                  displayOriginalPrice =
+                    currency === "EUR" &&
+                    firstVariantWithDiscount.originalPriceEUR != null
+                      ? firstVariantWithDiscount.originalPriceEUR
+                      : firstVariantWithDiscount.originalPrice;
                 }
               } else {
-                displayPrice = product.price;
-                hasDiscount =
-                  product.originalPrice &&
-                  product.originalPrice > product.price;
-                displayOriginalPrice = product.originalPrice;
+                displayPrice =
+                  currency === "EUR" && product.priceEUR != null
+                    ? product.priceEUR
+                    : product.price;
+
+                const originalPrice =
+                  currency === "EUR" && product.originalPriceEUR != null
+                    ? product.originalPriceEUR
+                    : product.originalPrice;
+
+                hasDiscount = originalPrice && originalPrice > displayPrice;
+                displayOriginalPrice = originalPrice;
               }
 
               return (

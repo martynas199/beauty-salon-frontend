@@ -37,18 +37,18 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
 
   // Use currency-aware pricing
   const displayPrice = currentVariant
-    ? currency === "eur" && currentVariant.priceEUR != null
+    ? currency === "EUR" && currentVariant.priceEUR != null
       ? currentVariant.priceEUR
       : currentVariant.price
-    : currency === "eur" && product?.priceEUR != null
+    : currency === "EUR" && product?.priceEUR != null
     ? product.priceEUR
     : product?.price ?? 0;
 
   const displayOriginalPrice = currentVariant
-    ? currency === "eur" && currentVariant.originalPriceEUR != null
+    ? currency === "EUR" && currentVariant.originalPriceEUR != null
       ? currentVariant.originalPriceEUR
       : currentVariant.originalPrice
-    : currency === "eur" && product?.originalPriceEUR != null
+    : currency === "EUR" && product?.originalPriceEUR != null
     ? product.originalPriceEUR
     : product?.originalPrice;
 
@@ -284,7 +284,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
                     <div className="grid grid-cols-3 gap-2">
                       {product.variants.map((variant, index) => {
                         const variantPrice =
-                          currency === "eur" && variant.priceEUR != null
+                          currency === "EUR" && variant.priceEUR != null
                             ? variant.priceEUR
                             : variant.price;
 
