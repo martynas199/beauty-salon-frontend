@@ -5,6 +5,8 @@ import { selectAdmin, updateAdmin } from "../../features/auth/authSlice";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import FormField from "../../components/forms/FormField";
+import WorkingHoursForm from "../../components/forms/WorkingHoursForm";
+import toast from "react-hot-toast";
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -24,18 +26,38 @@ export default function Profile() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  
+
   // Password visibility state
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Working hours state
+  const [beautician, setBeautician] = useState(null);
+  const [workingHours, setWorkingHours] = useState([]);
+  const [savingWorkingHours, setSavingWorkingHours] = useState(false);
+
   useEffect(() => {
     if (admin) {
       setName(admin.name || "");
       setEmail(admin.email || "");
+
+      // Fetch beautician data if admin has beauticianId
+      if (admin.beauticianId) {
+        fetchBeauticianData();
+      }
     }
   }, [admin]);
+
+  const fetchBeauticianData = async () => {
+    try {
+      const response = await api.get(`/beauticians/${admin.beauticianId}`);
+      setBeautician(response.data);
+      setWorkingHours(response.data.workingHours || []);
+    } catch (err) {
+      console.error("Failed to fetch beautician data:", err);
+    }
+  };
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
@@ -116,6 +138,31 @@ export default function Profile() {
       );
     } finally {
       setPasswordLoading(false);
+    }
+  };
+
+  const handleSaveWorkingHours = async () => {
+    try {
+      setSavingWorkingHours(true);
+      const loadingToast = toast.loading("Saving working hours...");
+
+      await api.patch("/beauticians/me/working-hours", {
+        workingHours,
+      });
+
+      toast.dismiss(loadingToast);
+      toast.success("Working hours updated successfully");
+
+      // Refresh beautician data
+      if (admin.beauticianId) {
+        await fetchBeauticianData();
+      }
+    } catch (err) {
+      toast.error(
+        err.response?.data?.error || "Failed to update working hours"
+      );
+    } finally {
+      setSavingWorkingHours(false);
     }
   };
 
@@ -314,14 +361,14 @@ export default function Profile() {
           </div>
 
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
+            <div className="text-sm text-blue-800">
               <strong>Password Requirements:</strong>
               <ul className="list-disc list-inside mt-2 space-y-1">
                 <li>At least 8 characters long</li>
                 <li>Different from your current password</li>
                 <li>Consider using a mix of letters, numbers, and symbols</li>
               </ul>
-            </p>
+            </div>
           </div>
 
           {passwordSuccess && (
@@ -387,13 +434,38 @@ export default function Profile() {
                   tabIndex={-1}
                 >
                   {showCurrentPassword ? (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                      />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
                     </svg>
                   )}
                 </button>
@@ -421,13 +493,38 @@ export default function Profile() {
                   tabIndex={-1}
                 >
                   {showNewPassword ? (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                      />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
                     </svg>
                   )}
                 </button>
@@ -460,13 +557,38 @@ export default function Profile() {
                   tabIndex={-1}
                 >
                   {showConfirmPassword ? (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                      />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
                     </svg>
                   )}
                 </button>
@@ -500,6 +622,56 @@ export default function Profile() {
           </form>
         </div>
       </Card>
+
+      {/* Working Hours - Only for beauticians */}
+      {beautician && (
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <svg
+                className="w-6 h-6 text-brand-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <h3 className="text-xl font-semibold text-gray-900">
+                Working Hours
+              </h3>
+            </div>
+
+            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                Set your availability for client bookings. Add multiple time
+                slots for each day of the week.
+              </p>
+            </div>
+
+            <WorkingHoursForm
+              workingHours={workingHours}
+              onChange={setWorkingHours}
+              errors={{}}
+            />
+
+            <div className="flex items-center gap-3 pt-6 mt-6 border-t border-gray-200">
+              <Button
+                variant="brand"
+                onClick={handleSaveWorkingHours}
+                loading={savingWorkingHours}
+                disabled={savingWorkingHours}
+              >
+                {savingWorkingHours ? "Saving..." : "Save Working Hours"}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Account Information */}
       <Card>
