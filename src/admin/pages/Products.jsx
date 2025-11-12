@@ -13,6 +13,7 @@ export default function Products() {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
+    brand: "",
     description: "",
     keyBenefits: "",
     ingredients: "",
@@ -248,6 +249,7 @@ export default function Products() {
     setShowForm(true);
     setFormData({
       title: product.title || "",
+      brand: product.brand || "",
       description: product.description || "",
       keyBenefits: Array.isArray(product.keyBenefits)
         ? product.keyBenefits.join("\n")
@@ -309,6 +311,7 @@ export default function Products() {
     setShowForm(false);
     setFormData({
       title: "",
+      brand: "",
       description: "",
       keyBenefits: "",
       ingredients: "",
@@ -431,6 +434,24 @@ export default function Products() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   placeholder="Chanel Perfume"
                   required
+                />
+              </FormField>
+
+              {/* Brand */}
+              <FormField
+                label="Brand"
+                htmlFor="brand"
+                help="Product brand or manufacturer name (optional)"
+              >
+                <input
+                  type="text"
+                  id="brand"
+                  value={formData.brand}
+                  onChange={(e) =>
+                    setFormData({ ...formData, brand: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  placeholder="e.g., Chanel, L'Oréal, Nivea"
                 />
               </FormField>
 
@@ -992,6 +1013,11 @@ export default function Products() {
                 <div className="flex-1 min-w-0 w-full">
                   <h3 className="font-semibold text-gray-900 break-words">
                     {product.title}
+                    {product.brand && (
+                      <span className="text-sm font-normal text-gray-500 ml-2">
+                        by {product.brand}
+                      </span>
+                    )}
                   </h3>
                   <p className="text-sm text-gray-500 break-words">
                     {product.category}
