@@ -153,7 +153,7 @@ export default function ServicesList({
         </div>
 
         <div className="text-sm text-gray-500">
-          {language === "LT" 
+          {language === "LT"
             ? `Rodoma ${filteredServices.length} iš ${services.length} paslaugų`
             : `Showing ${filteredServices.length} of ${services.length} services`}
         </div>

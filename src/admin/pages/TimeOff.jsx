@@ -178,14 +178,18 @@ export default function TimeOff() {
           </p>
         </div>
         <Button onClick={() => setShowAddForm(!showAddForm)} variant="brand">
-          {showAddForm ? t("cancel", language) : `+ ${t("addTimeOff", language)}`}
+          {showAddForm
+            ? t("cancel", language)
+            : `+ ${t("addTimeOff", language)}`}
         </Button>
       </div>
 
       {/* Add Time Off Form */}
       {showAddForm && (
         <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">{t("addTimeOffPeriod", language)}</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            {t("addTimeOffPeriod", language)}
+          </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               {/* Beautician Selection */}

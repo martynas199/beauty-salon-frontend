@@ -33,6 +33,7 @@ export default function ProductsPage() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [displayedProducts, setDisplayedProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -42,6 +43,7 @@ export default function ProductsPage() {
 
   // Filters and sorting
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedBrand, setSelectedBrand] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
   const [searchQuery, setSearchQuery] = useState("");
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
@@ -80,7 +82,14 @@ export default function ProductsPage() {
 
   useEffect(() => {
     applyFiltersAndSort();
-  }, [products, selectedCategory, sortBy, searchQuery, priceRange]);
+  }, [
+    products,
+    selectedCategory,
+    selectedBrand,
+    sortBy,
+    searchQuery,
+    priceRange,
+  ]);
 
   useEffect(() => {
     // Paginate displayed products
@@ -99,6 +108,16 @@ export default function ProductsPage() {
         ...new Set(productsData.map((p) => p.category).filter(Boolean)),
       ];
       setCategories(uniqueCategories);
+
+      // Extract unique brands
+      const uniqueBrands = [
+        ...new Set(
+          productsData
+            .map((p) => p.brand)
+            .filter((brand) => brand && brand.trim() !== "")
+        ),
+      ].sort();
+      setBrands(uniqueBrands);
 
       // Calculate price range
       if (productsData.length > 0) {
@@ -200,6 +219,11 @@ export default function ProductsPage() {
       filtered = filtered.filter((p) => p.category === selectedCategory);
     }
 
+    // Filter by brand
+    if (selectedBrand !== "all") {
+      filtered = filtered.filter((p) => p.brand === selectedBrand);
+    }
+
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -207,7 +231,8 @@ export default function ProductsPage() {
         (p) =>
           p.title.toLowerCase().includes(query) ||
           p.description?.toLowerCase().includes(query) ||
-          p.category?.toLowerCase().includes(query)
+          p.category?.toLowerCase().includes(query) ||
+          p.brand?.toLowerCase().includes(query)
       );
     }
 
@@ -281,6 +306,7 @@ export default function ProductsPage() {
 
   const clearFilters = () => {
     setSelectedCategory("all");
+    setSelectedBrand("all");
     setSortBy("featured");
     setSearchQuery("");
     setTempPriceRange({ min: 0, max: maxPrice });
@@ -309,6 +335,7 @@ export default function ProductsPage() {
 
   const activeFiltersCount =
     (selectedCategory !== "all" ? 1 : 0) +
+    (selectedBrand !== "all" ? 1 : 0) +
     (searchQuery ? 1 : 0) +
     (sortBy !== "featured" ? 1 : 0) +
     (priceFilterActive ? 1 : 0);
@@ -508,6 +535,43 @@ export default function ProductsPage() {
           </div>
         </div>
 
+        {/* Brand Filter Pills */}
+        {/* {brands.length > 0 && (
+          <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-gray-700 mr-2">
+                Filter by Brand:
+              </span>
+              <button
+                onClick={() => setSelectedBrand("all")}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  selectedBrand === "all"
+                    ? "bg-brand-600 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                All ({products.length})
+              </button>
+              {brands.map((brand) => {
+                const count = products.filter((p) => p.brand === brand).length;
+                return (
+                  <button
+                    key={brand}
+                    onClick={() => setSelectedBrand(brand)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      selectedBrand === brand
+                        ? "bg-brand-600 text-white shadow-md"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {brand} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )} */}
+
         {/* Expandable Filters Panel */}
         <AnimatePresence>
           {showFilters && (
@@ -519,7 +583,7 @@ export default function ProductsPage() {
               className="mb-8 overflow-hidden"
             >
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Category Filter */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -541,6 +605,32 @@ export default function ProductsPage() {
                       {categories.map((cat) => (
                         <option key={cat} value={cat}>
                           {cat}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Brand Filter */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Brand
+                    </label>
+                    <select
+                      value={selectedBrand}
+                      onChange={(e) => setSelectedBrand(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all appearance-none bg-white cursor-pointer"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                        backgroundPosition: "right 0.5rem center",
+                        backgroundRepeat: "no-repeat",
+                        backgroundSize: "1.5em 1.5em",
+                        paddingRight: "2.5rem",
+                      }}
+                    >
+                      <option value="all">All Brands</option>
+                      {brands.map((brand) => (
+                        <option key={brand} value={brand}>
+                          {brand}
                         </option>
                       ))}
                     </select>
@@ -668,6 +758,17 @@ export default function ProductsPage() {
                           </button>
                         </span>
                       )}
+                      {selectedBrand !== "all" && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-brand-100 text-brand-700 text-sm rounded-full">
+                          {selectedBrand}
+                          <button
+                            onClick={() => setSelectedBrand("all")}
+                            className="hover:text-brand-900"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      )}
                       {searchQuery && (
                         <span className="inline-flex items-center gap-1 px-3 py-1 bg-brand-100 text-brand-700 text-sm rounded-full">
                           "{searchQuery}"
@@ -725,6 +826,21 @@ export default function ProductsPage() {
                   {selectedCategory}
                   <button
                     onClick={() => setSelectedCategory("all")}
+                    className="hover:text-brand-900 ml-1"
+                  >
+                    ×
+                  </button>
+                </motion.span>
+              )}
+              {selectedBrand !== "all" && (
+                <motion.span
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-brand-100 text-brand-700 text-sm rounded-full"
+                >
+                  Brand: {selectedBrand}
+                  <button
+                    onClick={() => setSelectedBrand("all")}
                     className="hover:text-brand-900 ml-1"
                   >
                     ×

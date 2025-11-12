@@ -252,7 +252,9 @@ export default function ServiceForm({
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-8">
       <h2 className="text-2xl font-bold mb-6">
-        {isEditMode ? t("editService", language) : t("createNewService", language)}
+        {isEditMode
+          ? t("editService", language)
+          : t("createNewService", language)}
       </h2>
 
       {errorCount > 0 && (
@@ -271,7 +273,11 @@ export default function ServiceForm({
             </svg>
             <div>
               <h3 className="text-sm font-semibold text-red-800">
-                {t("pleaseFixErrors", language)} {errorCount} {errorCount !== 1 ? t("errors", language) : t("error", language)}:
+                {t("pleaseFixErrors", language)} {errorCount}{" "}
+                {errorCount !== 1
+                  ? t("errors", language)
+                  : t("error", language)}
+                :
               </h3>
               <ul className="mt-2 text-sm text-red-700 list-disc list-inside space-y-1">
                 {Object.entries(errors)

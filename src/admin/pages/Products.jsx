@@ -61,13 +61,20 @@ export default function Products() {
       ]);
       setProducts(productsData);
       setBeauticians(beauticiansData.data || []);
-      
+
       // Extract unique brands from products
-      const uniqueBrands = [...new Set(
-        productsData
-          .map(p => p.brand)
-          .filter(brand => brand && brand.trim() !== '')
-      )].sort();
+      const uniqueBrands = [
+        ...new Set(
+          productsData
+            .map((p) => p.brand)
+            .filter((brand) => brand && brand.trim() !== "")
+        ),
+      ].sort();
+      
+      console.log("Products loaded:", productsData.length);
+      console.log("Products with brands:", productsData.filter(p => p.brand).length);
+      console.log("Unique brands found:", uniqueBrands);
+      
       setBrands(uniqueBrands);
     } catch (error) {
       console.error("Failed to load data:", error);
@@ -80,13 +87,15 @@ export default function Products() {
     try {
       const data = await ProductsAPI.list();
       setProducts(data);
-      
+
       // Update brands list
-      const uniqueBrands = [...new Set(
-        data
-          .map(p => p.brand)
-          .filter(brand => brand && brand.trim() !== '')
-      )].sort();
+      const uniqueBrands = [
+        ...new Set(
+          data
+            .map((p) => p.brand)
+            .filter((brand) => brand && brand.trim() !== "")
+        ),
+      ].sort();
       setBrands(uniqueBrands);
     } catch (error) {
       console.error("Failed to load products:", error);

@@ -100,29 +100,33 @@ export const adminTranslations = {
     pleaseFixErrors: "Please fix the following",
     error: "error",
     errors: "errors",
-    
+
     // Dashboard
     viewManageAllAppointments: "View and manage all appointments",
-    viewAppointmentsLinkedBeautician: "View appointments for your linked beautician",
+    viewAppointmentsLinkedBeautician:
+      "View appointments for your linked beautician",
     noBeauticianLinked: "No beautician linked - contact administrator",
     filterByBeautician: "Filter by Beautician",
     allBeauticians: "All Beauticians",
     todaysAppointments: "Today's Appointments",
     accountNotLinked: "Account Not Linked",
-    contactSuperAdmin: "Your admin account is not linked to a beautician. Please contact the super administrator to link your account.",
-    viewManageAllAppointmentsFromAllBeauticians: "View and manage all appointments from all beauticians",
-    viewAppointmentsLinkedBeauticianOnly: "View appointments for your linked beautician only",
-    
+    contactSuperAdmin:
+      "Your admin account is not linked to a beautician. Please contact the super administrator to link your account.",
+    viewManageAllAppointmentsFromAllBeauticians:
+      "View and manage all appointments from all beauticians",
+    viewAppointmentsLinkedBeauticianOnly:
+      "View appointments for your linked beautician only",
+
     // Orders
     manageCustomerOrders: "Manage customer orders and fulfillment",
     all: "All",
-    
+
     // Time Off
     timeOffManagement: "Time Off Management",
     blockDatesWhenStaffUnavailable: "Block dates when staff are unavailable",
     addTimeOff: "Add Time Off",
     addTimeOffPeriod: "Add Time Off Period",
-    
+
     // Common UI Elements
     actions: "Actions",
     status: "Status",
@@ -144,7 +148,7 @@ export const adminTranslations = {
     inactive: "Inactive",
     yes: "Yes",
     no: "No",
-    
+
     // Appointments Page
     addAppointment: "Add Appointment",
     editAppointment: "Edit Appointment",
@@ -161,7 +165,7 @@ export const adminTranslations = {
     service: "Service",
     appointmentDate: "Appointment Date",
     appointmentTime: "Appointment Time",
-    
+
     // Orders Page
     orderNumber: "Order Number",
     orderDate: "Order Date",
@@ -173,7 +177,7 @@ export const adminTranslations = {
     shipped: "Shipped",
     delivered: "Delivered",
     viewOrder: "View Order",
-    
+
     // Staff Page
     addStaff: "Add Staff Member",
     editStaff: "Edit Staff Member",
@@ -182,7 +186,7 @@ export const adminTranslations = {
     searchStaff: "Search staff...",
     role: "Role",
     joinDate: "Join Date",
-    
+
     // Working Hours
     workingHoursTitle: "Working Hours",
     dayOfWeek: "Day of Week",
@@ -197,7 +201,7 @@ export const adminTranslations = {
     friday: "Friday",
     saturday: "Saturday",
     sunday: "Sunday",
-    
+
     // Time Off
     addTimeOff: "Add Time Off",
     editTimeOff: "Edit Time Off",
@@ -206,7 +210,7 @@ export const adminTranslations = {
     endDate: "End Date",
     reason: "Reason",
     noTimeOffFound: "No time off requests found",
-    
+
     // Hero Sections
     addHeroSection: "Add Hero Section",
     editHeroSection: "Edit Hero Section",
@@ -215,7 +219,7 @@ export const adminTranslations = {
     subtitle: "Subtitle",
     image: "Image",
     noHeroSectionsFound: "No hero sections found",
-    
+
     // Products
     addProduct: "Add Product",
     editProduct: "Edit Product",
@@ -225,14 +229,14 @@ export const adminTranslations = {
     stock: "Stock",
     featured: "Featured",
     productName: "Product Name",
-    
+
     // Settings
     saveSettings: "Save Settings",
     salonName: "Salon Name",
     salonEmail: "Salon Email",
     salonPhone: "Salon Phone",
     salonAddress: "Salon Address",
-    
+
     // Dashboard
     todaysAppointments: "Today's Appointments",
     recentOrders: "Recent Orders",
@@ -244,20 +248,20 @@ export const adminTranslations = {
     today: "Today",
     welcome: "Welcome",
     overview: "Overview",
-    
+
     // Cancellation Policy
     cancellationPolicyTitle: "Cancellation Policy",
     editPolicy: "Edit Policy",
     savePolicy: "Save Policy",
     policyContent: "Policy Content",
-    
+
     // Stripe Connect
     connectStripe: "Connect Stripe",
     disconnectStripe: "Disconnect Stripe",
     stripeConnected: "Stripe Connected",
     stripeNotConnected: "Stripe Not Connected",
     accountStatus: "Account Status",
-    
+
     // Profile
     myProfileTitle: "My Profile",
     editProfile: "Edit Profile",
@@ -267,7 +271,7 @@ export const adminTranslations = {
     newPassword: "New Password",
     confirmPassword: "Confirm Password",
     personalInformation: "Personal Information",
-    
+
     // About Us Page
     editAboutUs: "Edit About Us",
     saveAboutUs: "Save About Us",
@@ -375,29 +379,34 @@ export const adminTranslations = {
     pleaseFixErrors: "Prašome ištaisyti šias",
     error: "klaidą",
     errors: "klaidas",
-    
+
     // Dashboard
     viewManageAllAppointments: "Peržiūrėti ir tvarkyti visus vizitus",
     viewAppointmentsLinkedBeautician: "Peržiūrėti savo kosmetologo vizitus",
-    noBeauticianLinked: "Nėra susieto kosmetologo - susisiekite su administratoriumi",
+    noBeauticianLinked:
+      "Nėra susieto kosmetologo - susisiekite su administratoriumi",
     filterByBeautician: "Filtruoti pagal Kosmetologą",
     allBeauticians: "Visi Kosmetologai",
     todaysAppointments: "Šiandienos Vizitai",
     accountNotLinked: "Paskyra Nesusieta",
-    contactSuperAdmin: "Jūsų administratoriaus paskyra nėra susieta su kosmetologu. Prašome susisiekti su pagrindiniu administratoriumi, kad susietų jūsų paskyrą.",
-    viewManageAllAppointmentsFromAllBeauticians: "Peržiūrėti ir tvarkyti visus visų kosmetologų vizitus",
-    viewAppointmentsLinkedBeauticianOnly: "Peržiūrėti tik savo susieto kosmetologo vizitus",
-    
+    contactSuperAdmin:
+      "Jūsų administratoriaus paskyra nėra susieta su kosmetologu. Prašome susisiekti su pagrindiniu administratoriumi, kad susietų jūsų paskyrą.",
+    viewManageAllAppointmentsFromAllBeauticians:
+      "Peržiūrėti ir tvarkyti visus visų kosmetologų vizitus",
+    viewAppointmentsLinkedBeauticianOnly:
+      "Peržiūrėti tik savo susieto kosmetologo vizitus",
+
     // Orders
     manageCustomerOrders: "Tvarkyti klientų užsakymus ir pristatymą",
     all: "Visi",
-    
+
     // Time Off
     timeOffManagement: "Atostogų Valdymas",
-    blockDatesWhenStaffUnavailable: "Blokuoti datas, kai darbuotojai neprieinami",
+    blockDatesWhenStaffUnavailable:
+      "Blokuoti datas, kai darbuotojai neprieinami",
     addTimeOff: "Pridėti Atostogas",
     addTimeOffPeriod: "Pridėti Atostogų Laikotarpį",
-    
+
     // Common UI Elements
     actions: "Veiksmai",
     status: "Statusas",
@@ -419,7 +428,7 @@ export const adminTranslations = {
     inactive: "Neaktyvus",
     yes: "Taip",
     no: "Ne",
-    
+
     // Appointments Page
     addAppointment: "Pridėti Vizitą",
     editAppointment: "Redaguoti Vizitą",
@@ -436,7 +445,7 @@ export const adminTranslations = {
     service: "Paslauga",
     appointmentDate: "Vizito Data",
     appointmentTime: "Vizito Laikas",
-    
+
     // Orders Page
     orderNumber: "Užsakymo Numeris",
     orderDate: "Užsakymo Data",
@@ -448,7 +457,7 @@ export const adminTranslations = {
     shipped: "Išsiųsta",
     delivered: "Pristatyta",
     viewOrder: "Peržiūrėti Užsakymą",
-    
+
     // Staff Page
     addStaff: "Pridėti Darbuotoją",
     editStaff: "Redaguoti Darbuotoją",
@@ -457,7 +466,7 @@ export const adminTranslations = {
     searchStaff: "Ieškoti darbuotojų...",
     role: "Pareigos",
     joinDate: "Prisijungimo Data",
-    
+
     // Working Hours
     workingHoursTitle: "Darbo Valandos",
     dayOfWeek: "Savaitės Diena",
@@ -472,7 +481,7 @@ export const adminTranslations = {
     friday: "Penktadienis",
     saturday: "Šeštadienis",
     sunday: "Sekmadienis",
-    
+
     // Time Off
     addTimeOff: "Pridėti Atostogų Laiką",
     editTimeOff: "Redaguoti Atostogų Laiką",
@@ -481,7 +490,7 @@ export const adminTranslations = {
     endDate: "Pabaigos Data",
     reason: "Priežastis",
     noTimeOffFound: "Atostogų prašymų nerasta",
-    
+
     // Hero Sections
     addHeroSection: "Pridėti Hero Sekciją",
     editHeroSection: "Redaguoti Hero Sekciją",
@@ -490,7 +499,7 @@ export const adminTranslations = {
     subtitle: "Paantraštė",
     image: "Vaizdas",
     noHeroSectionsFound: "Hero sekcijų nerasta",
-    
+
     // Products
     addProduct: "Pridėti Produktą",
     editProduct: "Redaguoti Produktą",
@@ -500,14 +509,14 @@ export const adminTranslations = {
     stock: "Atsargos",
     featured: "Rekomenduojami",
     productName: "Produkto Pavadinimas",
-    
+
     // Settings
     saveSettings: "Išsaugoti Nustatymus",
     salonName: "Salono Pavadinimas",
     salonEmail: "Salono El. paštas",
     salonPhone: "Salono Telefonas",
     salonAddress: "Salono Adresas",
-    
+
     // Dashboard
     todaysAppointments: "Šiandienos Vizitai",
     recentOrders: "Naujausi Užsakymai",
@@ -519,20 +528,20 @@ export const adminTranslations = {
     today: "Šiandien",
     welcome: "Sveiki",
     overview: "Apžvalga",
-    
+
     // Cancellation Policy
     cancellationPolicyTitle: "Atšaukimo Politika",
     editPolicy: "Redaguoti Politiką",
     savePolicy: "Išsaugoti Politiką",
     policyContent: "Politikos Turinys",
-    
+
     // Stripe Connect
     connectStripe: "Prijungti Stripe",
     disconnectStripe: "Atjungti Stripe",
     stripeConnected: "Stripe Prijungtas",
     stripeNotConnected: "Stripe Neprijungtas",
     accountStatus: "Paskyros Statusas",
-    
+
     // Profile
     myProfileTitle: "Mano Profilis",
     editProfile: "Redaguoti Profilį",
@@ -542,7 +551,7 @@ export const adminTranslations = {
     newPassword: "Naujas Slaptažodis",
     confirmPassword: "Patvirtinti Slaptažodį",
     personalInformation: "Asmeninė Informacija",
-    
+
     // About Us Page
     editAboutUs: "Redaguoti Apie Mus",
     saveAboutUs: "Išsaugoti Apie Mus",
