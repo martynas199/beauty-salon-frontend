@@ -8,6 +8,7 @@ export default function ServiceVariantSelector({
   selectedBeautician,
 }) {
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const handleVariantSelect = (variant) => {
     setSelectedVariant(variant);
@@ -99,9 +100,59 @@ export default function ServiceVariantSelector({
               )}
 
               {service.description && (
-                <p className="text-gray-600 text-xs sm:text-sm leading-relaxed line-clamp-2">
-                  {service.description}
-                </p>
+                <div>
+                  <p
+                    className={`text-gray-600 text-xs sm:text-sm mb-0 leading-relaxed ${
+                      isDescriptionExpanded ? "" : "line-clamp-2"
+                    }`}
+                  >
+                    {service.description}
+                  </p>
+                  {!isDescriptionExpanded &&
+                    service.description.length > 100 && (
+                      <button
+                        onClick={() => setIsDescriptionExpanded(true)}
+                        className="text-brand-600 hover:text-brand-700 font-medium inline-flex items-center gap-1 mt-0 text-xs"
+                      >
+                        <span>Read more</span>
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  {isDescriptionExpanded &&
+                    service.description.length > 100 && (
+                      <button
+                        onClick={() => setIsDescriptionExpanded(false)}
+                        className="text-brand-600 hover:text-brand-700 font-medium inline-flex items-center gap-1 mt-1 text-xs"
+                      >
+                        <span>Show less</span>
+                        <svg
+                          className="w-3 h-3 rotate-180"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                </div>
               )}
             </div>
 

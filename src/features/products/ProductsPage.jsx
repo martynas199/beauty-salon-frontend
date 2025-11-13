@@ -544,11 +544,24 @@ export default function ProductsPage() {
 
         {/* Brand Showcase Slider */}
         {brands.length > 0 && (
-          <div className="mb-8 overflow-hidden bg-amber-100 py-6">
+          <div
+            className="mb-8 overflow-hidden py-6"
+            style={{ backgroundColor: "#dda060" }}
+          >
             <div className="relative">
               {/* Gradient overlays for fade effect */}
-              <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-amber-100 to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-amber-100 to-transparent z-10 pointer-events-none" />
+              <div
+                className="absolute left-0 top-0 bottom-0 w-20 z-10 pointer-events-none"
+                style={{
+                  background: "linear-gradient(to right, #dda060, transparent)",
+                }}
+              />
+              <div
+                className="absolute right-0 top-0 bottom-0 w-20 z-10 pointer-events-none"
+                style={{
+                  background: "linear-gradient(to left, #dda060, transparent)",
+                }}
+              />
 
               {/* Animated slider */}
               <div
@@ -565,7 +578,7 @@ export default function ProductsPage() {
                   <button
                     key={`brand-1-${index}`}
                     onClick={() => setSelectedBrand(brand)}
-                    className={`flex-shrink-0 px-4 py-2 md:px-8 md:py-4 text-lg md:text-2xl font-serif text-brand-600 font-semibold transition-all whitespace-nowrap ${
+                    className={`flex-shrink-0 px-4 py-2 md:px-8 md:py-4 text-lg md:text-2xl font-serif text-black font-semibold transition-all whitespace-nowrap ${
                       selectedBrand === brand ? "scale-110" : "hover:scale-105"
                     }`}
                   >
@@ -577,7 +590,7 @@ export default function ProductsPage() {
                   <button
                     key={`brand-2-${index}`}
                     onClick={() => setSelectedBrand(brand)}
-                    className={`flex-shrink-0 px-4 py-2 md:px-8 md:py-4 text-lg md:text-2xl font-serif text-brand-600 font-semibold transition-all whitespace-nowrap ${
+                    className={`flex-shrink-0 px-4 py-2 md:px-8 md:py-4 text-lg md:text-2xl font-serif text-black font-semibold transition-all whitespace-nowrap ${
                       selectedBrand === brand ? "scale-110" : "hover:scale-105"
                     }`}
                   >
