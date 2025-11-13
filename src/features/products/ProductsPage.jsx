@@ -552,7 +552,7 @@ export default function ProductsPage() {
 
               {/* Animated slider */}
               <div
-                className="flex gap-8 brand-slider"
+                className="flex gap-4 md:gap-8 brand-slider"
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.animationPlayState = "paused")
                 }
@@ -565,7 +565,7 @@ export default function ProductsPage() {
                   <button
                     key={`brand-1-${index}`}
                     onClick={() => setSelectedBrand(brand)}
-                    className={`flex-shrink-0 px-8 py-4 text-2xl font-serif text-brand-600 font-semibold transition-all whitespace-nowrap ${
+                    className={`flex-shrink-0 px-4 py-2 md:px-8 md:py-4 text-lg md:text-2xl font-serif text-brand-600 font-semibold transition-all whitespace-nowrap ${
                       selectedBrand === brand ? "scale-110" : "hover:scale-105"
                     }`}
                   >
@@ -577,7 +577,7 @@ export default function ProductsPage() {
                   <button
                     key={`brand-2-${index}`}
                     onClick={() => setSelectedBrand(brand)}
-                    className={`flex-shrink-0 px-8 py-4 text-2xl font-serif text-brand-600 font-semibold transition-all whitespace-nowrap ${
+                    className={`flex-shrink-0 px-4 py-2 md:px-8 md:py-4 text-lg md:text-2xl font-serif text-brand-600 font-semibold transition-all whitespace-nowrap ${
                       selectedBrand === brand ? "scale-110" : "hover:scale-105"
                     }`}
                   >
