@@ -48,6 +48,7 @@ export default {
         "scale-in": "scale-in 0.2s ease-out",
         shimmer: "shimmer 2s infinite",
         "bounce-subtle": "bounce-subtle 0.5s ease-in-out",
+        scroll: "scroll 30s linear infinite",
       },
       keyframes: {
         "fade-in": {
@@ -73,6 +74,10 @@ export default {
         "bounce-subtle": {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-4px)" },
+        },
+        scroll: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
         },
       },
       transitionDuration: {

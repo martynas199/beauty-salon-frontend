@@ -542,39 +542,98 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        {/* Brand Filter Pills */}
+        {/* Brand Showcase Slider */}
         {brands.length > 0 && (
-          <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <span className="text-sm font-medium text-gray-700 flex-shrink-0">
-                Filter by Brand:
+          <div className="mb-8 overflow-hidden bg-gray-50 py-6">
+            <div className="relative">
+              {/* Gradient overlays for fade effect */}
+              <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
+
+              {/* Animated slider */}
+              <div
+                className="flex gap-8"
+                style={{
+                  animation: "scroll 30s linear infinite",
+                  willChange: "transform",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.animationPlayState = "paused")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.animationPlayState = "running")
+                }
+              >
+                {/* First set of brands */}
+                {brands.map((brand, index) => (
+                  <button
+                    key={`brand-1-${index}`}
+                    onClick={() => setSelectedBrand(brand)}
+                    className={`flex-shrink-0 px-8 py-4 text-2xl font-serif text-brand-600 font-semibold transition-all whitespace-nowrap ${
+                      selectedBrand === brand ? "scale-110" : "hover:scale-105"
+                    }`}
+                  >
+                    {brand}
+                  </button>
+                ))}
+                {/* Duplicate set for seamless loop */}
+                {brands.map((brand, index) => (
+                  <button
+                    key={`brand-2-${index}`}
+                    onClick={() => setSelectedBrand(brand)}
+                    className={`flex-shrink-0 px-8 py-4 text-2xl font-serif text-brand-600 font-semibold transition-all whitespace-nowrap ${
+                      selectedBrand === brand ? "scale-110" : "hover:scale-105"
+                    }`}
+                  >
+                    {brand}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Add keyframes */}
+            <style>{`
+              @keyframes scroll {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+              }
+            `}</style>
+          </div>
+        )}
+
+        {/* Category Filter Pills */}
+        {categories.length > 0 && (
+          <div className="mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <span className="text-base font-medium text-gray-700 flex-shrink-0">
+                Categories:
               </span>
-              <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap scrollbar-hide">
+              <div className="flex gap-3 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap scrollbar-hide">
                 <button
-                  onClick={() => setSelectedBrand("all")}
-                  className={`px-4 py-2 sm:px-3 sm:py-1.5 rounded-full text-sm sm:text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
-                    selectedBrand === "all"
-                      ? "bg-brand-600 text-white shadow-md"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300"
+                  onClick={() => setSelectedCategory("all")}
+                  className={`px-6 py-3 text-base font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                    selectedCategory === "all"
+                      ? "text-brand-600 underline underline-offset-4"
+                      : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
-                  Show All
+                  All
                 </button>
-                {brands.map((brand) => {
+                {categories.map((category) => {
                   const count = products.filter(
-                    (p) => p.brand === brand
+                    (p) => p.category === category
                   ).length;
                   return (
                     <button
-                      key={brand}
-                      onClick={() => setSelectedBrand(brand)}
-                      className={`px-4 py-2 sm:px-3 sm:py-1.5 rounded-full text-sm sm:text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
-                        selectedBrand === brand
-                          ? "bg-brand-600 text-white shadow-md"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300"
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`px-6 py-3 text-base font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                        selectedCategory === category
+                          ? "text-brand-600 underline underline-offset-4"
+                          : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
-                      {brand}
+                      {category}
                     </button>
                   );
                 })}
