@@ -19,6 +19,7 @@ export default function BeauticianSelectionPage() {
   const [servicesLoading, setServicesLoading] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [showVariantSelector, setShowVariantSelector] = useState(false);
+  const [isBioExpanded, setIsBioExpanded] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
@@ -49,6 +50,9 @@ export default function BeauticianSelectionPage() {
   const handleBeauticianSelect = async (beautician) => {
     setSelectedBeautician(beautician);
     setServicesLoading(true);
+
+    // Update URL to include selected beautician
+    navigate(`/beauticians?selected=${beautician._id}`, { replace: true });
 
     try {
       // Fetch services offered by this beautician
@@ -161,6 +165,9 @@ export default function BeauticianSelectionPage() {
     setServices([]);
     setShowVariantSelector(false);
     setSelectedService(null);
+    setIsBioExpanded(false);
+    // Clear the URL parameter when going back
+    navigate("/beauticians", { replace: true });
   };
 
   if (loading) {
@@ -295,7 +302,61 @@ export default function BeauticianSelectionPage() {
                   <h1 className="text-2xl font-serif font-bold text-gray-900 tracking-wide">
                     Services by {selectedBeautician.name}
                   </h1>
-                  <p className="text-gray-600 font-light">
+                  {selectedBeautician.bio && (
+                    <div>
+                      <p
+                        className={`text-sm text-gray-700 max-w-lg mb-0 ${
+                          isBioExpanded ? "" : "line-clamp-2"
+                        }`}
+                      >
+                        {selectedBeautician.bio}
+                      </p>
+                      {!isBioExpanded &&
+                        selectedBeautician.bio.length > 100 && (
+                          <button
+                            onClick={() => setIsBioExpanded(true)}
+                            className="flex items-center text-amber-700 hover:text-amber-800 transition-colors text-xs font-medium"
+                          >
+                            <span>Read more</span>
+                            <svg
+                              className="w-3 h-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </button>
+                        )}
+                      {isBioExpanded && selectedBeautician.bio.length > 100 && (
+                        <button
+                          onClick={() => setIsBioExpanded(false)}
+                          className="flex items-center gap-1 text-amber-700 hover:text-amber-800 transition-colors mt-1 text-xs font-medium"
+                        >
+                          <span>Show less</span>
+                          <svg
+                            className="w-3 h-3 rotate-180"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <p className="text-gray-600 font-light mt-2">
                     Choose a service to book
                   </p>
                 </div>

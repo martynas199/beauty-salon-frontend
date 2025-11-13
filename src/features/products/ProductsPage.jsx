@@ -544,9 +544,7 @@ export default function ProductsPage() {
 
         {/* Brand Showcase Slider */}
         {brands.length > 0 && (
-          <div
-            className="mb-8 overflow-hidden py-6 border-t border-b border-gray-200"
-          >
+          <div className="mb-8 overflow-hidden py-6 border-t border-b border-gray-200">
             <div className="relative">
               {/* Gradient overlays for fade effect */}
               <div
