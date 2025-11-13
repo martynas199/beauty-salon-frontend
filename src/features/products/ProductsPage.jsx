@@ -569,7 +569,7 @@ export default function ProductsPage() {
                   <button
                     key={`brand-1-${index}`}
                     onClick={() => setSelectedBrand(brand)}
-                    className={`flex-shrink-0 px-8 py-4 text-2xl font-serif text-brand-600 font-semibold transition-all whitespace-nowrap ${
+                    className={`flex-shrink-0 px-8 py-4 text-2xl font-serif  font-semibold transition-all whitespace-nowrap ${
                       selectedBrand === brand ? "scale-110" : "hover:scale-105"
                     }`}
                   >
@@ -598,47 +598,6 @@ export default function ProductsPage() {
                 100% { transform: translateX(-50%); }
               }
             `}</style>
-          </div>
-        )}
-
-        {/* Category Filter Pills */}
-        {categories.length > 0 && (
-          <div className="mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <span className="text-base font-medium text-gray-700 flex-shrink-0">
-                Categories:
-              </span>
-              <div className="flex gap-3 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap scrollbar-hide">
-                <button
-                  onClick={() => setSelectedCategory("all")}
-                  className={`px-6 py-3 text-base font-medium transition-all whitespace-nowrap flex-shrink-0 ${
-                    selectedCategory === "all"
-                      ? "text-brand-600 underline underline-offset-4"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  All
-                </button>
-                {categories.map((category) => {
-                  const count = products.filter(
-                    (p) => p.category === category
-                  ).length;
-                  return (
-                    <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className={`px-6 py-3 text-base font-medium transition-all whitespace-nowrap flex-shrink-0 ${
-                        selectedCategory === category
-                          ? "text-brand-600 underline underline-offset-4"
-                          : "text-gray-600 hover:text-gray-900"
-                      }`}
-                    >
-                      {category}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
           </div>
         )}
 
