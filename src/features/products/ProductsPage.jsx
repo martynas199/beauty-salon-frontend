@@ -595,7 +595,7 @@ export default function ProductsPage() {
               }
               
               .brand-slider {
-                animation: scroll 15s linear infinite;
+                animation: scroll 7s linear infinite;
                 will-change: transform;
               }
               
