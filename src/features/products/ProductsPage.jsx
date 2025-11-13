@@ -552,11 +552,7 @@ export default function ProductsPage() {
 
               {/* Animated slider */}
               <div
-                className="flex gap-8"
-                style={{
-                  animation: "scroll 30s linear infinite",
-                  willChange: "transform",
-                }}
+                className="flex gap-8 brand-slider"
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.animationPlayState = "paused")
                 }
@@ -569,7 +565,7 @@ export default function ProductsPage() {
                   <button
                     key={`brand-1-${index}`}
                     onClick={() => setSelectedBrand(brand)}
-                    className={`flex-shrink-0 px-8 py-4 text-2xl font-serif  font-semibold transition-all whitespace-nowrap ${
+                    className={`flex-shrink-0 px-8 py-4 text-2xl font-serif text-brand-600 font-semibold transition-all whitespace-nowrap ${
                       selectedBrand === brand ? "scale-110" : "hover:scale-105"
                     }`}
                   >
@@ -591,11 +587,22 @@ export default function ProductsPage() {
               </div>
             </div>
 
-            {/* Add keyframes */}
+            {/* Add keyframes with responsive animation speed */}
             <style>{`
               @keyframes scroll {
                 0% { transform: translateX(0); }
                 100% { transform: translateX(-50%); }
+              }
+              
+              .brand-slider {
+                animation: scroll 15s linear infinite;
+                will-change: transform;
+              }
+              
+              @media (min-width: 768px) {
+                .brand-slider {
+                  animation: scroll 30s linear infinite;
+                }
               }
             `}</style>
           </div>
