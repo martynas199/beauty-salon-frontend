@@ -32,7 +32,7 @@ export default function TimeOff() {
       setLoading(true);
       const [timeOffData, staffResponse] = await Promise.all([
         TimeOffAPI.getAll(),
-        api.get("/beauticians"),
+        api.get("/beauticians", { params: { limit: 1000 } }),
       ]);
       setTimeOffList(timeOffData);
       setBeauticians(staffResponse.data.filter((b) => b.active));

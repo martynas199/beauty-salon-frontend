@@ -36,7 +36,7 @@ export default function ProfitAnalytics() {
     try {
       const [productsRes, beauticiansRes] = await Promise.all([
         api.get("/products"),
-        api.get("/beauticians"),
+        api.get("/beauticians", { params: { limit: 1000 } }),
       ]);
 
       setProducts(productsRes.data || []);

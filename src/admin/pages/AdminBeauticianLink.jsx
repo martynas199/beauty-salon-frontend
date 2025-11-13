@@ -52,7 +52,7 @@ export default function AdminBeauticianLink() {
       // Fetch admins and beauticians in parallel - API client handles auth automatically
       const [adminsRes, beauticiansRes] = await Promise.all([
         api.get("/admin/admins"),
-        api.get("/beauticians"),
+        api.get("/beauticians", { params: { limit: 1000 } }),
       ]);
 
       console.log("Loaded admins:", adminsRes.data);

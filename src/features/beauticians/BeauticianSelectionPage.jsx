@@ -52,7 +52,9 @@ export default function BeauticianSelectionPage() {
 
     try {
       // Fetch services offered by this beautician
-      const res = await api.get("/services");
+      const res = await api.get("/services", {
+        params: { limit: 1000 }, // Fetch all services
+      });
       const beauticianServices = res.data.filter((service) => {
         // Helper to get ID from either string or object
         const getId = (field) => {

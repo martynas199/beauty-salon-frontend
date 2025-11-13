@@ -31,7 +31,7 @@ export default function Dashboard() {
       // Fetch appointments and beauticians in parallel
       const [appointmentsRes, beauticiansRes] = await Promise.all([
         api.get("/appointments"),
-        api.get("/beauticians"),
+        api.get("/beauticians", { params: { limit: 1000 } }),
       ]);
 
       let appointments = appointmentsRes.data || [];

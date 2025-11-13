@@ -59,7 +59,7 @@ export default function Products() {
     try {
       const [productsData, beauticiansData] = await Promise.all([
         ProductsAPI.list(),
-        api.get("/beauticians"),
+        api.get("/beauticians", { params: { limit: 1000 } }),
       ]);
       setProducts(productsData);
       setBeauticians(beauticiansData.data || []);
@@ -238,7 +238,9 @@ export default function Products() {
           price: parseFloat(v.price),
           priceEUR: v.priceEUR ? parseFloat(v.priceEUR) : null,
           originalPrice: v.originalPrice ? parseFloat(v.originalPrice) : null,
-          originalPriceEUR: v.originalPriceEUR ? parseFloat(v.originalPriceEUR) : null,
+          originalPriceEUR: v.originalPriceEUR
+            ? parseFloat(v.originalPriceEUR)
+            : null,
           purchasePrice: v.purchasePrice ? parseFloat(v.purchasePrice) : null,
           stock: parseInt(v.stock) || 0,
           sku: v.sku?.trim() || "",

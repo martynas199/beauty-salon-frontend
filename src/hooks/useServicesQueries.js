@@ -17,7 +17,13 @@ export const useServices = () => {
   return useQuery({
     queryKey: queryKeys.services.list(),
     queryFn: async () => {
-      const response = await api.get("/services");
+      // Fetch all services without limit for admin panel
+      console.log("[useServices] Fetching services with limit: 1000");
+      const response = await api.get("/services", {
+        params: { limit: 1000 }, // High limit to get all services
+      });
+
+      console.log("[useServices] Raw response:", response.data);
 
       // Handle different response formats:
       // 1. Paginated: { data: [...], pagination: {...} }
@@ -26,11 +32,19 @@ export const useServices = () => {
 
       if (Array.isArray(response.data)) {
         // Raw array format (no pagination)
+        console.log(
+          "[useServices] Returning array format, count:",
+          response.data.length
+        );
         return response.data;
       }
 
       if (response.data?.data) {
         // Paginated format or standard API format
+        console.log(
+          "[useServices] Returning data format, count:",
+          response.data.data.length
+        );
         return response.data.data;
       }
 
@@ -96,16 +110,30 @@ export const useBeauticians = () => {
   return useQuery({
     queryKey: queryKeys.beauticians.list(),
     queryFn: async () => {
-      const response = await api.get("/beauticians");
+      // Fetch all beauticians without limit for admin panel
+      console.log("[useBeauticians] Fetching beauticians with limit: 1000");
+      const response = await api.get("/beauticians", {
+        params: { limit: 1000 }, // High limit to get all beauticians
+      });
+
+      console.log("[useBeauticians] Raw response:", response.data);
 
       // Handle different response formats (same as services)
       if (Array.isArray(response.data)) {
         // Raw array format
+        console.log(
+          "[useBeauticians] Returning array format, count:",
+          response.data.length
+        );
         return response.data;
       }
 
       if (response.data?.data) {
         // Standard API or paginated format
+        console.log(
+          "[useBeauticians] Returning data format, count:",
+          response.data.data.length
+        );
         return response.data.data;
       }
 

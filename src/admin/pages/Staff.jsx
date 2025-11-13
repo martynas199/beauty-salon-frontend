@@ -18,8 +18,8 @@ export default function Staff() {
     setIsLoading(true);
     try {
       const [staffRes, servicesRes] = await Promise.all([
-        api.get("/beauticians"),
-        api.get("/services"),
+        api.get("/beauticians", { params: { limit: 1000 } }),
+        api.get("/services", { params: { limit: 1000 } }),
       ]);
       setStaff(staffRes.data);
       setServices(servicesRes.data);
