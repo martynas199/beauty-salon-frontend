@@ -545,21 +545,20 @@ export default function ProductsPage() {
         {/* Brand Showcase Slider */}
         {brands.length > 0 && (
           <div
-            className="mb-8 overflow-hidden py-6"
-            style={{ backgroundColor: "#dda060" }}
+            className="mb-8 overflow-hidden py-6 border-t border-b border-gray-200"
           >
             <div className="relative">
               {/* Gradient overlays for fade effect */}
               <div
                 className="absolute left-0 top-0 bottom-0 w-20 z-10 pointer-events-none"
                 style={{
-                  background: "linear-gradient(to right, #dda060, transparent)",
+                  background: "linear-gradient(to right, white, transparent)",
                 }}
               />
               <div
                 className="absolute right-0 top-0 bottom-0 w-20 z-10 pointer-events-none"
                 style={{
-                  background: "linear-gradient(to left, #dda060, transparent)",
+                  background: "linear-gradient(to left, white, transparent)",
                 }}
               />
 
