@@ -10,6 +10,7 @@ import { SkeletonBox, TableRowSkeleton } from "../../components/ui/Skeleton";
 import { SlowRequestWarning } from "../../components/ui/SlowRequestWarning";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { t } from "../../locales/adminTranslations";
+import DateTimePicker from "../../components/DateTimePicker";
 
 export default function Appointments() {
   const { language } = useLanguage();
@@ -39,6 +40,22 @@ export default function Appointments() {
   const [editingAppointment, setEditingAppointment] = useState(null);
   const [services, setServices] = useState([]);
   const [beauticians, setBeauticians] = useState([]);
+
+  // Create modal state
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [newAppointment, setNewAppointment] = useState({
+    clientName: "",
+    clientEmail: "",
+    clientPhone: "",
+    clientNotes: "",
+    beauticianId: "",
+    serviceId: "",
+    variantName: "",
+    start: "",
+    end: "",
+    price: 0,
+    paymentStatus: "paid",
+  });
 
   // Filter state
   const [selectedBeauticianId, setSelectedBeauticianId] = useState("");
@@ -414,6 +431,78 @@ export default function Appointments() {
     }
   }
 
+  function openCreateModal() {
+    // Reset form
+    setNewAppointment({
+      clientName: "",
+      clientEmail: "",
+      clientPhone: "",
+      clientNotes: "",
+      beauticianId: isSuperAdmin ? "" : admin?.beauticianId || "",
+      serviceId: "",
+      variantName: "",
+      start: "",
+      end: "",
+      price: 0,
+      paymentStatus: "paid",
+    });
+    setCreateModalOpen(true);
+  }
+
+  async function saveNewAppointment() {
+    if (!newAppointment) return;
+
+    // Validation
+    if (!newAppointment.clientName || !newAppointment.clientEmail) {
+      toast.error("Client name and email are required");
+      return;
+    }
+    if (
+      !newAppointment.beauticianId ||
+      !newAppointment.serviceId ||
+      !newAppointment.variantName
+    ) {
+      toast.error("Beautician, service, and variant are required");
+      return;
+    }
+    if (!newAppointment.start) {
+      toast.error("Start time is required");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const response = await api.post("/appointments", {
+        client: {
+          name: newAppointment.clientName,
+          email: newAppointment.clientEmail,
+          phone: newAppointment.clientPhone,
+          notes: newAppointment.clientNotes,
+        },
+        beauticianId: newAppointment.beauticianId,
+        serviceId: newAppointment.serviceId,
+        variantName: newAppointment.variantName,
+        startISO: newAppointment.start,
+        mode:
+          newAppointment.paymentStatus === "paid" ? "pay_in_salon" : "online",
+      });
+
+      if (response.data.ok) {
+        // Refresh appointments list
+        await fetchAppointments(pagination.page);
+        setCreateModalOpen(false);
+        toast.success("Appointment created successfully");
+      }
+    } catch (e) {
+      toast.error(
+        e.response?.data?.error || e.message || "Failed to create appointment"
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <div>
       <SlowRequestWarning isLoading={loading} threshold={2000} />
@@ -461,6 +550,15 @@ export default function Appointments() {
           {t("viewAppointmentsLinkedBeauticianOnly", language)}
         </p>
       ) : null}
+
+      {/* Create Appointment Button - only show if admin has access */}
+      {(isSuperAdmin || admin?.beauticianId) && (
+        <div className="mb-4">
+          <Button variant="brand" onClick={openCreateModal}>
+            + Create Appointment
+          </Button>
+        </div>
+      )}
 
       {/* Filters - only show if admin has access */}
       {(isSuperAdmin || admin?.beauticianId) && (
@@ -950,6 +1048,21 @@ export default function Appointments() {
         onSave={saveEdit}
         submitting={submitting}
       />
+
+      <CreateModal
+        open={createModalOpen}
+        onClose={() => {
+          setCreateModalOpen(false);
+          setNewAppointment(null);
+        }}
+        appointment={newAppointment}
+        setAppointment={setNewAppointment}
+        services={services}
+        beauticians={beauticians}
+        onSave={saveNewAppointment}
+        submitting={submitting}
+        isSuperAdmin={isSuperAdmin}
+      />
     </div>
   );
 }
@@ -1175,6 +1288,347 @@ function EditModal({
           loading={submitting}
         >
           Save Changes
+        </Button>
+      </div>
+    </Modal>
+  );
+}
+
+function CreateModal({
+  open,
+  onClose,
+  appointment,
+  setAppointment,
+  services,
+  beauticians,
+  onSave,
+  submitting,
+  isSuperAdmin,
+}) {
+  if (!appointment) return null;
+
+  const [showTimePicker, setShowTimePicker] = useState(false);
+
+  // Prevent body scroll when DateTimePicker modal is open
+  useEffect(() => {
+    if (showTimePicker) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [showTimePicker]);
+
+  const updateField = (field, value) => {
+    setAppointment((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Filter services based on selected beautician
+  const selectedBeautician = beauticians.find(
+    (b) => b._id === appointment.beauticianId
+  );
+  
+  const availableServices = services.filter((service) => {
+    if (!appointment.beauticianId) return true; // Show all if no beautician selected
+    
+    // Check if beautician is assigned to this service
+    const beauticianIds = service.beauticianIds || [];
+    const primaryId = typeof service.primaryBeauticianId === "object"
+      ? service.primaryBeauticianId?._id
+      : service.primaryBeauticianId;
+    
+    return (
+      beauticianIds.includes(appointment.beauticianId) ||
+      primaryId === appointment.beauticianId
+    );
+  });
+
+  const selectedService = availableServices.find((s) => s._id === appointment.serviceId);
+  const variants = selectedService?.variants || [];
+
+  // Get beautician's working hours for DateTimePicker
+  const beauticianWorkingHours = selectedBeautician?.workingHours || [];
+
+  // Debug logging
+  useEffect(() => {
+    if (showTimePicker) {
+      console.log('[CreateModal] DateTimePicker opened with:', {
+        beauticianId: appointment.beauticianId,
+        beauticianName: selectedBeautician?.name,
+        serviceId: appointment.serviceId,
+        serviceName: selectedService?.name,
+        variantName: appointment.variantName,
+        workingHours: beauticianWorkingHours,
+        selectedBeautician: selectedBeautician
+      });
+    }
+  }, [showTimePicker]);
+
+  // Handle slot selection from DateTimePicker
+  const handleSlotSelect = (slot) => {
+    updateField("start", slot.startISO);
+    updateField("end", slot.endISO);
+    setShowTimePicker(false);
+  };
+
+  // Auto-calculate end time when start time and variant are selected
+  const handleVariantChange = (variantName) => {
+    updateField("variantName", variantName);
+    const variant = variants.find((v) => v.name === variantName);
+    if (variant) {
+      updateField("price", variant.price || 0);
+      // Show time picker after variant is selected
+      setShowTimePicker(true);
+    }
+  };
+
+  // Handle beautician change - reset service selection
+  const handleBeauticianChange = (beauticianId) => {
+    updateField("beauticianId", beauticianId);
+    // Reset service and variant if the selected service is not available for new beautician
+    if (appointment.serviceId) {
+      const service = services.find((s) => s._id === appointment.serviceId);
+      if (service) {
+        const beauticianIds = service.beauticianIds || [];
+        const primaryId = typeof service.primaryBeauticianId === "object"
+          ? service.primaryBeauticianId?._id
+          : service.primaryBeauticianId;
+        
+        if (!beauticianIds.includes(beauticianId) && primaryId !== beauticianId) {
+          updateField("serviceId", "");
+          updateField("variantName", "");
+          updateField("price", 0);
+        }
+      }
+    }
+  };
+
+  return (
+    <Modal open={open} onClose={onClose} title="Create Appointment">
+      <div className="space-y-4">
+        {/* Client Information */}
+        <div className="space-y-3">
+          <h3 className="font-semibold text-gray-900">Client Information</h3>
+          <FormField label="Name *" htmlFor="client-name">
+            <input
+              type="text"
+              id="client-name"
+              className="border rounded w-full px-3 py-2"
+              value={appointment.clientName}
+              onChange={(e) => updateField("clientName", e.target.value)}
+              required
+            />
+          </FormField>
+          <FormField label="Email *" htmlFor="client-email">
+            <input
+              type="email"
+              id="client-email"
+              className="border rounded w-full px-3 py-2"
+              value={appointment.clientEmail}
+              onChange={(e) => updateField("clientEmail", e.target.value)}
+              required
+            />
+          </FormField>
+          <FormField label="Phone" htmlFor="client-phone">
+            <input
+              type="tel"
+              id="client-phone"
+              className="border rounded w-full px-3 py-2"
+              value={appointment.clientPhone}
+              onChange={(e) => updateField("clientPhone", e.target.value)}
+            />
+          </FormField>
+          <FormField label="Notes" htmlFor="client-notes">
+            <textarea
+              id="client-notes"
+              className="border rounded w-full px-3 py-2"
+              rows="2"
+              value={appointment.clientNotes}
+              onChange={(e) => updateField("clientNotes", e.target.value)}
+            />
+          </FormField>
+        </div>
+
+        {/* Appointment Details */}
+        <div className="space-y-3 pt-3 border-t">
+          <h3 className="font-semibold text-gray-900">Appointment Details</h3>
+          <FormField label="Beautician *" htmlFor="beautician-select-create">
+            <select
+              id="beautician-select-create"
+              className="border rounded w-full px-3 py-2 bg-gray-50"
+              value={appointment.beauticianId}
+              onChange={(e) => handleBeauticianChange(e.target.value)}
+              disabled={!isSuperAdmin}
+              required
+            >
+              <option value="">Select Beautician</option>
+              {beauticians.map((b) => (
+                <option key={b._id} value={b._id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+            {!isSuperAdmin && appointment.beauticianId && (
+              <p className="text-xs text-gray-500 mt-1">
+                Pre-selected for your beautician account
+              </p>
+            )}
+          </FormField>
+          <FormField label="Service *" htmlFor="service-select-create">
+            <select
+              id="service-select-create"
+              className="border rounded w-full px-3 py-2"
+              value={appointment.serviceId}
+              onChange={(e) => {
+                updateField("serviceId", e.target.value);
+                updateField("variantName", "");
+                updateField("price", 0);
+              }}
+              disabled={!appointment.beauticianId}
+              required
+            >
+              <option value="">
+                {!appointment.beauticianId
+                  ? "Select beautician first"
+                  : "Select Service"}
+              </option>
+              {availableServices.map((s) => (
+                <option key={s._id} value={s._id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+            {appointment.beauticianId && availableServices.length === 0 && (
+              <p className="text-xs text-red-500 mt-1">
+                No services available for this beautician
+              </p>
+            )}
+          </FormField>
+          <FormField label="Variant *" htmlFor="variant-select-create">
+            <select
+              id="variant-select-create"
+              className="border rounded w-full px-3 py-2"
+              value={appointment.variantName}
+              onChange={(e) => handleVariantChange(e.target.value)}
+              disabled={!appointment.serviceId}
+              required
+            >
+              <option value="">Select Variant</option>
+              {variants.map((v) => (
+                <option key={v.name} value={v.name}>
+                  {v.name} - £{v.price} ({v.durationMin}min)
+                </option>
+              ))}
+            </select>
+          </FormField>
+
+          {/* Date & Time Selection with DateTimePicker */}
+          {appointment.beauticianId && appointment.serviceId && appointment.variantName && (
+            <div className="space-y-3">
+              <FormField label="Select Date & Time *" htmlFor="datetime-picker">
+                {appointment.start ? (
+                  <div className="space-y-2">
+                    <div className="border rounded p-3 bg-gray-50">
+                      <p className="text-sm font-medium text-gray-900">
+                        Selected Time:
+                      </p>
+                      <p className="text-lg font-semibold text-brand-600">
+                        {new Date(appointment.start).toLocaleString("en-GB", {
+                          weekday: "short",
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50"
+                      onClick={() => setShowTimePicker(true)}
+                    >
+                      Change Time
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="w-full px-4 py-2 border border-brand-500 text-brand-600 rounded hover:bg-brand-50"
+                    onClick={() => setShowTimePicker(true)}
+                  >
+                    Select Available Time Slot
+                  </button>
+                )}
+              </FormField>
+
+              {/* DateTimePicker Modal */}
+              {showTimePicker && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                  {/* Backdrop */}
+                  <div
+                    className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                    onClick={() => setShowTimePicker(false)}
+                  />
+
+                  {/* Modal Content */}
+                  <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
+                    <div className="p-4 border-b flex items-center justify-between">
+                      <h2 className="text-lg font-semibold">Select Date & Time</h2>
+                      <button
+                        onClick={() => setShowTimePicker(false)}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="p-6 overflow-y-auto">
+                      <DateTimePicker
+                        beauticianId={appointment.beauticianId}
+                        serviceId={appointment.serviceId}
+                        variantName={appointment.variantName}
+                        salonTz="Europe/London"
+                        stepMin={15}
+                        beauticianWorkingHours={beauticianWorkingHours}
+                        onSelect={handleSlotSelect}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <FormField label="Payment Status *" htmlFor="payment-status-create">
+            <select
+              id="payment-status-create"
+              className="border rounded w-full px-3 py-2"
+              value={appointment.paymentStatus}
+              onChange={(e) => updateField("paymentStatus", e.target.value)}
+              required
+            >
+              <option value="paid">Paid (Cash/Card in Person)</option>
+              <option value="unpaid">Unpaid (Online Payment Required)</option>
+            </select>
+          </FormField>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-end gap-2 pt-4 border-t mt-4">
+        <Button variant="outline" onClick={onClose} disabled={submitting}>
+          Cancel
+        </Button>
+        <Button
+          variant="brand"
+          onClick={onSave}
+          disabled={submitting}
+          loading={submitting}
+        >
+          Create Appointment
         </Button>
       </div>
     </Modal>
