@@ -442,6 +442,14 @@ export default function Orders() {
                         <h4 className="text-sm sm:text-base font-medium text-gray-900 break-words">
                           {item.title}
                         </h4>
+                        {item.productId && (
+                          <p className="text-xs text-gray-400 font-mono">
+                            ID:{" "}
+                            {typeof item.productId === "object"
+                              ? item.productId._id
+                              : item.productId}
+                          </p>
+                        )}
                         {item.size && (
                           <p className="text-xs sm:text-sm text-gray-500">
                             Size: {item.size}

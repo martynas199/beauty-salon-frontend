@@ -39,8 +39,22 @@ export default function ProfitAnalytics() {
         api.get("/beauticians", { params: { limit: 1000 } }),
       ]);
 
-      setProducts(productsRes.data || []);
-      setBeauticians(beauticiansRes.data || []);
+      const productData = productsRes.data || [];
+      const beauticianData = beauticiansRes.data || [];
+
+      // Log any invalid items for debugging
+      const invalidProducts = productData.filter((p) => !p || !p._id);
+      const invalidBeauticians = beauticianData.filter((b) => !b || !b._id);
+
+      if (invalidProducts.length > 0) {
+        console.error("Invalid products found:", invalidProducts);
+      }
+      if (invalidBeauticians.length > 0) {
+        console.error("Invalid beauticians found:", invalidBeauticians);
+      }
+
+      setProducts(productData.filter((p) => p && p._id));
+      setBeauticians(beauticianData.filter((b) => b && b._id));
     } catch (error) {
       console.error("Error loading initial data:", error);
       toast.error("Failed to load data");
@@ -152,11 +166,13 @@ export default function ProfitAnalytics() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             >
               <option value="">All Products</option>
-              {products.map((product) => (
-                <option key={product._id} value={product._id}>
-                  {product.title}
-                </option>
-              ))}
+              {products
+                .filter((p) => p && p._id)
+                .map((product) => (
+                  <option key={product._id} value={product._id}>
+                    {product.title}
+                  </option>
+                ))}
             </select>
           </FormField>
 
@@ -169,11 +185,13 @@ export default function ProfitAnalytics() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             >
               <option value="">All Beauticians</option>
-              {beauticians.map((beautician) => (
-                <option key={beautician._id} value={beautician._id}>
-                  {beautician.name}
-                </option>
-              ))}
+              {beauticians
+                .filter((b) => b && b._id)
+                .map((beautician) => (
+                  <option key={beautician._id} value={beautician._id}>
+                    {beautician.name}
+                  </option>
+                ))}
             </select>
           </FormField>
         </div>
@@ -206,6 +224,44 @@ export default function ProfitAnalytics() {
           </Button>
         </div>
       </Card>
+
+      {/* No Data Message */}
+      {summary.totalOrders === 0 &&
+        (filters.productId || filters.beauticianId) && (
+          <Card className="p-6">
+            <div className="text-center py-8">
+              <div className="text-gray-400 mb-3">
+                <svg
+                  className="w-16 h-16 mx-auto"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Sales Data Found
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {filters.productId &&
+                  "This product hasn't been sold yet in the selected date range."}
+                {filters.beauticianId &&
+                  !filters.productId &&
+                  "This beautician hasn't sold any products yet in the selected date range."}
+              </p>
+              <p className="text-sm text-gray-500">
+                Try selecting "All Products" or adjusting the date range to see
+                available data.
+              </p>
+            </div>
+          </Card>
+        )}
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
