@@ -128,6 +128,13 @@ export const adminTranslations = {
     blockDatesWhenStaffUnavailable: "Block dates when staff are unavailable",
     addTimeOff: "Add Time Off",
     addTimeOffPeriod: "Add Time Off Period",
+    startDateLabel: "Start Date",
+    startDateHint: "The first day of unavailability (inclusive)",
+    endDateLabel: "End Date",
+    endDateHint: "The last day of unavailability (inclusive)",
+    reasonLabel: "Reason",
+    reasonHint:
+      "Optional note about why the staff member is unavailable (e.g., Vacation, Sick Leave, Personal)",
 
     // Common UI Elements
     actions: "Actions",
@@ -410,6 +417,13 @@ export const adminTranslations = {
       "Blokuoti datas, kai darbuotojai neprieinami",
     addTimeOff: "Pridėti Atostogas",
     addTimeOffPeriod: "Pridėti Atostogų Laikotarpį",
+    startDateLabel: "Pradžios Data",
+    startDateHint: "Pirmoji neprieinamumo diena (imtinai)",
+    endDateLabel: "Pabaigos Data",
+    endDateHint: "Paskutinė neprieinamumo diena (imtinai)",
+    reasonLabel: "Priežastis",
+    reasonHint:
+      "Neprivaloma pastaba apie tai, kodėl darbuotojas neprieinamas (pvz., Atostogos, Ligos Atostogos, Asmeninės)",
 
     // Common UI Elements
     actions: "Veiksmai",

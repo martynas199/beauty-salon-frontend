@@ -223,7 +223,8 @@ export default function TimeOff() {
               {/* Reason */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Reason <span className="text-gray-400">(optional)</span>
+                  {t("reasonLabel", language)}{" "}
+                  <span className="text-gray-400">(optional)</span>
                 </label>
                 <Input
                   value={formData.reason}
@@ -232,12 +233,16 @@ export default function TimeOff() {
                   }
                   placeholder="e.g., Vacation, Sick leave, Holiday"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  {t("reasonHint", language)}
+                </p>
               </div>
 
               {/* Start Date */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Start Date <span className="text-red-500">*</span>
+                  {t("startDateLabel", language)}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="date"
@@ -247,6 +252,9 @@ export default function TimeOff() {
                   }
                   className={errors.start ? "border-red-500" : ""}
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  {t("startDateHint", language)}
+                </p>
                 {errors.start && (
                   <p className="text-red-500 text-sm mt-1">{errors.start}</p>
                 )}
@@ -255,7 +263,8 @@ export default function TimeOff() {
               {/* End Date */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  End Date <span className="text-red-500">*</span>
+                  {t("endDateLabel", language)}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="date"
@@ -265,6 +274,9 @@ export default function TimeOff() {
                   }
                   className={errors.end ? "border-red-500" : ""}
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  {t("endDateHint", language)}
+                </p>
                 {errors.end && (
                   <p className="text-red-500 text-sm mt-1">{errors.end}</p>
                 )}
