@@ -28,6 +28,11 @@ export default function WorkingHoursCalendar() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [dayHours, setDayHours] = useState([]);
 
+  // Modal state for editing weekly schedule
+  const [editWeeklyModalOpen, setEditWeeklyModalOpen] = useState(false);
+  const [editingDayOfWeek, setEditingDayOfWeek] = useState(null);
+  const [weeklyDayHours, setWeeklyDayHours] = useState([]);
+
   // Fetch beauticians
   useEffect(() => {
     const fetchBeauticians = async () => {
@@ -205,6 +210,113 @@ export default function WorkingHoursCalendar() {
     } catch (error) {
       console.error("Failed to clear schedule:", error);
       toast.error(error.response?.data?.error || "Failed to clear schedule");
+    }
+  };
+
+  // Open weekly schedule edit modal
+  const openWeeklyEditModal = (dayOfWeek) => {
+    if (!selectedBeautician) return;
+
+    setEditingDayOfWeek(dayOfWeek);
+    const existingHours =
+      selectedBeautician.workingHours?.filter(
+        (wh) => wh.dayOfWeek === dayOfWeek
+      ) || [];
+
+    if (existingHours.length > 0) {
+      setWeeklyDayHours(existingHours);
+    } else {
+      setWeeklyDayHours([{ start: "09:00", end: "17:00" }]);
+    }
+
+    setEditWeeklyModalOpen(true);
+  };
+
+  // Add time slot for weekly schedule
+  const addWeeklyTimeSlot = () => {
+    setWeeklyDayHours([...weeklyDayHours, { start: "09:00", end: "17:00" }]);
+  };
+
+  // Remove time slot for weekly schedule
+  const removeWeeklyTimeSlot = (index) => {
+    setWeeklyDayHours(weeklyDayHours.filter((_, i) => i !== index));
+  };
+
+  // Update time slot for weekly schedule
+  const updateWeeklyTimeSlot = (index, field, value) => {
+    const updated = [...weeklyDayHours];
+    updated[index][field] = value;
+    setWeeklyDayHours(updated);
+  };
+
+  // Save weekly schedule
+  const saveWeeklySchedule = async () => {
+    if (editingDayOfWeek === null || !selectedBeautician) return;
+
+    try {
+      // Remove existing hours for this day
+      const otherDaysHours = (selectedBeautician.workingHours || []).filter(
+        (wh) => wh.dayOfWeek !== editingDayOfWeek
+      );
+
+      // Add new hours for this day
+      const newHours = weeklyDayHours
+        .filter((h) => h.start && h.end)
+        .map((h) => ({
+          dayOfWeek: editingDayOfWeek,
+          start: h.start,
+          end: h.end,
+        }));
+
+      const updatedWorkingHours = [...otherDaysHours, ...newHours];
+
+      await api.patch(`/beauticians/${selectedBeautician._id}`, {
+        workingHours: updatedWorkingHours,
+      });
+
+      // Update local state
+      setSelectedBeautician({
+        ...selectedBeautician,
+        workingHours: updatedWorkingHours,
+      });
+
+      toast.success("Weekly schedule updated successfully");
+      setEditWeeklyModalOpen(false);
+    } catch (error) {
+      console.error("Failed to update weekly schedule:", error);
+      toast.error(
+        error.response?.data?.error || "Failed to update weekly schedule"
+      );
+    }
+  };
+
+  // Clear weekly schedule for a day
+  const clearWeeklySchedule = async () => {
+    if (editingDayOfWeek === null || !selectedBeautician) return;
+
+    try {
+      // Remove all hours for this day
+      const updatedWorkingHours = (selectedBeautician.workingHours || []).filter(
+        (wh) => wh.dayOfWeek !== editingDayOfWeek
+      );
+
+      await api.patch(`/beauticians/${selectedBeautician._id}`, {
+        workingHours: updatedWorkingHours,
+      });
+
+      // Update local state
+      setSelectedBeautician({
+        ...selectedBeautician,
+        workingHours: updatedWorkingHours,
+      });
+
+      toast.success("Weekly schedule cleared for this day");
+      setEditWeeklyModalOpen(false);
+    } catch (error) {
+      console.error("Failed to clear weekly schedule:", error);
+      toast.error(
+        error.response?.data?.error || "Failed to clear weekly schedule"
+      );
     }
   };
 
@@ -436,7 +548,9 @@ export default function WorkingHoursCalendar() {
 
           {/* Weekly Default Schedule Summary */}
           <div className="mt-6 border-t pt-4">
-            <h3 className="font-semibold mb-3">Default Weekly Schedule</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold">Default Weekly Schedule</h3>
+            </div>
             <p className="text-sm text-gray-600 mb-3">
               These hours apply to all days unless overridden with custom hours.
             </p>
@@ -458,14 +572,14 @@ export default function WorkingHoursCalendar() {
                 return (
                   <div
                     key={dayOfWeek}
-                    className="flex items-center justify-between py-2 px-3 rounded border hover:bg-gray-50"
+                    className="flex items-center justify-between py-2 px-3 rounded border hover:bg-gray-50 gap-2"
                   >
-                    <span className="font-medium text-gray-700 w-28">
+                    <span className="font-medium text-gray-700 w-20 sm:w-28 text-sm sm:text-base">
                       {dayName}
                     </span>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       {dayHours.length === 0 ? (
-                        <span className="text-gray-400 text-sm">
+                        <span className="text-gray-400 text-xs sm:text-sm">
                           Not working
                         </span>
                       ) : (
@@ -473,7 +587,7 @@ export default function WorkingHoursCalendar() {
                           {dayHours.map((h, idx) => (
                             <span
                               key={idx}
-                              className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded border border-green-200"
+                              className="text-[10px] sm:text-xs bg-green-50 text-green-700 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded border border-green-200 whitespace-nowrap"
                             >
                               {h.start} - {h.end}
                             </span>
@@ -481,6 +595,12 @@ export default function WorkingHoursCalendar() {
                         </div>
                       )}
                     </div>
+                    <button
+                      onClick={() => openWeeklyEditModal(dayOfWeek)}
+                      className="ml-2 px-2 sm:px-3 py-1 text-xs sm:text-sm text-brand-600 hover:text-brand-700 hover:bg-brand-50 rounded border border-brand-200 transition-colors whitespace-nowrap flex-shrink-0"
+                    >
+                      Edit
+                    </button>
                   </div>
                 );
               })}
@@ -584,7 +704,7 @@ export default function WorkingHoursCalendar() {
                 <button
                   type="button"
                   onClick={() => removeTimeSlot(index)}
-                  className="px-3 py-2 text-red-600 hover:bg-red-50 rounded border border-red-200"
+                  className="px-2 sm:px-3 py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 rounded border border-red-200"
                 >
                   Remove
                 </button>
@@ -595,24 +715,138 @@ export default function WorkingHoursCalendar() {
           <button
             type="button"
             onClick={addTimeSlot}
-            className="w-full px-4 py-2 text-brand-600 border border-brand-300 rounded hover:bg-brand-50"
+            className="w-full px-3 sm:px-4 py-2 text-xs sm:text-sm text-brand-600 border border-brand-300 rounded hover:bg-brand-50"
           >
             + Add Another Time Slot
           </button>
 
-          <div className="flex items-center justify-between gap-2 pt-4 border-t">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-4 border-t">
             <button
               type="button"
               onClick={clearWorkingHours}
-              className="px-4 py-2 text-red-600 hover:bg-red-50 rounded text-sm"
+              className="px-3 sm:px-4 py-2 text-red-600 hover:bg-red-50 rounded text-xs sm:text-sm order-2 sm:order-1"
             >
               Clear Custom Hours
             </button>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setEditModalOpen(false)}>
+            <div className="flex gap-2 order-1 sm:order-2">
+              <Button variant="outline" onClick={() => setEditModalOpen(false)} className="flex-1 sm:flex-initial text-xs sm:text-sm py-2">
                 Cancel
               </Button>
-              <Button variant="brand" onClick={saveWorkingHours}>
+              <Button variant="brand" onClick={saveWorkingHours} className="flex-1 sm:flex-initial text-xs sm:text-sm py-2">
+                Save Schedule
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Weekly Schedule Modal */}
+      <Modal
+        open={editWeeklyModalOpen}
+        onClose={() => setEditWeeklyModalOpen(false)}
+        title={
+          editingDayOfWeek !== null
+            ? `Edit ${
+                [
+                  "Sunday",
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                ][editingDayOfWeek]
+              } Schedule`
+            : "Edit Schedule"
+        }
+      >
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded p-3">
+            <p className="text-sm text-blue-800">
+              <strong>Weekly Schedule:</strong> These hours will apply to all{" "}
+              {editingDayOfWeek !== null &&
+                [
+                  "Sundays",
+                  "Mondays",
+                  "Tuesdays",
+                  "Wednesdays",
+                  "Thursdays",
+                  "Fridays",
+                  "Saturdays",
+                ][editingDayOfWeek]}{" "}
+              unless overridden by a custom date.
+            </p>
+          </div>
+
+          {weeklyDayHours.map((slot, index) => (
+            <div
+              key={index}
+              className="flex items-end gap-3 pb-3 border-b last:border-b-0"
+            >
+              <FormField
+                label={`Time Slot ${index + 1}`}
+                htmlFor={`weekly-start-${index}`}
+                className="flex-1"
+              >
+                <div className="flex items-center gap-2">
+                  <input
+                    type="time"
+                    id={`weekly-start-${index}`}
+                    className="border rounded px-3 py-2 w-full"
+                    value={slot.start}
+                    onChange={(e) =>
+                      updateWeeklyTimeSlot(index, "start", e.target.value)
+                    }
+                  />
+                  <span className="text-gray-500">to</span>
+                  <input
+                    type="time"
+                    id={`weekly-end-${index}`}
+                    className="border rounded px-3 py-2 w-full"
+                    value={slot.end}
+                    onChange={(e) =>
+                      updateWeeklyTimeSlot(index, "end", e.target.value)
+                    }
+                  />
+                </div>
+              </FormField>
+              {weeklyDayHours.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeWeeklyTimeSlot(index)}
+                  className="px-2 sm:px-3 py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 rounded border border-red-200"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={addWeeklyTimeSlot}
+            className="w-full px-3 sm:px-4 py-2 text-xs sm:text-sm text-brand-600 border border-brand-300 rounded hover:bg-brand-50"
+          >
+            + Add Another Time Slot
+          </button>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-4 border-t">
+            <button
+              type="button"
+              onClick={clearWeeklySchedule}
+              className="px-3 sm:px-4 py-2 text-red-600 hover:bg-red-50 rounded text-xs sm:text-sm order-2 sm:order-1"
+            >
+              Clear Hours
+            </button>
+            <div className="flex gap-2 order-1 sm:order-2">
+              <Button
+                variant="outline"
+                onClick={() => setEditWeeklyModalOpen(false)}
+                className="flex-1 sm:flex-initial text-xs sm:text-sm py-2"
+              >
+                Cancel
+              </Button>
+              <Button variant="brand" onClick={saveWeeklySchedule} className="flex-1 sm:flex-initial text-xs sm:text-sm py-2">
                 Save Schedule
               </Button>
             </div>
