@@ -67,6 +67,12 @@ const items = [
     icon: "🕐",
     superAdminOnly: true,
   },
+  {
+    to: "/admin/schedule",
+    labelKey: "mySchedule",
+    label: "My Schedule",
+    icon: "📆",
+  },
   { to: "/admin/timeoff", labelKey: "timeOff", label: "Time Off", icon: "🏖️" },
   { dividerKey: "websiteContent", divider: "Website Content" },
   {

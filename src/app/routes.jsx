@@ -42,6 +42,9 @@ const AdminOrders = lazy(() => import("../admin/pages/Orders"));
 const AdminServices = lazy(() => import("../admin/pages/Services"));
 const AdminStaff = lazy(() => import("../admin/pages/Staff"));
 const Hours = lazy(() => import("../admin/pages/Hours"));
+const WorkingHoursCalendar = lazy(() =>
+  import("../admin/pages/WorkingHoursCalendar")
+);
 const Settings = lazy(() => import("../admin/pages/Settings"));
 const Revenue = lazy(() => import("../admin/pages/Revenue"));
 const ProfitAnalytics = lazy(() => import("../admin/pages/ProfitAnalytics"));
@@ -521,6 +524,14 @@ export default function AppRoutes() {
             element={
               <Suspense fallback={<LoadingSpinner center size="lg" />}>
                 <Hours />
+              </Suspense>
+            }
+          />
+          <Route
+            path="schedule"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <WorkingHoursCalendar />
               </Suspense>
             }
           />

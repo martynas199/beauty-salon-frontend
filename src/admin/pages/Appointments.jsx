@@ -1329,23 +1329,26 @@ function CreateModal({
   const selectedBeautician = beauticians.find(
     (b) => b._id === appointment.beauticianId
   );
-  
+
   const availableServices = services.filter((service) => {
     if (!appointment.beauticianId) return true; // Show all if no beautician selected
-    
+
     // Check if beautician is assigned to this service
     const beauticianIds = service.beauticianIds || [];
-    const primaryId = typeof service.primaryBeauticianId === "object"
-      ? service.primaryBeauticianId?._id
-      : service.primaryBeauticianId;
-    
+    const primaryId =
+      typeof service.primaryBeauticianId === "object"
+        ? service.primaryBeauticianId?._id
+        : service.primaryBeauticianId;
+
     return (
       beauticianIds.includes(appointment.beauticianId) ||
       primaryId === appointment.beauticianId
     );
   });
 
-  const selectedService = availableServices.find((s) => s._id === appointment.serviceId);
+  const selectedService = availableServices.find(
+    (s) => s._id === appointment.serviceId
+  );
   const variants = selectedService?.variants || [];
 
   // Get beautician's working hours for DateTimePicker
@@ -1354,14 +1357,14 @@ function CreateModal({
   // Debug logging
   useEffect(() => {
     if (showTimePicker) {
-      console.log('[CreateModal] DateTimePicker opened with:', {
+      console.log("[CreateModal] DateTimePicker opened with:", {
         beauticianId: appointment.beauticianId,
         beauticianName: selectedBeautician?.name,
         serviceId: appointment.serviceId,
         serviceName: selectedService?.name,
         variantName: appointment.variantName,
         workingHours: beauticianWorkingHours,
-        selectedBeautician: selectedBeautician
+        selectedBeautician: selectedBeautician,
       });
     }
   }, [showTimePicker]);
@@ -1392,11 +1395,15 @@ function CreateModal({
       const service = services.find((s) => s._id === appointment.serviceId);
       if (service) {
         const beauticianIds = service.beauticianIds || [];
-        const primaryId = typeof service.primaryBeauticianId === "object"
-          ? service.primaryBeauticianId?._id
-          : service.primaryBeauticianId;
-        
-        if (!beauticianIds.includes(beauticianId) && primaryId !== beauticianId) {
+        const primaryId =
+          typeof service.primaryBeauticianId === "object"
+            ? service.primaryBeauticianId?._id
+            : service.primaryBeauticianId;
+
+        if (
+          !beauticianIds.includes(beauticianId) &&
+          primaryId !== beauticianId
+        ) {
           updateField("serviceId", "");
           updateField("variantName", "");
           updateField("price", 0);
@@ -1525,84 +1532,101 @@ function CreateModal({
           </FormField>
 
           {/* Date & Time Selection with DateTimePicker */}
-          {appointment.beauticianId && appointment.serviceId && appointment.variantName && (
-            <div className="space-y-3">
-              <FormField label="Select Date & Time *" htmlFor="datetime-picker">
-                {appointment.start ? (
-                  <div className="space-y-2">
-                    <div className="border rounded p-3 bg-gray-50">
-                      <p className="text-sm font-medium text-gray-900">
-                        Selected Time:
-                      </p>
-                      <p className="text-lg font-semibold text-brand-600">
-                        {new Date(appointment.start).toLocaleString("en-GB", {
-                          weekday: "short",
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      className="w-full px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50"
-                      onClick={() => setShowTimePicker(true)}
-                    >
-                      Change Time
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="w-full px-4 py-2 border border-brand-500 text-brand-600 rounded hover:bg-brand-50"
-                    onClick={() => setShowTimePicker(true)}
-                  >
-                    Select Available Time Slot
-                  </button>
-                )}
-              </FormField>
-
-              {/* DateTimePicker Modal */}
-              {showTimePicker && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                  {/* Backdrop */}
-                  <div
-                    className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                    onClick={() => setShowTimePicker(false)}
-                  />
-
-                  {/* Modal Content */}
-                  <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
-                    <div className="p-4 border-b flex items-center justify-between">
-                      <h2 className="text-lg font-semibold">Select Date & Time</h2>
+          {appointment.beauticianId &&
+            appointment.serviceId &&
+            appointment.variantName && (
+              <div className="space-y-3">
+                <FormField
+                  label="Select Date & Time *"
+                  htmlFor="datetime-picker"
+                >
+                  {appointment.start ? (
+                    <div className="space-y-2">
+                      <div className="border rounded p-3 bg-gray-50">
+                        <p className="text-sm font-medium text-gray-900">
+                          Selected Time:
+                        </p>
+                        <p className="text-lg font-semibold text-brand-600">
+                          {new Date(appointment.start).toLocaleString("en-GB", {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
                       <button
-                        onClick={() => setShowTimePicker(false)}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        type="button"
+                        className="w-full px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50"
+                        onClick={() => setShowTimePicker(true)}
                       >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        Change Time
                       </button>
                     </div>
-                    <div className="p-6 overflow-y-auto">
-                      <DateTimePicker
-                        beauticianId={appointment.beauticianId}
-                        serviceId={appointment.serviceId}
-                        variantName={appointment.variantName}
-                        salonTz="Europe/London"
-                        stepMin={15}
-                        beauticianWorkingHours={beauticianWorkingHours}
-                        onSelect={handleSlotSelect}
-                      />
+                  ) : (
+                    <button
+                      type="button"
+                      className="w-full px-4 py-2 border border-brand-500 text-brand-600 rounded hover:bg-brand-50"
+                      onClick={() => setShowTimePicker(true)}
+                    >
+                      Select Available Time Slot
+                    </button>
+                  )}
+                </FormField>
+
+                {/* DateTimePicker Modal */}
+                {showTimePicker && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div
+                      className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                      onClick={() => setShowTimePicker(false)}
+                    />
+
+                    {/* Modal Content */}
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
+                      <div className="p-4 border-b flex items-center justify-between">
+                        <h2 className="text-lg font-semibold">
+                          Select Date & Time
+                        </h2>
+                        <button
+                          onClick={() => setShowTimePicker(false)}
+                          className="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                          <svg
+                            className="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="p-6 overflow-y-auto">
+                        <DateTimePicker
+                          beauticianId={appointment.beauticianId}
+                          serviceId={appointment.serviceId}
+                          variantName={appointment.variantName}
+                          salonTz="Europe/London"
+                          stepMin={15}
+                          beauticianWorkingHours={beauticianWorkingHours}
+                          onSelect={handleSlotSelect}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
-          
+                )}
+              </div>
+            )}
+
           <FormField label="Payment Status *" htmlFor="payment-status-create">
             <select
               id="payment-status-create"
