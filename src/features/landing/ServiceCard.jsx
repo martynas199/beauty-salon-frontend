@@ -10,6 +10,15 @@ import { useCurrency } from "../../contexts/CurrencyContext";
  */
 function ServiceCard({ service, onClick }) {
   const { formatPrice } = useCurrency();
+  
+  // DEBUG: Log service to see if priceVaries field exists
+  console.log('[ServiceCard] Service:', {
+    id: service._id,
+    name: service.name,
+    priceVaries: service.priceVaries,
+    hasField: 'priceVaries' in service
+  });
+  
   // Support both new image object and legacy imageUrl string
   const imageUrl = service.image?.url || service.imageUrl;
   const imageAlt = service.image?.alt || service.name;
@@ -104,8 +113,21 @@ function ServiceCard({ service, onClick }) {
                 </div>
               )}
               {service.priceVaries && (
-                <span className="text-[9px] sm:text-[10px] text-gray-500 italic">
-                  Price varies
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 border border-amber-200 rounded-full text-[9px] sm:text-[10px] text-amber-700 font-medium">
+                  <svg 
+                    className="w-2.5 h-2.5 sm:w-3 sm:h-3" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                    />
+                  </svg>
+                  Price varies - consultation required
                 </span>
               )}
               {/* Duration */}
