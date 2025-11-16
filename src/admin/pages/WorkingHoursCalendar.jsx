@@ -249,7 +249,7 @@ export default function WorkingHoursCalendar() {
 
       {/* Calendar */}
       {selectedBeautician && (
-        <div className="bg-white border rounded-lg shadow-sm p-8">
+        <div className="bg-white border rounded-lg shadow-sm p-4 md:p-8 overflow-hidden">
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-2">
               {selectedBeautician.name}'s Schedule
@@ -287,17 +287,19 @@ export default function WorkingHoursCalendar() {
             </div>
           </div>
 
-          <div className="flex justify-center overflow-x-auto">
+          <div className="w-full">
             <style>{`
               .rdp {
                 --rdp-cell-size: 85px;
                 --rdp-accent-color: #10b981;
                 font-size: 16px;
+                width: 100%;
               }
               @media (max-width: 768px) {
                 .rdp {
-                  --rdp-cell-size: 60px;
-                  font-size: 14px;
+                  --rdp-cell-size: 36px;
+                  font-size: 10px;
+                  width: 100%;
                 }
               }
               .rdp-day {
@@ -312,10 +314,11 @@ export default function WorkingHoursCalendar() {
               }
               @media (max-width: 768px) {
                 .rdp-day {
-                  min-height: 60px !important;
-                  width: 60px !important;
-                  padding: 6px 4px !important;
-                  border-radius: 6px !important;
+                  min-height: 36px !important;
+                  width: 36px !important;
+                  padding: 2px 1px !important;
+                  border-radius: 3px !important;
+                  border: 1px solid transparent !important;
                 }
               }
               .rdp-day:hover:not(.rdp-day_disabled) {
@@ -341,8 +344,9 @@ export default function WorkingHoursCalendar() {
               }
               @media (max-width: 768px) {
                 .rdp-caption {
-                  font-size: 16px;
-                  margin-bottom: 1rem;
+                  font-size: 14px;
+                  margin-bottom: 0.75rem;
+                  font-weight: 600;
                 }
               }
               .rdp-head_cell {
@@ -355,8 +359,9 @@ export default function WorkingHoursCalendar() {
               }
               @media (max-width: 768px) {
                 .rdp-head_cell {
-                  font-size: 11px;
-                  padding: 6px 4px;
+                  font-size: 8px;
+                  padding: 2px 1px;
+                  letter-spacing: 0;
                 }
               }
               .rdp-nav_button {
@@ -370,8 +375,9 @@ export default function WorkingHoursCalendar() {
               }
               @media (max-width: 768px) {
                 .rdp-nav_button {
-                  width: 32px;
-                  height: 32px;
+                  width: 26px;
+                  height: 26px;
+                  font-size: 12px;
                 }
               }
               .rdp-table {
@@ -379,7 +385,7 @@ export default function WorkingHoursCalendar() {
               }
               @media (max-width: 768px) {
                 .rdp-table {
-                  border-spacing: 2px;
+                  border-spacing: 0;
                 }
               }
             `}</style>
@@ -397,7 +403,7 @@ export default function WorkingHoursCalendar() {
                   return (
                     <div className="relative w-full h-full flex flex-col items-center justify-center">
                       <span
-                        className={`text-sm md:text-base mb-1 ${
+                        className={`text-[10px] md:text-base mb-0 md:mb-1 ${
                           hours.length > 0
                             ? "font-semibold text-gray-900"
                             : "text-gray-500"
@@ -406,11 +412,11 @@ export default function WorkingHoursCalendar() {
                         {date.getDate()}
                       </span>
                       {hours.length > 0 && (
-                        <div className="text-[8px] md:text-[10px] leading-tight space-y-0.5">
+                        <div className="hidden md:block text-[6px] md:text-[10px] leading-tight space-y-0.5">
                           {hours.map((h, idx) => (
                             <div
                               key={idx}
-                              className={`font-medium px-1 md:px-1.5 py-0.5 rounded text-center ${
+                              className={`font-medium px-0.5 md:px-1.5 py-0.5 rounded text-center ${
                                 isCustom
                                   ? "text-blue-700 bg-blue-100"
                                   : "text-green-700 bg-green-100"
