@@ -228,11 +228,11 @@ export default function WorkingHoursCalendar() {
       </div>
 
       {/* Beautician Selector */}
-      <div className="bg-white border rounded-lg p-4">
+      <div className="bg-white border rounded-lg shadow-sm p-6">
         <FormField label="Select Beautician" htmlFor="beautician-select">
           <select
             id="beautician-select"
-            className="border rounded w-full max-w-md px-3 py-2"
+            className="border border-gray-300 rounded-lg w-full max-w-md px-4 py-2.5 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
             value={selectedBeauticianId}
             onChange={(e) => setSelectedBeauticianId(e.target.value)}
             disabled={!isSuperAdmin}
@@ -249,68 +249,138 @@ export default function WorkingHoursCalendar() {
 
       {/* Calendar */}
       {selectedBeautician && (
-        <div className="bg-white border rounded-lg p-6">
-          <div className="mb-4">
+        <div className="bg-white border rounded-lg shadow-sm p-8">
+          <div className="mb-6">
             <h2 className="text-xl font-semibold mb-2">
               {selectedBeautician.name}'s Schedule
             </h2>
-            <p className="text-sm text-gray-600 mb-3">
+            <p className="text-sm text-gray-600 mb-4">
               Click on a date to set custom working hours for that specific day.
             </p>
 
             {/* Legend */}
-            <div className="flex flex-wrap items-center gap-6 text-base mb-4 p-4 bg-gray-50 rounded">
-              <div className="flex items-center gap-2">
-                <div className="w-12 h-12 bg-green-50 border-2 border-green-200 rounded flex items-center justify-center text-sm font-semibold">
+            <div className="flex flex-wrap items-center gap-6 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-green-50 border-2 border-green-300 rounded-lg flex items-center justify-center text-sm font-semibold shadow-sm">
                   15
                 </div>
-                <span>Default weekly hours</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Default weekly hours
+                </span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-12 h-12 bg-blue-50 border-2 border-blue-400 rounded flex items-center justify-center text-sm font-semibold">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-blue-50 border-2 border-blue-400 rounded-lg flex items-center justify-center text-sm font-semibold shadow-sm">
                   15
                 </div>
-                <span>Custom date hours</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Custom date hours
+                </span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-12 h-12 bg-white border-2 border-gray-200 rounded flex items-center justify-center text-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center text-sm text-gray-400 shadow-sm">
                   15
                 </div>
-                <span>Not working</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Not working
+                </span>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-center">
+          <div className="flex justify-center overflow-x-auto">
             <style>{`
               .rdp {
-                --rdp-cell-size: 80px;
+                --rdp-cell-size: 85px;
                 --rdp-accent-color: #10b981;
                 font-size: 16px;
               }
+              @media (max-width: 768px) {
+                .rdp {
+                  --rdp-cell-size: 60px;
+                  font-size: 14px;
+                }
+              }
               .rdp-day {
-                min-height: 80px !important;
-                width: 80px !important;
+                min-height: 85px !important;
+                width: 85px !important;
                 cursor: pointer !important;
                 position: relative;
-                padding: 8px 4px !important;
+                padding: 10px 6px !important;
+                border-radius: 8px !important;
+                transition: all 0.2s ease;
+                border: 2px solid transparent !important;
+              }
+              @media (max-width: 768px) {
+                .rdp-day {
+                  min-height: 60px !important;
+                  width: 60px !important;
+                  padding: 6px 4px !important;
+                  border-radius: 6px !important;
+                }
+              }
+              .rdp-day:hover:not(.rdp-day_disabled) {
+                background-color: #f9fafb !important;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+              }
+              @media (max-width: 768px) {
+                .rdp-day:hover:not(.rdp-day_disabled) {
+                  transform: none;
+                  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+                }
               }
               .rdp-day_selected {
                 background-color: #f0fdf4 !important;
-              }
-              .rdp-day.has-custom {
-                background-color: #dbeafe !important;
-                border-color: #3b82f6 !important;
+                border-color: #86efac !important;
               }
               .rdp-caption {
-                font-size: 18px;
-                font-weight: 600;
+                font-size: 20px;
+                font-weight: 700;
                 margin-bottom: 1.5rem;
+                color: #111827;
+              }
+              @media (max-width: 768px) {
+                .rdp-caption {
+                  font-size: 16px;
+                  margin-bottom: 1rem;
+                }
               }
               .rdp-head_cell {
                 font-size: 14px;
                 font-weight: 600;
-                padding: 8px;
+                padding: 10px;
+                color: #6b7280;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+              }
+              @media (max-width: 768px) {
+                .rdp-head_cell {
+                  font-size: 11px;
+                  padding: 6px 4px;
+                }
+              }
+              .rdp-nav_button {
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                transition: all 0.2s ease;
+              }
+              .rdp-nav_button:hover {
+                background-color: #f3f4f6;
+              }
+              @media (max-width: 768px) {
+                .rdp-nav_button {
+                  width: 32px;
+                  height: 32px;
+                }
+              }
+              .rdp-table {
+                border-spacing: 4px;
+              }
+              @media (max-width: 768px) {
+                .rdp-table {
+                  border-spacing: 2px;
+                }
               }
             `}</style>
             <DayPicker
@@ -327,19 +397,23 @@ export default function WorkingHoursCalendar() {
                   return (
                     <div className="relative w-full h-full flex flex-col items-center justify-center">
                       <span
-                        className={`text-base ${
-                          hours.length > 0 ? "font-semibold" : ""
+                        className={`text-sm md:text-base mb-1 ${
+                          hours.length > 0
+                            ? "font-semibold text-gray-900"
+                            : "text-gray-500"
                         }`}
                       >
                         {date.getDate()}
                       </span>
                       {hours.length > 0 && (
-                        <div className="text-[10px] leading-tight mt-1 text-center">
+                        <div className="text-[8px] md:text-[10px] leading-tight space-y-0.5">
                           {hours.map((h, idx) => (
                             <div
                               key={idx}
-                              className={`font-medium ${
-                                isCustom ? "text-blue-600" : "text-green-600"
+                              className={`font-medium px-1 md:px-1.5 py-0.5 rounded text-center ${
+                                isCustom
+                                  ? "text-blue-700 bg-blue-100"
+                                  : "text-green-700 bg-green-100"
                               }`}
                             >
                               {h.start}-{h.end}
