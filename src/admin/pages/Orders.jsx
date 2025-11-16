@@ -109,6 +109,45 @@ export default function Orders() {
     );
   };
 
+  const handleDeleteOrder = async (orderId) => {
+    toast(
+      (t) => (
+        <span className="flex items-center gap-3">
+          <span>Permanently delete this order? This cannot be undone!</span>
+          <button
+            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                setUpdating(true);
+                await OrdersAPI.delete(orderId);
+                setAllOrders(allOrders.filter((o) => o._id !== orderId));
+                if (selectedOrder?._id === orderId) {
+                  setSelectedOrder(null);
+                }
+                toast.success("Order deleted successfully");
+              } catch (error) {
+                console.error("Error deleting order:", error);
+                toast.error("Failed to delete order");
+              } finally {
+                setUpdating(false);
+              }
+            }}
+          >
+            Yes, Delete
+          </button>
+          <button
+            className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300"
+            onClick={() => toast.dismiss(t.id)}
+          >
+            No
+          </button>
+        </span>
+      ),
+      { duration: 8000 }
+    );
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
@@ -331,6 +370,16 @@ export default function Orders() {
                       Cancel Order
                     </Button>
                   )}
+                  
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleDeleteOrder(order._id)}
+                    disabled={updating}
+                    className="bg-red-700 hover:bg-red-800"
+                  >
+                    Delete
+                  </Button>
                 </div>
               </div>
             </Card>

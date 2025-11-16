@@ -87,21 +87,26 @@ function ServiceCard({ service, onClick }) {
           {/* Price and Action Section */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-auto pt-1.5 sm:pt-2 border-t border-gray-100 gap-1.5 sm:gap-2 min-w-0 flex-shrink-0">
             {/* Price and Duration Display */}
-            <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-wrap w-full sm:w-auto">
+            <div className="flex flex-col gap-0.5 min-w-0 w-full sm:w-auto">
               {minPrice !== null && (
                 <div className="flex items-baseline gap-0.5 sm:gap-1">
                   <span className="text-[10px] sm:text-xs text-gray-500">
-                    From
+                    {service.priceVaries ? "Up to" : "From"}
                   </span>
                   <span className="text-base sm:text-xl font-bold text-brand-700">
-                    {formatPrice(minPrice)}
+                    {formatPrice(service.priceVaries ? maxPrice : minPrice)}
                   </span>
-                  {maxPrice > minPrice && (
+                  {!service.priceVaries && maxPrice > minPrice && (
                     <span className="text-[10px] sm:text-xs text-gray-400">
                       - {formatPrice(maxPrice)}
                     </span>
                   )}
                 </div>
+              )}
+              {service.priceVaries && (
+                <span className="text-[9px] sm:text-[10px] text-gray-500 italic">
+                  Price varies
+                </span>
               )}
               {/* Duration */}
               {service.variants && service.variants.length > 0 && (

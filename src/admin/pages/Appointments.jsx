@@ -327,6 +327,60 @@ export default function Appointments() {
     }
   }
 
+  async function handleDeleteAll() {
+    if (!admin?.beauticianId) {
+      toast.error("No beautician linked to this account");
+      return;
+    }
+
+    toast(
+      (t) => (
+        <span className="flex items-center gap-3">
+          <span>Delete ALL your appointments? This cannot be undone!</span>
+          <button
+            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                const res = await api.delete(
+                  `/appointments/beautician/${admin.beauticianId}`
+                );
+                
+                // Remove all appointments for this beautician from the state
+                setRows((old) =>
+                  old.filter((apt) => {
+                    const beauticianId =
+                      typeof apt.beauticianId === "object" && apt.beauticianId?._id
+                        ? apt.beauticianId._id
+                        : apt.beauticianId;
+                    return String(beauticianId) !== String(admin.beauticianId);
+                  })
+                );
+                
+                toast.success(
+                  res.data.message || `Deleted ${res.data.deletedCount} appointment(s)`
+                );
+              } catch (e) {
+                toast.error(
+                  e.response?.data?.error || e.message || "Failed to delete appointments"
+                );
+              }
+            }}
+          >
+            Yes, Delete All
+          </button>
+          <button
+            className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300"
+            onClick={() => toast.dismiss(t.id)}
+          >
+            Cancel
+          </button>
+        </span>
+      ),
+      { duration: 10000 }
+    );
+  }
+
   async function markAsNoShow(id) {
     toast(
       (t) => (
@@ -553,10 +607,19 @@ export default function Appointments() {
 
       {/* Create Appointment Button - only show if admin has access */}
       {(isSuperAdmin || admin?.beauticianId) && (
-        <div className="mb-4">
+        <div className="mb-4 flex gap-2">
           <Button variant="brand" onClick={openCreateModal}>
             + Create Appointment
           </Button>
+          {admin?.beauticianId && (
+            <Button
+              variant="danger"
+              onClick={() => handleDeleteAll()}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete All My Appointments
+            </Button>
+          )}
         </div>
       )}
 

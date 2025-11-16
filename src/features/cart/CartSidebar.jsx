@@ -17,6 +17,14 @@ export default function CartSidebar() {
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Check for multiple beauticians in cart
+  const beauticians = new Set(
+    items
+      .map((item) => item.product?.beauticianId?._id || item.product?.beauticianId)
+      .filter(Boolean)
+  );
+  const hasMultipleBeauticians = beauticians.size > 1;
+
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e) => {
@@ -259,6 +267,34 @@ export default function CartSidebar() {
         {/* Footer */}
         {items.length > 0 && (
           <div className="border-t border-gray-200 p-6 space-y-4">
+            {/* Multiple Beauticians Warning */}
+            {hasMultipleBeauticians && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                <div className="flex items-start gap-3">
+                  <svg
+                    className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <div>
+                    <h4 className="text-sm font-semibold text-amber-900 mb-1">
+                      Multiple Sellers
+                    </h4>
+                    <p className="text-xs text-amber-800">
+                      Your cart contains products from {beauticians.size} different sellers.
+                      You'll need to check out separately for each seller.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Subtotal */}
             <div className="flex items-center justify-between text-lg">
               <span className="font-semibold text-gray-900">Subtotal</span>
@@ -269,11 +305,12 @@ export default function CartSidebar() {
 
             {/* Checkout Button */}
             <button
-              className="w-full bg-brand-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-brand-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-brand-700 transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
               onClick={() => {
                 dispatch(closeCart());
                 navigate("/product-checkout");
               }}
+              disabled={hasMultipleBeauticians}
             >
               <svg
                 className="w-5 h-5"
@@ -288,7 +325,9 @@ export default function CartSidebar() {
                   d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
                 />
               </svg>
-              Proceed to Checkout
+              {hasMultipleBeauticians
+                ? "Remove Items to Continue"
+                : "Proceed to Checkout"}
             </button>
 
             {/* Continue Shopping */}

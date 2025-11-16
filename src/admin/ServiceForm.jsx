@@ -44,6 +44,7 @@ export default function ServiceForm({
     primaryBeauticianId: "",
     additionalBeauticianIds: [],
     active: true,
+    priceVaries: false,
     image: null,
     variants: [
       {
@@ -81,6 +82,7 @@ export default function ServiceForm({
           ? service.additionalBeauticianIds.map(extractId)
           : [],
         active: service.active !== undefined ? service.active : true,
+        priceVaries: service.priceVaries || false,
         image: service.image || null,
         variants:
           service.variants && service.variants.length > 0
@@ -485,6 +487,25 @@ export default function ServiceForm({
             </div>
             <p className="text-xs text-gray-500 ml-6">
               {t("activeHint", language)}
+            </p>
+          </div>
+
+          {/* Price Varies */}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="priceVaries"
+                checked={formData.priceVaries}
+                onChange={(e) => handleChange("priceVaries", e.target.checked)}
+                className="w-4 h-4 text-brand-600 rounded focus:ring-brand-500"
+              />
+              <label htmlFor="priceVaries" className="text-sm font-medium">
+                Price Varies
+              </label>
+            </div>
+            <p className="text-xs text-gray-500 ml-6">
+              Check this if the service price varies (will show "Up to" instead of "From")
             </p>
           </div>
         </div>
