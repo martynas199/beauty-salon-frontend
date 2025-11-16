@@ -9,41 +9,144 @@ import logo from "../assets/logo.svg";
 import { useLanguage } from "../contexts/LanguageContext";
 import { t } from "../locales/adminTranslations";
 
+// Icon components for cleaner, more professional look
+const Icon = ({ name, className = "w-5 h-5" }) => {
+  const icons = {
+    home: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    ),
+    dashboard: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    ),
+    calendar: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    ),
+    package: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+      </svg>
+    ),
+    chart: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    ),
+    trending: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+      </svg>
+    ),
+    sparkles: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+      </svg>
+    ),
+    users: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+    ),
+    clock: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+    umbrella: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+      </svg>
+    ),
+    star: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+      </svg>
+    ),
+    info: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+    shopping: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+      </svg>
+    ),
+    image: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    ),
+    document: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    ),
+    settings: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    ),
+    creditCard: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+      </svg>
+    ),
+    diamond: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2l3 6H9l3-6zM8 8H5l7 14 7-14h-3" />
+      </svg>
+    ),
+    link: (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+      </svg>
+    ),
+  };
+  return icons[name] || icons.dashboard;
+};
+
 const items = [
   {
     to: "/",
     labelKey: "backToHome",
     label: "Back to Home",
-    icon: "🏠",
+    iconName: "home",
     external: true,
   },
   { dividerKey: "core", divider: "Core" },
-  { to: "/admin", labelKey: "dashboard", label: "Dashboard", icon: "📊" },
+  { to: "/admin", labelKey: "dashboard", label: "Dashboard", iconName: "dashboard" },
   {
     to: "/admin/appointments",
     labelKey: "appointments",
     label: "Appointments",
-    icon: "📅",
+    iconName: "calendar",
   },
   {
     to: "/admin/orders",
     labelKey: "orders",
     label: "Orders",
-    icon: "📦",
+    iconName: "package",
     superAdminOnly: true,
   },
   {
     to: "/admin/revenue",
     labelKey: "revenueAnalytics",
     label: "Revenue Analytics",
-    icon: "💰",
+    iconName: "chart",
     superAdminOnly: true,
   },
   {
     to: "/admin/profit-analytics",
     labelKey: "profitAnalytics",
     label: "Profit Analytics",
-    icon: "📈",
+    iconName: "trending",
     superAdminOnly: true,
   },
   { dividerKey: "bookingSetup", divider: "Booking Setup" },
@@ -51,83 +154,83 @@ const items = [
     to: "/admin/services",
     labelKey: "services",
     label: "Services",
-    icon: "💅",
+    iconName: "sparkles",
   },
   {
     to: "/admin/staff",
     labelKey: "staff",
     label: "Staff",
-    icon: "👥",
+    iconName: "users",
     superAdminOnly: true,
   },
   {
     to: "/admin/schedule",
     labelKey: "mySchedule",
     label: "My Schedule",
-    icon: "📆",
+    iconName: "clock",
   },
-  { to: "/admin/timeoff", labelKey: "timeOff", label: "Time Off", icon: "🏖️" },
+  { to: "/admin/timeoff", labelKey: "timeOff", label: "Time Off", iconName: "umbrella" },
   { dividerKey: "websiteContent", divider: "Website Content" },
   {
     to: "/admin/hero-sections",
     labelKey: "heroSections",
     label: "Hero Sections",
-    icon: "✨",
+    iconName: "star",
     superAdminOnly: true,
   },
   {
     to: "/admin/about-us",
     labelKey: "aboutUsPage",
     label: "About Us Page",
-    icon: "ℹ️",
+    iconName: "info",
     superAdminOnly: true,
   },
   {
     to: "/admin/products",
     labelKey: "products",
     label: "Products",
-    icon: "🛍️",
+    iconName: "shopping",
     superAdminOnly: true,
   },
   {
     to: "/admin/products-hero",
     labelKey: "productsHeroImage",
     label: "Products Hero Image",
-    icon: "🖼️",
+    iconName: "image",
     superAdminOnly: true,
   },
   {
     to: "/admin/cancellation",
     labelKey: "cancellationPolicy",
     label: "Cancellation Policy",
-    icon: "📋",
+    iconName: "document",
   },
   { dividerKey: "settings", divider: "Configuration" },
   {
     to: "/admin/settings",
     labelKey: "salonSettings",
     label: "Salon Settings",
-    icon: "⚙️",
+    iconName: "settings",
     superAdminOnly: true,
   },
   {
     to: "/admin/stripe-connect",
     labelKey: "stripeConnect",
     label: "Stripe Connect",
-    icon: "💳",
+    iconName: "creditCard",
   },
   {
     to: "/admin/subscription",
     labelKey: "ecommerceSubscription",
     label: "E-Commerce Subscription",
-    icon: "💎",
+    iconName: "diamond",
     superAdminOnly: true,
   },
   {
     to: "/admin/admin-links",
     labelKey: "adminLinks",
     label: "Admin Links",
-    icon: "🔗",
+    iconName: "link",
     superAdminOnly: true,
   },
 ];
@@ -401,31 +504,42 @@ export default function AdminLayout() {
         >
           <div className="flex flex-col h-full">
             {/* Sidebar Header */}
-            <div className="hidden lg:block p-4 bg-gradient-to-r from-brand-600 to-brand-700 text-white">
+            <div className="hidden lg:block p-5 bg-gradient-to-br from-brand-600 via-brand-600 to-brand-700 text-white shadow-lg">
               <div className="flex items-center gap-3">
-                <img
-                  src={logo}
-                  alt="Logo"
-                  className="h-10 w-10 object-contain"
-                />
+                <div className="relative">
+                  <div className="absolute inset-0 bg-white/20 rounded-xl blur-md"></div>
+                  <img
+                    src={logo}
+                    alt="Logo"
+                    className="relative h-10 w-10 object-contain drop-shadow-lg"
+                  />
+                </div>
                 <div>
-                  <h1 className="font-bold text-lg">{salonName}</h1>
-                  <p className="text-xs text-brand-100">Admin Portal</p>
+                  <h1 className="font-bold text-lg tracking-tight drop-shadow-sm">
+                    {salonName}
+                  </h1>
+                  <p className="text-xs text-brand-100 font-medium">
+                    {t("adminPortal", language)}
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto pb-20 lg:pb-3">
+            <nav className="flex-1 p-3 space-y-1 overflow-y-auto pb-20 lg:pb-3">
               {filteredItems.map((it, idx) => {
                 // Render divider
                 if (it.divider) {
                   return (
-                    <div key={`divider-${idx}`} className="pt-3 pb-1.5 px-2">
-                      <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-                        {it.dividerKey
-                          ? t(it.dividerKey, language)
-                          : it.divider}
+                    <div key={`divider-${idx}`} className="pt-4 pb-2 px-3">
+                      <div className="flex items-center gap-2">
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
+                        <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                          {it.dividerKey
+                            ? t(it.dividerKey, language)
+                            : it.divider}
+                        </div>
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
                       </div>
                     </div>
                   );
@@ -438,31 +552,46 @@ export default function AdminLayout() {
                     to={it.to}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`
-                      flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium
+                      relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium
                       transition-all duration-200 group
                       ${
                         isActive
-                          ? "bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/20"
+                          ? "bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/30 scale-[1.02]"
                           : it.external
-                          ? "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300 hover:border-gray-400"
-                          : "hover:bg-gray-100 text-gray-700 hover:shadow-sm"
+                          ? "bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 hover:from-gray-200 hover:to-gray-100 border border-gray-300 hover:border-gray-400 hover:shadow-md"
+                          : "text-gray-700 hover:bg-gradient-to-r hover:from-brand-50 hover:to-brand-100/50 hover:text-brand-700 hover:shadow-sm"
                       }
                     `}
                   >
-                    <span
-                      className={`text-lg transition-transform group-hover:scale-110 ${
-                        isActive ? "" : "grayscale"
-                      }`}
+                    {/* Icon */}
+                    <div
+                      className={`
+                      flex-shrink-0 transition-all duration-200
+                      ${
+                        isActive
+                          ? "scale-110"
+                          : "group-hover:scale-110 group-hover:rotate-3"
+                      }
+                    `}
                     >
-                      {it.icon}
-                    </span>
-                    <span className="text-sm">
+                      <Icon
+                        name={it.iconName}
+                        className={`w-5 h-5 ${
+                          isActive ? "drop-shadow-sm" : ""
+                        }`}
+                      />
+                    </div>
+
+                    {/* Label */}
+                    <span className="flex-1 text-sm font-medium">
                       {it.labelKey ? t(it.labelKey, language) : it.label}
                     </span>
+
+                    {/* Active indicator arrow */}
                     {isActive && (
-                      <span className="ml-auto">
+                      <div className="flex-shrink-0">
                         <svg
-                          className="w-4 h-4"
+                          className="w-4 h-4 animate-pulse"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -472,7 +601,12 @@ export default function AdminLayout() {
                             clipRule="evenodd"
                           />
                         </svg>
-                      </span>
+                      </div>
+                    )}
+
+                    {/* Hover effect overlay */}
+                    {!isActive && (
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-brand-500/0 to-brand-600/0 group-hover:from-brand-500/5 group-hover:to-brand-600/5 transition-all duration-200" />
                     )}
                   </Link>
                 );
@@ -480,26 +614,40 @@ export default function AdminLayout() {
             </nav>
 
             {/* Sidebar Footer - Only visible on desktop */}
-            <div className="hidden lg:block p-3 border-t border-gray-200 bg-gray-50">
-              <div className="flex items-center gap-2 px-2 py-1.5 mb-1.5">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-semibold text-xs shadow-md">
+            <div className="hidden lg:block p-4 border-t border-gray-200 bg-gradient-to-br from-gray-50 to-white">
+              <div className="flex items-center gap-2.5 px-2.5 py-2 mb-2 bg-white rounded-xl shadow-sm border border-gray-100">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold text-sm shadow-md ring-2 ring-brand-100">
                   {getInitials(admin?.name)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs font-medium text-gray-900 truncate">
+                  <div className="text-xs font-semibold text-gray-900 truncate">
                     {admin?.name || "Admin User"}
                   </div>
-                  <div className="text-[10px] text-gray-500 capitalize">
-                    {isSuperAdmin ? "Super Admin" : "Beautician"}
+                  <div className="text-[10px] text-gray-500 capitalize font-medium">
+                    {isSuperAdmin
+                      ? t("superAdmin", language)
+                      : t("beautician", language)}
                   </div>
                 </div>
               </div>
+              
+              {/* Language Selector */}
+              <button
+                onClick={toggleLanguage}
+                className="w-full mb-2 flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 rounded-xl transition-all duration-200 border border-brand-200 hover:border-brand-300 hover:shadow-sm"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                </svg>
+                {language === "EN" ? "English" : "Lietuvių"}
+              </button>
+              
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors duration-200 border border-red-200 hover:border-red-300"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all duration-200 border border-red-200 hover:border-red-300 hover:shadow-sm group"
               >
                 <svg
-                  className="w-3.5 h-3.5"
+                  className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -511,7 +659,7 @@ export default function AdminLayout() {
                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                   />
                 </svg>
-                Logout
+                {t("logout", language)}
               </button>
             </div>
           </div>
