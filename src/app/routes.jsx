@@ -41,7 +41,6 @@ const AdminAppointments = lazy(() => import("../admin/pages/Appointments"));
 const AdminOrders = lazy(() => import("../admin/pages/Orders"));
 const AdminServices = lazy(() => import("../admin/pages/Services"));
 const AdminStaff = lazy(() => import("../admin/pages/Staff"));
-const Hours = lazy(() => import("../admin/pages/Hours"));
 const WorkingHoursCalendar = lazy(() =>
   import("../admin/pages/WorkingHoursCalendar")
 );
@@ -516,14 +515,6 @@ export default function AppRoutes() {
             element={
               <Suspense fallback={<LoadingSpinner center size="lg" />}>
                 <AdminStaff />
-              </Suspense>
-            }
-          />
-          <Route
-            path="hours"
-            element={
-              <Suspense fallback={<LoadingSpinner center size="lg" />}>
-                <Hours />
               </Suspense>
             }
           />

@@ -296,9 +296,9 @@ export default function WorkingHoursCalendar() {
 
     try {
       // Remove all hours for this day
-      const updatedWorkingHours = (selectedBeautician.workingHours || []).filter(
-        (wh) => wh.dayOfWeek !== editingDayOfWeek
-      );
+      const updatedWorkingHours = (
+        selectedBeautician.workingHours || []
+      ).filter((wh) => wh.dayOfWeek !== editingDayOfWeek);
 
       await api.patch(`/beauticians/${selectedBeautician._id}`, {
         workingHours: updatedWorkingHours,
@@ -729,10 +729,18 @@ export default function WorkingHoursCalendar() {
               Clear Custom Hours
             </button>
             <div className="flex gap-2 order-1 sm:order-2">
-              <Button variant="outline" onClick={() => setEditModalOpen(false)} className="flex-1 sm:flex-initial text-xs sm:text-sm py-2">
+              <Button
+                variant="outline"
+                onClick={() => setEditModalOpen(false)}
+                className="flex-1 sm:flex-initial text-xs sm:text-sm py-2"
+              >
                 Cancel
               </Button>
-              <Button variant="brand" onClick={saveWorkingHours} className="flex-1 sm:flex-initial text-xs sm:text-sm py-2">
+              <Button
+                variant="brand"
+                onClick={saveWorkingHours}
+                className="flex-1 sm:flex-initial text-xs sm:text-sm py-2"
+              >
                 Save Schedule
               </Button>
             </div>
@@ -846,7 +854,11 @@ export default function WorkingHoursCalendar() {
               >
                 Cancel
               </Button>
-              <Button variant="brand" onClick={saveWeeklySchedule} className="flex-1 sm:flex-initial text-xs sm:text-sm py-2">
+              <Button
+                variant="brand"
+                onClick={saveWeeklySchedule}
+                className="flex-1 sm:flex-initial text-xs sm:text-sm py-2"
+              >
                 Save Schedule
               </Button>
             </div>

@@ -61,13 +61,6 @@ const items = [
     superAdminOnly: true,
   },
   {
-    to: "/admin/hours",
-    labelKey: "workingHours",
-    label: "Working Hours",
-    icon: "🕐",
-    superAdminOnly: true,
-  },
-  {
     to: "/admin/schedule",
     labelKey: "mySchedule",
     label: "My Schedule",
@@ -136,12 +129,6 @@ const items = [
     label: "Admin Links",
     icon: "🔗",
     superAdminOnly: true,
-  },
-  {
-    to: "/admin/profile",
-    labelKey: "myProfile",
-    label: "My Profile",
-    icon: "👤",
   },
 ];
 
@@ -260,10 +247,22 @@ export default function AdminLayout() {
           <div className="relative">
             <button
               onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-semibold text-sm shadow-md hover:bg-white/30 transition-colors"
+              className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-md hover:bg-white/30 transition-colors"
               aria-label="User menu"
             >
-              {getInitials(admin?.name)}
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
             </button>
 
             {/* User Dropdown Menu */}
@@ -295,6 +294,28 @@ export default function AdminLayout() {
                       </div>
                     </div>
                   </div>
+
+                  {/* My Profile Link */}
+                  <Link
+                    to="/admin/profile"
+                    onClick={() => setUserDropdownOpen(false)}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                    {t("myProfile", language)}
+                  </Link>
 
                   {/* Logout Button */}
                   <button
