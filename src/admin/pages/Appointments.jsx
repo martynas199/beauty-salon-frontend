@@ -137,11 +137,11 @@ export default function Appointments() {
 
     // Load services and beauticians for edit modal
     api
-      .get("/services")
+      .get("/services", { params: { limit: 1000 } })
       .then((r) => setServices(r.data || []))
       .catch(() => {});
     api
-      .get("/beauticians")
+      .get("/beauticians", { params: { limit: 1000 } })
       .then((r) => setBeauticians(r.data || []))
       .catch(() => {});
   }, []);
@@ -345,24 +345,28 @@ export default function Appointments() {
                 const res = await api.delete(
                   `/appointments/beautician/${admin.beauticianId}`
                 );
-                
+
                 // Remove all appointments for this beautician from the state
                 setRows((old) =>
                   old.filter((apt) => {
                     const beauticianId =
-                      typeof apt.beauticianId === "object" && apt.beauticianId?._id
+                      typeof apt.beauticianId === "object" &&
+                      apt.beauticianId?._id
                         ? apt.beauticianId._id
                         : apt.beauticianId;
                     return String(beauticianId) !== String(admin.beauticianId);
                   })
                 );
-                
+
                 toast.success(
-                  res.data.message || `Deleted ${res.data.deletedCount} appointment(s)`
+                  res.data.message ||
+                    `Deleted ${res.data.deletedCount} appointment(s)`
                 );
               } catch (e) {
                 toast.error(
-                  e.response?.data?.error || e.message || "Failed to delete appointments"
+                  e.response?.data?.error ||
+                    e.message ||
+                    "Failed to delete appointments"
                 );
               }
             }}
@@ -1398,15 +1402,23 @@ function CreateModal({
 
     // Check if beautician is assigned to this service
     const beauticianIds = service.beauticianIds || [];
+    const additionalIds = service.additionalBeauticianIds || [];
     const primaryId =
       typeof service.primaryBeauticianId === "object"
         ? service.primaryBeauticianId?._id
         : service.primaryBeauticianId;
 
-    return (
-      beauticianIds.includes(appointment.beauticianId) ||
-      primaryId === appointment.beauticianId
+    // Check if additionalIds contains populated objects
+    const additionalIdsExtracted = additionalIds.map((id) =>
+      typeof id === "object" && id?._id ? id._id : id
     );
+
+    const isMatch =
+      beauticianIds.includes(appointment.beauticianId) ||
+      additionalIdsExtracted.includes(appointment.beauticianId) ||
+      primaryId === appointment.beauticianId;
+
+    return isMatch;
   });
 
   const selectedService = availableServices.find(
@@ -1416,6 +1428,7 @@ function CreateModal({
 
   // Get beautician's working hours for DateTimePicker
   const beauticianWorkingHours = selectedBeautician?.workingHours || [];
+  const customSchedule = selectedBeautician?.customSchedule || {};
 
   // Debug logging
   useEffect(() => {
@@ -1427,6 +1440,7 @@ function CreateModal({
         serviceName: selectedService?.name,
         variantName: appointment.variantName,
         workingHours: beauticianWorkingHours,
+        customSchedule: customSchedule,
         selectedBeautician: selectedBeautician,
       });
     }
@@ -1681,6 +1695,7 @@ function CreateModal({
                           salonTz="Europe/London"
                           stepMin={15}
                           beauticianWorkingHours={beauticianWorkingHours}
+                          customSchedule={customSchedule}
                           onSelect={handleSlotSelect}
                         />
                       </div>

@@ -22,6 +22,7 @@ dayjs.extend(timezone);
  * @param {number} props.stepMin - Step interval in minutes (default 15)
  * @param {function} props.onSelect - Callback when slot selected: (slot) => void
  * @param {object} props.beauticianWorkingHours - Array of { dayOfWeek, start, end }
+ * @param {object} props.customSchedule - Custom schedule overrides: { "YYYY-MM-DD": [{ start, end }] }
  */
 export default function DateTimePicker({
   beauticianId,
@@ -31,6 +32,7 @@ export default function DateTimePicker({
   stepMin = 15,
   onSelect,
   beauticianWorkingHours = [],
+  customSchedule = {},
 }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -62,6 +64,16 @@ export default function DateTimePicker({
     return new Set(beauticianWorkingHours.map((wh) => wh.dayOfWeek));
   }, [beauticianWorkingHours]);
 
+  // Debug logging for custom schedule
+  useEffect(() => {
+    console.log("[DateTimePicker] Props received:", {
+      beauticianId,
+      customSchedule,
+      beauticianWorkingHours,
+      customScheduleDates: Object.keys(customSchedule),
+    });
+  }, [beauticianId, customSchedule, beauticianWorkingHours]);
+
   // Determine if a date should be disabled
   const isDateDisabled = useCallback(
     (date) => {
@@ -74,7 +86,20 @@ export default function DateTimePicker({
       // Past dates
       if (date < today) return true;
 
-      // Not a working day
+      // Check if date has custom schedule override
+      if (customSchedule[dateStr]) {
+        const customHours = customSchedule[dateStr];
+        console.log(
+          `[DateTimePicker] Date ${dateStr} has custom schedule:`,
+          customHours
+        );
+        // If custom schedule exists but is empty array, day is not working
+        if (customHours.length === 0) return true;
+        // If custom schedule has hours, day is working
+        return false;
+      }
+
+      // Not a working day (check weekly schedule)
       if (!workingDaysSet.has(dayOfWeek)) return true;
 
       // Fully booked
@@ -82,7 +107,7 @@ export default function DateTimePicker({
 
       return false;
     },
-    [today, workingDaysSet, fullyBooked]
+    [today, workingDaysSet, fullyBooked, customSchedule]
   );
 
   // Get disabled reason for tooltip
@@ -95,11 +120,20 @@ export default function DateTimePicker({
       const dayOfWeek = date.getDay();
 
       if (date < today) return "Past date";
-      if (!workingDaysSet.has(dayOfWeek)) return "Not working";
+
+      // Check custom schedule first
+      if (customSchedule[dateStr]) {
+        const customHours = customSchedule[dateStr];
+        if (customHours.length === 0) return "Not working (custom schedule)";
+        // Has custom hours, so not disabled by schedule
+      } else if (!workingDaysSet.has(dayOfWeek)) {
+        return "Not working";
+      }
+
       if (fullyBooked.includes(dateStr)) return "Fully booked";
       return "";
     },
-    [today, workingDaysSet, fullyBooked]
+    [today, workingDaysSet, fullyBooked, customSchedule]
   );
 
   // Fetch slots when date selected

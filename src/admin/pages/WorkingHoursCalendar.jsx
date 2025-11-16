@@ -261,25 +261,19 @@ export default function WorkingHoursCalendar() {
             {/* Legend */}
             <div className="flex flex-wrap items-center gap-6 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-green-50 border-2 border-green-300 rounded-lg flex items-center justify-center text-sm font-semibold shadow-sm">
-                  15
-                </div>
+                <div className="w-12 h-12 bg-green-50 border-2 border-green-300 rounded-lg flex items-center justify-center text-sm font-semibold shadow-sm"></div>
                 <span className="text-sm font-medium text-gray-700">
                   Default weekly hours
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-blue-50 border-2 border-blue-400 rounded-lg flex items-center justify-center text-sm font-semibold shadow-sm">
-                  15
-                </div>
+                <div className="w-12 h-12 bg-orange-100 border-2 border-orange-400 rounded-lg flex items-center justify-center text-sm font-semibold text-orange-700 shadow-sm"></div>
                 <span className="text-sm font-medium text-gray-700">
                   Custom date hours
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center text-sm text-gray-400 shadow-sm">
-                  15
-                </div>
+                <div className="w-12 h-12 bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center text-sm text-gray-400 shadow-sm"></div>
                 <span className="text-sm font-medium text-gray-700">
                   Not working
                 </span>
@@ -418,7 +412,7 @@ export default function WorkingHoursCalendar() {
                               key={idx}
                               className={`font-medium px-0.5 md:px-1.5 py-0.5 rounded text-center ${
                                 isCustom
-                                  ? "text-blue-700 bg-blue-100"
+                                  ? "text-orange-700 bg-orange-100"
                                   : "text-green-700 bg-green-100"
                               }`}
                             >
@@ -434,7 +428,7 @@ export default function WorkingHoursCalendar() {
               modifiers={modifiers}
               modifiersClassNames={{
                 hasHours: "bg-green-50 font-semibold",
-                custom: "has-custom",
+                custom: "bg-orange-100 border-orange-300",
               }}
               className="border-0"
             />
