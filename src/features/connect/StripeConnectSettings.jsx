@@ -69,6 +69,22 @@ export default function StripeConnectSettings({ beauticianId, email }) {
     }
   };
 
+  const handleDisconnect = async () => {
+    if (!confirm("Are you sure you want to disconnect your Stripe account? This will remove your payment integration.")) {
+      return;
+    }
+    
+    setError(null);
+    try {
+      await StripeConnectAPI.disconnectAccount(beauticianId);
+      // Reload status to show disconnected state
+      await loadStatus();
+    } catch (err) {
+      console.error("Failed to disconnect Stripe account:", err);
+      setError("Failed to disconnect account");
+    }
+  };
+
   const getStatusBadge = () => {
     if (!status) return null;
 
@@ -188,6 +204,9 @@ export default function StripeConnectSettings({ beauticianId, email }) {
               </Button>
               <Button onClick={loadStatus} variant="outline">
                 🔄 Refresh Status
+              </Button>
+              <Button onClick={handleDisconnect} variant="outline" className="text-red-600 hover:text-red-700 hover:border-red-300">
+                🔌 Disconnect
               </Button>
             </>
           )}

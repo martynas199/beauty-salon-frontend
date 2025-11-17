@@ -187,110 +187,145 @@ export default function AdminBeauticianLink() {
     try {
       console.log("=== DELETE ADMIN DEBUG INFO ===");
       console.log("Attempting to delete admin with ID:", adminId);
-      console.log("Current user info:", {
-        _id: currentAdmin?._id,
-        role: currentAdmin?.role,
-        name: currentAdmin?.name,
-        email: currentAdmin?.email,
+      console.log("Current admin:", currentAdmin);
+      console.log("Auth token:", localStorage.getItem("authToken"));
+
+      // Check token exists
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        console.error("No auth token found!");
+        throw new Error("Authentication required. Please log in again.");
+      }
+
+      console.log("Making DELETE request to:", `/admin/admins/${adminId}`);
+      console.log("With headers:", {
+        Authorization: `Bearer ${token.substring(0, 20)}...`,
       });
 
-      // Check if user is trying to delete themselves
-      if (currentAdmin?._id === adminId) {
-        console.log("⚠️ User is trying to delete their own account");
-      }
-
-      // Check role permission
-      if (currentAdmin?.role !== "super_admin") {
-        console.log(
-          "⚠️ User role is not super_admin, current role:",
-          currentAdmin?.role
-        );
-      }
-
-      // First, let's verify the admin exists in our current list
-      const adminExists = admins.find((admin) => admin._id === adminId);
-      console.log(
-        "Admin exists in current list:",
-        adminExists ? `Yes - ${adminExists.name} (${adminExists.email})` : "No"
-      );
-
-      if (!adminExists) {
-        toast.error(
-          "Admin not found in current list. Please refresh and try again."
-        );
-        await loadData();
-        return;
-      }
-
-      // Try the delete request with the standard endpoint
-      const requestUrl = `/admin/admins/${adminId}`;
-      console.log("Making DELETE request to:", requestUrl);
-      console.log("Full URL will be:", api.defaults.baseURL + requestUrl);
-      console.log(
-        "Auth token in localStorage:",
-        localStorage.getItem("authToken") ? "Present" : "Missing"
-      );
-
-      let response;
-
-      try {
-        response = await api.delete(requestUrl);
-      } catch (primaryError) {
-        console.log(
-          "❌ DELETE request failed with status:",
-          primaryError.response?.status
-        );
-        console.log("❌ Error data:", primaryError.response?.data);
-        throw primaryError; // Re-throw the error for proper handling
-      }
+      // Make the delete request with explicit headers
+      const response = await api.delete(`/admin/admins/${adminId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       console.log("Delete response:", response);
+      console.log("Delete successful!");
 
-      toast.success("Admin account deleted successfully");
-      await loadData(); // Ensure we wait for the reload
+      toast.success("Admin account deleted successfully", {
+        duration: 3000,
+        icon: "✅",
+      });
+
+      // Reload the data
+      console.log("Reloading admin list...");
+      await loadData();
+      console.log("Admin list reloaded successfully");
     } catch (error) {
       console.error("Failed to delete admin - Full error:", error);
       console.error("Error response:", error.response);
-      console.error("Error request:", error.request);
       console.error("Error message:", error.message);
+      console.error("Error code:", error.code);
 
-      // More detailed error handling
+      // More descriptive error messages
       let errorMessage = "Failed to delete admin account";
 
       if (error.response) {
-        // Server responded with error status
-        console.log("Server error details:", {
-          status: error.response.status,
-          data: error.response.data,
-          headers: error.response.headers,
-        });
+        // Server responded with error
+        console.log("Server error status:", error.response.status);
+        console.log("Server error data:", error.response.data);
 
-        if (error.response.status === 404) {
-          errorMessage =
-            "Admin account not found. It may have already been deleted.";
-        } else if (error.response.status === 403) {
+        if (error.response.status === 401 || error.response.status === 403) {
           errorMessage =
             "Permission denied. You don't have permission to delete this admin.";
-        } else if (error.response.status === 401) {
-          errorMessage = "Authentication required. Please log in again.";
-        } else {
-          errorMessage =
-            error.response?.data?.error ||
-            error.response?.data?.message ||
-            `Server error: ${error.response.status} - ${error.response.statusText}`;
+        } else if (error.response.data?.error) {
+          errorMessage = error.response.data.error;
         }
-      } else if (error.request) {
-        // Request was made but no response received
-        console.log("No response received:", error.request);
-        errorMessage = "No response from server. Please check your connection.";
-      } else {
-        // Something else happened
-        console.log("Request setup error:", error.message);
-        errorMessage = error.message || "An unexpected error occurred";
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
       toast.error(errorMessage, {
-        duration: 8000, // Show error for 8 seconds for better visibility
+        duration: 5000,
+      });
+    }
+  };
+
+  // Unlock admin account
+  const handleUnlock = async (admin) => {
+    // Check if current user has permission (only super_admin can unlock accounts)
+    if (currentAdmin?.role !== "super_admin") {
+      toast.error("Only super administrators can unlock accounts");
+      return;
+    }
+
+    // Check if account is actually locked
+    if (!admin.isLocked) {
+      toast.error("This account is not locked");
+      return;
+    }
+
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3">
+          <p className="font-medium">Unlock admin account "{admin.name}"?</p>
+          <p className="text-sm text-gray-600">
+            This will reset failed login attempts and allow the user to log in immediately.
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                performUnlock(admin._id);
+              }}
+              className="flex-1 px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 font-medium"
+            >
+              Yes, Unlock
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="flex-1 px-3 py-1.5 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: 8000 }
+    );
+  };
+
+  const performUnlock = async (adminId) => {
+    toast.dismiss();
+
+    try {
+      console.log("Unlocking admin account:", adminId);
+
+      const response = await api.post(`/admin/admins/${adminId}/unlock`);
+
+      console.log("Unlock response:", response);
+
+      toast.success("Account unlocked successfully! User can now log in.", {
+        duration: 4000,
+        icon: "🔓",
+      });
+
+      // Reload the data to update lock status
+      await loadData();
+    } catch (error) {
+      console.error("Failed to unlock admin:", error);
+
+      let errorMessage = "Failed to unlock account";
+
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage, {
+        duration: 5000,
       });
     }
   };
@@ -847,6 +882,11 @@ export default function AdminBeauticianLink() {
                             ? "Super Admin"
                             : "Admin"}
                         </span>
+                        {admin.isLocked && (
+                          <span className="ml-2 px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                            🔒 Locked
+                          </span>
+                        )}
                         {admin.beauticianId && (
                           <div className="lg:hidden text-xs text-brand-700 mt-1">
                             Linked: {getBeauticianName(admin.beauticianId)}
@@ -865,27 +905,40 @@ export default function AdminBeauticianLink() {
                         )}
                       </td>
                       <td className="px-3 sm:px-6 py-4 text-right text-sm">
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => handleDelete(admin)}
-                          disabled={
-                            currentAdmin?.role !== "super_admin" ||
-                            currentAdmin?.id === admin._id ||
-                            currentAdmin?._id === admin._id
-                          }
-                          className="text-xs sm:text-sm"
-                          title={
-                            currentAdmin?.role !== "super_admin"
-                              ? "Only super administrators can delete admin accounts"
-                              : currentAdmin?.id === admin._id ||
-                                currentAdmin?._id === admin._id
-                              ? "You cannot delete your own account"
-                              : "Delete admin account"
-                          }
-                        >
-                          Delete
-                        </Button>
+                        <div className="flex gap-2 justify-end flex-wrap">
+                          {admin.isLocked && currentAdmin?.role === "super_admin" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleUnlock(admin)}
+                              className="text-xs sm:text-sm border-green-300 text-green-700 hover:bg-green-50"
+                              title="Unlock account"
+                            >
+                              🔓 Unlock
+                            </Button>
+                          )}
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleDelete(admin)}
+                            disabled={
+                              currentAdmin?.role !== "super_admin" ||
+                              currentAdmin?.id === admin._id ||
+                              currentAdmin?._id === admin._id
+                            }
+                            className="text-xs sm:text-sm"
+                            title={
+                              currentAdmin?.role !== "super_admin"
+                                ? "Only super administrators can delete admin accounts"
+                                : currentAdmin?.id === admin._id ||
+                                  currentAdmin?._id === admin._id
+                                ? "You cannot delete your own account"
+                                : "Delete admin account"
+                            }
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}

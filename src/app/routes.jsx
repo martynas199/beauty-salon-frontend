@@ -32,6 +32,8 @@ import AdminLayout from "../admin/AdminLayout";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminLogin from "../admin/pages/Login";
+import ForgotPassword from "../admin/pages/ForgotPassword";
+import ResetPassword from "../admin/pages/ResetPassword";
 import ScrollToTop from "../components/ScrollToTop";
 import CurrencySelector from "../components/CurrencySelector";
 
@@ -452,6 +454,10 @@ export default function AppRoutes() {
 
         {/* Admin Login (public) */}
         <Route path="/admin/login" element={<AdminLogin />} />
+        
+        {/* Admin Password Reset (public) */}
+        <Route path="/admin/forgot-password" element={<ForgotPassword />} />
+        <Route path="/admin/reset-password" element={<ResetPassword />} />
 
         {/* Protected Admin Routes */}
         <Route

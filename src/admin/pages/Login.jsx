@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setAuth } from "../../features/auth/authSlice";
 import { useAdminLogin } from "../../hooks/useAuthQueries";
@@ -151,12 +151,12 @@ export default function AdminLogin() {
                 />
                 <span className="ml-2 text-gray-600">Remember me</span>
               </label>
-              <a
-                href="#"
+              <Link
+                to="/admin/forgot-password"
                 className="text-purple-600 hover:text-purple-700 font-medium"
               >
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             <Button

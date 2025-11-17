@@ -209,6 +209,75 @@ export const useChangeAdminPassword = () => {
   });
 };
 
+/**
+ * Hook for forgot password - request reset link
+ */
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: async (email) => {
+      const response = await api.post("/auth/forgot-password", { email });
+
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to send reset email");
+      }
+
+      return response.data;
+    },
+
+    onSuccess: () => {
+      console.log("✅ Password reset email sent");
+    },
+
+    onError: (error) => {
+      console.error("❌ Forgot password failed:", error);
+      mutationErrorHandler(error);
+    },
+  });
+};
+
+/**
+ * Hook for reset password - set new password using token
+ */
+export const useResetPassword = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ token, password }) => {
+      const response = await api.post("/auth/reset-password", {
+        token,
+        password,
+      });
+
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to reset password");
+      }
+
+      // Backend returns: { success: true, token, admin }
+      return {
+        token: response.data.token,
+        admin: response.data.admin,
+      };
+    },
+
+    onSuccess: (data) => {
+      // Update the admin profile cache with login data
+      queryClient.setQueryData(queryKeys.admin.profile(), data.admin);
+
+      // Invalidate and refetch all admin queries
+      queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === "admin",
+      });
+
+      console.log("✅ Password reset successful");
+    },
+
+    onError: (error) => {
+      console.error("❌ Password reset failed:", error);
+      mutationErrorHandler(error);
+    },
+  });
+};
+
 // ============================================================================
 // UTILITIES
 // ============================================================================
