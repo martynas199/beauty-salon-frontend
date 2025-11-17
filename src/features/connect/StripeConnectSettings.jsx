@@ -18,6 +18,11 @@ export default function StripeConnectSettings({ beauticianId, email }) {
     setError(null);
     try {
       const data = await StripeConnectAPI.getAccountStatus(beauticianId);
+      console.log("[StripeConnect] Status response:", data);
+      console.log("[StripeConnect] Connected:", data.connected);
+      console.log("[StripeConnect] Status:", data.status);
+      console.log("[StripeConnect] Charges enabled:", data.chargesEnabled);
+      console.log("[StripeConnect] Details submitted:", data.detailsSubmitted);
       setStatus(data);
     } catch (err) {
       console.error("Failed to load Stripe status:", err);

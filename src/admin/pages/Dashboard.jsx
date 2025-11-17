@@ -92,10 +92,14 @@ export default function Dashboard() {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []); // Only set up resize listener once
+  }, []);
 
   // Memoize filtered events to prevent unnecessary recalculations
   const events = useMemo(() => {
+    if (!allAppointments || allAppointments.length === 0) {
+      return [];
+    }
+
     let filtered = allAppointments;
 
     // Filter by beautician if selected
@@ -106,34 +110,40 @@ export default function Dashboard() {
     }
 
     // Format for calendar
-    return filtered.map((appointment) => {
-      const startDate = new Date(appointment.start);
-      const endDate = new Date(appointment.end);
+    return filtered
+      .map((appointment) => {
+        if (!appointment || !appointment.start || !appointment.end) {
+          return null;
+        }
 
-      let backgroundColor = "#3b82f6";
-      // Treat both "confirmed" and "completed" as completed (green) since confirmed appointments count as revenue
-      if (
-        appointment.status === "completed" ||
-        appointment.status === "confirmed"
-      )
-        backgroundColor = "#10b981";
-      else if (appointment.status === "reserved_unpaid")
-        backgroundColor = "#f59e0b";
-      else if (appointment.status?.includes("cancelled"))
-        backgroundColor = "#ef4444";
-      else if (appointment.status === "no_show") backgroundColor = "#6b7280";
+        const startDate = new Date(appointment.start);
+        const endDate = new Date(appointment.end);
 
-      return {
-        id: appointment._id,
-        title: `${appointment.client?.name || "Unknown"} - ${
-          appointment.serviceId?.name || appointment.variantName || "Service"
-        }`,
-        start: startDate,
-        end: endDate,
-        resource: appointment,
-        style: { backgroundColor },
-      };
-    });
+        let backgroundColor = "#3b82f6";
+        // Treat both "confirmed" and "completed" as completed (green) since confirmed appointments count as revenue
+        if (
+          appointment.status === "completed" ||
+          appointment.status === "confirmed"
+        )
+          backgroundColor = "#10b981";
+        else if (appointment.status === "reserved_unpaid")
+          backgroundColor = "#f59e0b";
+        else if (appointment.status?.includes("cancelled"))
+          backgroundColor = "#ef4444";
+        else if (appointment.status === "no_show") backgroundColor = "#6b7280";
+
+        return {
+          id: appointment._id,
+          title: `${appointment.client?.name || "Unknown"} - ${
+            appointment.serviceId?.name || appointment.variantName || "Service"
+          }`,
+          start: startDate,
+          end: endDate,
+          resource: appointment,
+          style: { backgroundColor },
+        };
+      })
+      .filter(Boolean); // Remove any null entries
   }, [selectedBeautician, allAppointments]);
 
   const formatCurrency = (amount) => {
@@ -344,24 +354,379 @@ export default function Dashboard() {
       </div>
 
       {/* Calendar */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-        <Calendar
-          localizer={localizer}
-          events={events}
-          startAccessor="start"
-          endAccessor="end"
-          date={currentDate}
-          view={currentView}
-          onNavigate={(date) => setCurrentDate(date)}
-          onView={(view) => setCurrentView(view)}
-          views={["month", "week", "day", "agenda"]}
-          style={{ height: isMobile ? 500 : 700 }}
-          onSelectEvent={(event) => setSelectedEvent(event)}
-          eventPropGetter={(event) => ({ style: event.style })}
-          min={new Date(2025, 0, 1, 8, 0)}
-          max={new Date(2025, 0, 1, 20, 0)}
-          popup
-        />
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        {/* Mobile view toggle */}
+        {isMobile && (
+          <div className="p-3 bg-gray-50 border-b border-gray-200 flex gap-2 overflow-x-auto">
+            <button
+              onClick={() => setCurrentView("month")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                currentView === "month"
+                  ? "bg-brand-600 text-white"
+                  : "bg-white text-gray-700 border border-gray-300"
+              }`}
+            >
+              Month
+            </button>
+            <button
+              onClick={() => setCurrentView("week")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                currentView === "week"
+                  ? "bg-brand-600 text-white"
+                  : "bg-white text-gray-700 border border-gray-300"
+              }`}
+            >
+              Week
+            </button>
+            <button
+              onClick={() => setCurrentView("day")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                currentView === "day"
+                  ? "bg-brand-600 text-white"
+                  : "bg-white text-gray-700 border border-gray-300"
+              }`}
+            >
+              Day
+            </button>
+            <button
+              onClick={() => setCurrentView("agenda")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                currentView === "agenda"
+                  ? "bg-brand-600 text-white"
+                  : "bg-white text-gray-700 border border-gray-300"
+              }`}
+            >
+              List
+            </button>
+          </div>
+        )}
+        <div className="p-0 sm:p-6 overflow-x-hidden">
+          <style>{`
+            /* Mobile Calendar Optimizations */
+            @media (max-width: 768px) {
+              .rbc-calendar {
+                font-size: 11px;
+                width: 100%;
+              }
+              
+              /* Toolbar */
+              .rbc-toolbar {
+                flex-direction: column !important;
+                gap: 0.5rem;
+                padding: 0.75rem;
+              }
+              
+              .rbc-toolbar-label {
+                font-size: 15px !important;
+                font-weight: 600;
+                order: -1;
+                width: 100%;
+                text-align: center;
+                padding: 0.5rem 0;
+              }
+              
+              .rbc-btn-group {
+                display: flex;
+                gap: 0.25rem;
+                width: 100%;
+                justify-content: center;
+              }
+              
+              .rbc-btn-group button {
+                padding: 0.5rem 1rem !important;
+                font-size: 12px !important;
+                border-radius: 0.5rem !important;
+                flex: 1;
+              }
+              
+              /* Hide default view buttons on mobile - we have custom toggle */
+              .rbc-toolbar .rbc-btn-group:last-child {
+                display: none !important;
+              }
+              
+              /* Headers - smaller for mobile */
+              .rbc-header {
+                padding: 0.5rem 0.25rem !important;
+                font-size: 11px !important;
+                font-weight: 600;
+                text-align: center !important;
+              }
+              
+              /* MONTH VIEW */
+              .rbc-month-view {
+                border: none !important;
+              }
+              
+              .rbc-month-header {
+                border-bottom: 1px solid #e5e7eb;
+              }
+              
+              .rbc-month-row {
+                min-height: 50px !important;
+                border-bottom: 1px solid #e5e7eb;
+              }
+              
+              .rbc-date-cell {
+                padding: 0.25rem !important;
+                font-size: 10px !important;
+                text-align: center;
+              }
+              
+              .rbc-event {
+                padding: 0.125rem 0.25rem !important;
+                font-size: 9px !important;
+                border-radius: 0.25rem !important;
+                margin: 1px 0 !important;
+              }
+              
+              .rbc-event-content {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+              
+              /* WEEK VIEW */
+              .rbc-time-view {
+                border: none !important;
+              }
+              
+              .rbc-time-header {
+                border-bottom: 1px solid #e5e7eb;
+                display: flex !important;
+              }
+              
+              .rbc-time-header-content {
+                border-left: none !important;
+                display: flex !important;
+                flex: 1 !important;
+                min-width: 0 !important;
+              }
+              
+              .rbc-time-header-gutter {
+                width: 35px !important;
+                min-width: 35px !important;
+                flex-shrink: 0 !important;
+              }
+              
+              .rbc-allday-cell {
+                display: none !important;
+              }
+              
+              .rbc-time-content {
+                border-top: none !important;
+                display: flex !important;
+              }
+              
+              .rbc-time-gutter {
+                width: 35px !important;
+                min-width: 35px !important;
+                flex-shrink: 0 !important;
+              }
+              
+              .rbc-time-column {
+                width: 35px !important;
+                min-width: 35px !important;
+                max-width: 35px !important;
+                flex-shrink: 0 !important;
+              }
+              
+              .rbc-time-column .rbc-timeslot-group {
+                min-height: 35px !important;
+              }
+              
+              .rbc-day-slot {
+                flex: 1 !important;
+                min-width: 0 !important;
+                max-width: none !important;
+              }
+              
+              .rbc-day-slot .rbc-time-slot {
+                font-size: 8px !important;
+              }
+              
+              .rbc-time-slot {
+                min-height: 17.5px !important;
+              }
+              
+              /* Time labels - make them fit in narrow column */
+              .rbc-time-slot span {
+                font-size: 7px !important;
+                padding: 0 !important;
+                line-height: 1.2 !important;
+              }
+              
+              .rbc-label {
+                font-size: 7px !important;
+                padding: 2px 1px !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+              }
+              
+              .rbc-time-column .rbc-label {
+                font-size: 7px !important;
+              }
+              
+              .rbc-events-container {
+                margin-right: 0 !important;
+              }
+              
+              /* DAY VIEW */
+              .rbc-day-slot .rbc-event {
+                font-size: 10px !important;
+              }
+              
+              /* AGENDA VIEW */
+              .rbc-agenda-view {
+                font-size: 12px;
+                padding: 0.5rem;
+              }
+              
+              .rbc-agenda-table {
+                border: none !important;
+              }
+              
+              .rbc-agenda-date-cell,
+              .rbc-agenda-time-cell {
+                padding: 0.5rem !important;
+                font-size: 11px !important;
+              }
+              
+              .rbc-agenda-event-cell {
+                padding: 0.5rem !important;
+                font-size: 11px !important;
+              }
+            }
+            
+            /* General Calendar Styling */
+            .rbc-calendar {
+              font-family: inherit;
+            }
+            
+            .rbc-toolbar {
+              padding: 1rem 0;
+              margin-bottom: 1rem;
+            }
+            
+            .rbc-toolbar button {
+              color: #374151;
+              border: 1px solid #d1d5db;
+              background: white;
+              padding: 0.5rem 1rem;
+              border-radius: 0.5rem;
+              font-weight: 500;
+              transition: all 0.2s;
+            }
+            
+            .rbc-toolbar button:hover {
+              background: #f3f4f6;
+              border-color: #9ca3af;
+            }
+            
+            .rbc-toolbar button:active,
+            .rbc-toolbar button.rbc-active {
+              background: #ec4899;
+              border-color: #ec4899;
+              color: white;
+            }
+            
+            .rbc-toolbar-label {
+              font-size: 1.125rem;
+              font-weight: 600;
+              color: #111827;
+            }
+            
+            .rbc-header {
+              padding: 0.75rem;
+              font-weight: 600;
+              color: #374151;
+              border-bottom: 2px solid #e5e7eb;
+              background: #f9fafb;
+            }
+            
+            .rbc-today {
+              background-color: #fef3c7;
+            }
+            
+            .rbc-off-range-bg {
+              background: #f9fafb;
+            }
+            
+            .rbc-event {
+              border-radius: 0.375rem;
+              padding: 0.25rem 0.5rem;
+              border: none !important;
+              box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            }
+            
+            .rbc-event:hover {
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            
+            .rbc-event-label {
+              display: none;
+            }
+            
+            .rbc-show-more {
+              background: #ec4899;
+              color: white;
+              padding: 0.125rem 0.5rem;
+              border-radius: 0.25rem;
+              font-size: 0.75rem;
+              font-weight: 600;
+            }
+            
+            .rbc-agenda-view table.rbc-agenda-table {
+              border: 1px solid #e5e7eb;
+              border-radius: 0.5rem;
+            }
+            
+            .rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
+              padding: 0.75rem;
+              border-color: #e5e7eb;
+            }
+            
+            .rbc-agenda-date-cell {
+              font-weight: 600;
+              color: #374151;
+            }
+            
+            .rbc-agenda-time-cell {
+              color: #6b7280;
+            }
+          `}</style>
+
+          {events && events.length >= 0 ? (
+            <Calendar
+              localizer={localizer}
+              events={events}
+              startAccessor="start"
+              endAccessor="end"
+              date={currentDate}
+              view={currentView}
+              onNavigate={(date) => setCurrentDate(date)}
+              onView={(view) => setCurrentView(view)}
+              views={["month", "week", "day", "agenda"]}
+              defaultView="month"
+              style={{ height: isMobile ? 400 : 700 }}
+              onSelectEvent={(event) => setSelectedEvent(event)}
+              eventPropGetter={(event) => ({
+                style: event.style || {},
+                className: "rbc-event-custom",
+              })}
+              min={new Date(2025, 0, 1, 8, 0)}
+              max={new Date(2025, 0, 1, 20, 0)}
+              popup={true}
+              step={30}
+              timeslots={2}
+              showMultiDayTimes={true}
+              toolbar={true}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-96 text-gray-500">
+              Loading calendar...
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Appointment Details Modal */}
