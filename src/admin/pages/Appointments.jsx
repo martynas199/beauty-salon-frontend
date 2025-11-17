@@ -565,14 +565,28 @@ export default function Appointments() {
     <div>
       <SlowRequestWarning isLoading={loading} threshold={2000} />
 
-      <h1 className="text-2xl lg:text-3xl font-bold mb-4 lg:mb-6">
-        {t("appointments", language)}
-      </h1>
+      {/* Header Section */}
+      <div className="mb-4 lg:mb-6">
+        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+          {t("appointments", language)}
+        </h1>
+
+        {/* Show subtitle for different admin types */}
+        {isSuperAdmin ? (
+          <p className="text-sm sm:text-base text-gray-600">
+            {t("viewManageAllAppointmentsFromAllBeauticians", language)}
+          </p>
+        ) : admin?.beauticianId ? (
+          <p className="text-sm sm:text-base text-gray-600">
+            {t("viewAppointmentsLinkedBeauticianOnly", language)}
+          </p>
+        ) : null}
+      </div>
 
       {/* Show warning for regular admins without linked beautician */}
       {!isSuperAdmin && !admin?.beauticianId && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center gap-2">
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 sm:p-4 mb-6">
+          <div className="flex items-center gap-2 sm:gap-3">
             <svg
               className="w-5 h-5 text-amber-600 flex-shrink-0"
               fill="none"
@@ -587,10 +601,10 @@ export default function Appointments() {
               />
             </svg>
             <div>
-              <p className="text-sm font-medium text-amber-900">
+              <p className="text-xs sm:text-sm font-medium text-amber-900">
                 {t("accountNotLinked", language)}
               </p>
-              <p className="text-xs text-amber-700 mt-1">
+              <p className="text-xs text-amber-700 mt-0.5 sm:mt-1">
                 {t("contactSuperAdmin", language)}
               </p>
             </div>
@@ -598,28 +612,21 @@ export default function Appointments() {
         </div>
       )}
 
-      {/* Show subtitle for different admin types */}
-      {isSuperAdmin ? (
-        <p className="text-gray-600 mb-6">
-          {t("viewManageAllAppointmentsFromAllBeauticians", language)}
-        </p>
-      ) : admin?.beauticianId ? (
-        <p className="text-gray-600 mb-6">
-          {t("viewAppointmentsLinkedBeauticianOnly", language)}
-        </p>
-      ) : null}
-
       {/* Create Appointment Button - only show if admin has access */}
       {(isSuperAdmin || admin?.beauticianId) && (
-        <div className="mb-4 flex gap-2">
-          <Button variant="brand" onClick={openCreateModal}>
+        <div className="mb-4 flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <Button
+            variant="brand"
+            onClick={openCreateModal}
+            className="w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-2"
+          >
             + Create Appointment
           </Button>
           {admin?.beauticianId && (
             <Button
               variant="danger"
               onClick={() => handleDeleteAll()}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white text-sm sm:text-base py-2.5 sm:py-2"
             >
               Delete All My Appointments
             </Button>
@@ -629,12 +636,12 @@ export default function Appointments() {
 
       {/* Filters - only show if admin has access */}
       {(isSuperAdmin || admin?.beauticianId) && (
-        <div className="bg-white border rounded-lg p-4 mb-4 space-y-4">
+        <div className="bg-white border rounded-xl shadow-sm p-3 sm:p-4 mb-4 space-y-3 sm:space-y-4">
           {/* Search Bar */}
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 left-0 pl-3 sm:pl-3.5 flex items-center pointer-events-none">
               <svg
-                className="h-5 w-5 text-gray-400"
+                className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -650,17 +657,17 @@ export default function Appointments() {
             <input
               type="text"
               placeholder="Search by name, email, phone, service..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 sm:pl-10 pr-10 sm:pr-4 py-2.5 sm:py-2 border border-gray-300 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <svg
-                  className="h-5 w-5"
+                  className="h-4 w-4 sm:h-5 sm:w-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -676,20 +683,22 @@ export default function Appointments() {
             )}
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Beautician Filter */}
             <FormField
-              label="Beautician"
+              label={t("filterByBeautician", language) || "Beautician"}
               htmlFor="beautician-filter"
               className="flex-1"
             >
               <select
                 id="beautician-filter"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow"
                 value={selectedBeauticianId}
                 onChange={(e) => setSelectedBeauticianId(e.target.value)}
               >
-                <option value="">All Beauticians</option>
+                <option value="">
+                  {t("allBeauticians", language) || "All Beauticians"}
+                </option>
                 {beauticians.map((b) => (
                   <option key={b._id} value={b._id}>
                     {b.name}
@@ -700,46 +709,58 @@ export default function Appointments() {
 
             {/* Date Filter */}
             <FormField
-              label="Date Range"
+              label={t("dateRange", language) || "Date Range"}
               htmlFor="date-filter"
               className="flex-1"
             >
               <select
                 id="date-filter"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
               >
-                <option value="all">All Time</option>
-                <option value="day">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-                <option value="custom">Custom Range</option>
+                <option value="all">
+                  {t("allTime", language) || "All Time"}
+                </option>
+                <option value="day">{t("today", language) || "Today"}</option>
+                <option value="week">
+                  {t("thisWeek", language) || "This Week"}
+                </option>
+                <option value="month">
+                  {t("thisMonth", language) || "This Month"}
+                </option>
+                <option value="custom">
+                  {t("customRange", language) || "Custom Range"}
+                </option>
               </select>
             </FormField>
           </div>
 
           {/* Custom Date Range */}
           {dateFilter === "custom" && (
-            <div className="flex flex-col sm:flex-row gap-4 pt-2 border-t">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-3 border-t">
               <FormField
-                label="Start Date"
+                label={t("startDate", language) || "Start Date"}
                 htmlFor="start-date"
                 className="flex-1"
               >
                 <input
                   id="start-date"
                   type="date"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow"
                   value={customStartDate}
                   onChange={(e) => setCustomStartDate(e.target.value)}
                 />
               </FormField>
-              <FormField label="End Date" htmlFor="end-date" className="flex-1">
+              <FormField
+                label={t("endDate", language) || "End Date"}
+                htmlFor="end-date"
+                className="flex-1"
+              >
                 <input
                   id="end-date"
                   type="date"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow"
                   value={customEndDate}
                   onChange={(e) => setCustomEndDate(e.target.value)}
                 />
@@ -751,20 +772,46 @@ export default function Appointments() {
 
       {/* Loading State with Skeletons */}
       {loading && (
-        <div className="space-y-6">
-          {/* Header Skeleton */}
-          <div className="flex justify-between items-center">
-            <div>
-              <SkeletonBox className="h-8 w-48 mb-2" />
-              <SkeletonBox className="h-4 w-64" />
-            </div>
-            <SkeletonBox className="h-10 w-32" />
-          </div>
+        <div className="space-y-4 sm:space-y-6">
+          {/* Mobile Cards Skeleton */}
+          <div className="lg:hidden space-y-3 sm:space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 space-y-4"
+              >
+                {/* Header skeleton */}
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2 flex-1">
+                    <SkeletonBox className="w-32 sm:w-40 h-5 sm:h-6" />
+                    <SkeletonBox className="w-24 sm:w-32 h-4" />
+                  </div>
+                  <SkeletonBox className="w-16 sm:w-20 h-6 sm:h-7 rounded-lg" />
+                </div>
 
-          {/* Filters Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <SkeletonBox key={i} className="h-10" />
+                {/* Details skeleton */}
+                <div className="space-y-3">
+                  {[1, 2, 3].map((j) => (
+                    <div key={j} className="flex items-start gap-3">
+                      <SkeletonBox className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex-shrink-0" />
+                      <div className="flex-1 space-y-1.5">
+                        <SkeletonBox className="w-12 h-3" />
+                        <SkeletonBox className="w-full h-4" />
+                        <SkeletonBox className="w-3/4 h-3.5" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Buttons skeleton */}
+                <div className="pt-4 border-t border-gray-100 space-y-2.5">
+                  <SkeletonBox className="w-full h-11 sm:h-12 rounded-xl" />
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <SkeletonBox className="h-11 sm:h-12 rounded-xl" />
+                    <SkeletonBox className="h-11 sm:h-12 rounded-xl" />
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
 
@@ -803,39 +850,13 @@ export default function Appointments() {
             </div>
           </div>
 
-          {/* Mobile Cards Skeleton */}
-          <div className="lg:hidden space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-lg shadow-sm border p-4 space-y-3"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="space-y-2">
-                    <SkeletonBox className="w-32 h-5" />
-                    <SkeletonBox className="w-24 h-4" />
-                  </div>
-                  <SkeletonBox className="w-16 h-6 rounded-full" />
-                </div>
-                <div className="space-y-2">
-                  <SkeletonBox className="w-full h-4" />
-                  <SkeletonBox className="w-3/4 h-4" />
-                  <SkeletonBox className="w-1/2 h-4" />
-                </div>
-                <div className="flex gap-2 pt-2">
-                  <SkeletonBox className="flex-1 h-8" />
-                  <SkeletonBox className="flex-1 h-8" />
-                </div>
-              </div>
-            ))}
-          </div>
-
           {/* Pagination Skeleton */}
-          <div className="flex justify-between items-center">
-            <SkeletonBox className="h-4 w-32" />
-            <div className="flex gap-2">
-              <SkeletonBox className="h-10 w-24" />
-              <SkeletonBox className="h-10 w-24" />
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0 pt-4 border-t">
+            <SkeletonBox className="h-4 w-48 sm:w-64" />
+            <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+              <SkeletonBox className="h-11 sm:h-9 flex-1 sm:flex-none sm:w-24" />
+              <SkeletonBox className="h-11 sm:h-9 w-24 sm:w-20" />
+              <SkeletonBox className="h-11 sm:h-9 flex-1 sm:flex-none sm:w-24" />
             </div>
           </div>
         </div>
@@ -964,88 +985,157 @@ export default function Appointments() {
 
       {/* Mobile Card View */}
       {!loading && (
-        <div className="lg:hidden space-y-3">
+        <div className="lg:hidden space-y-3 sm:space-y-4">
           {sortedRows.map((r) => (
             <div
               key={r._id}
-              className="bg-white rounded-lg shadow-sm border p-4"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <div className="font-semibold text-lg">{r.client?.name}</div>
-                  <div className="text-sm text-gray-600">
+              {/* Header with name and status */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-base sm:text-lg text-gray-900 truncate">
+                    {r.client?.name}
+                  </div>
+                  <div className="text-xs sm:text-sm text-gray-600 mt-0.5 truncate">
                     {r.beautician?.name || r.beauticianId}
                   </div>
                 </div>
                 <span
-                  className={`px-2 py-1 rounded text-xs font-medium ${
+                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap ml-2 ${
                     r.status === "confirmed"
                       ? "bg-green-100 text-green-800"
                       : r.status === "reserved_unpaid"
                       ? "bg-yellow-100 text-yellow-800"
                       : String(r.status).startsWith("cancelled")
                       ? "bg-red-100 text-red-800"
-                      : "bg-gray-100 text-gray-800"
+                      : r.status === "no_show"
+                      ? "bg-gray-100 text-gray-800"
+                      : "bg-blue-100 text-blue-800"
                   }`}
                 >
-                  {r.status}
+                  {r.status?.replace(/_/g, " ").toUpperCase()}
                 </span>
               </div>
 
-              <div className="space-y-2 text-sm">
-                <div className="flex items-start">
-                  <span className="text-gray-500 w-20">Service:</span>
-                  <span className="flex-1 font-medium">
-                    {r.service?.name || r.serviceId} - {r.variantName}
-                  </span>
+              {/* Appointment Details */}
+              <div className="space-y-2.5 sm:space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-brand-50 flex items-center justify-center">
+                    <svg
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-gray-500 mb-0.5">Service</div>
+                    <div className="font-medium text-sm sm:text-base text-gray-900">
+                      {r.service?.name || r.serviceId}
+                    </div>
+                    <div className="text-xs sm:text-sm text-gray-600">
+                      {r.variantName}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-start">
-                  <span className="text-gray-500 w-20">Time:</span>
-                  <span className="flex-1">
-                    {new Date(r.start).toLocaleString("en-GB", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                    <svg
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-500 mb-0.5">
+                      Date & Time
+                    </div>
+                    <div className="font-medium text-sm sm:text-base text-gray-900">
+                      {new Date(r.start).toLocaleString("en-GB", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </div>
+                    <div className="text-xs sm:text-sm text-gray-600">
+                      {new Date(r.start).toLocaleString("en-GB", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-start">
-                  <span className="text-gray-500 w-20">Price:</span>
-                  <span className="flex-1 font-semibold text-green-700">
-                    £{Number(r.price || 0).toFixed(2)}
-                  </span>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                    <svg
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-500 mb-0.5">Price</div>
+                    <div className="font-semibold text-base sm:text-lg text-green-700">
+                      £{Number(r.price || 0).toFixed(2)}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t space-y-2">
+              {/* Action Buttons */}
+              <div className="mt-4 pt-4 border-t border-gray-100 space-y-2.5">
                 <button
-                  className="w-full border rounded-lg px-4 py-2 text-sm text-blue-600 border-blue-200 hover:bg-blue-50 font-medium"
+                  className="w-full border-2 rounded-xl px-4 py-3 text-sm sm:text-base text-brand-600 border-brand-200 hover:bg-brand-50 font-medium transition-colors active:scale-[0.98]"
                   onClick={() => openEditModal(r)}
                 >
-                  Edit Appointment
+                  ✏️ Edit Appointment
                 </button>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
-                    className="flex-1 border rounded-lg px-4 py-2 text-sm text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50 font-medium"
+                    className="border-2 rounded-xl px-4 py-3 text-sm sm:text-base text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors active:scale-[0.98]"
                     disabled={
                       String(r.status || "").startsWith("cancelled") ||
                       r.status === "no_show"
                     }
                     onClick={() => openCancelModal(r._id)}
                   >
-                    Cancel
+                    ❌ Cancel
                   </button>
                   <button
-                    className="flex-1 border rounded-lg px-4 py-2 text-sm text-gray-600 border-gray-300 hover:bg-gray-50 disabled:opacity-50 font-medium"
+                    className="border-2 rounded-xl px-4 py-3 text-sm sm:text-base text-gray-600 border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors active:scale-[0.98]"
                     disabled={
                       String(r.status || "").startsWith("cancelled") ||
                       r.status === "no_show"
                     }
                     onClick={() => markAsNoShow(r._id)}
                   >
-                    No Show
+                    👤 No Show
                   </button>
                 </div>
               </div>
@@ -1053,8 +1143,26 @@ export default function Appointments() {
           ))}
 
           {sortedRows.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              No appointments found
+            <div className="text-center py-16 sm:py-20">
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <p className="mt-4 text-base sm:text-lg font-medium text-gray-900">
+                No appointments found
+              </p>
+              <p className="mt-1 text-xs sm:text-sm text-gray-500">
+                Try adjusting your filters
+              </p>
             </div>
           )}
         </div>
@@ -1062,22 +1170,33 @@ export default function Appointments() {
 
       {/* Pagination Controls */}
       {pagination.totalPages > 1 && rows.length > 0 && (
-        <div className="mt-6 flex items-center justify-between border-t pt-4">
-          <div className="text-sm text-gray-600">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-            {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-            {pagination.total} appointments
+        <div className="mt-6 sm:mt-8 border-t pt-4 sm:pt-6">
+          {/* Page info - responsive layout */}
+          <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left mb-3 sm:mb-4">
+            Showing{" "}
+            <span className="font-semibold">
+              {(pagination.page - 1) * pagination.limit + 1}
+            </span>{" "}
+            to{" "}
+            <span className="font-semibold">
+              {Math.min(pagination.page * pagination.limit, pagination.total)}
+            </span>{" "}
+            of <span className="font-semibold">{pagination.total}</span>{" "}
+            appointments
           </div>
-          <div className="flex items-center gap-2">
+
+          {/* Pagination buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-3 sm:gap-4">
             <Button
               variant="outline"
               size="sm"
               onClick={() => fetchAppointments(pagination.page - 1)}
               disabled={pagination.page === 1 || loading}
+              className="w-full sm:w-auto h-11 sm:h-9 text-sm sm:text-base font-medium"
             >
               ← Previous
             </Button>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm sm:text-base text-gray-700 font-medium px-4 py-2 bg-gray-50 rounded-lg">
               Page {pagination.page} of {pagination.totalPages}
             </span>
             <Button
@@ -1085,6 +1204,7 @@ export default function Appointments() {
               size="sm"
               onClick={() => fetchAppointments(pagination.page + 1)}
               disabled={!pagination.hasMore || loading}
+              className="w-full sm:w-auto h-11 sm:h-9 text-sm sm:text-base font-medium"
             >
               Next →
             </Button>
