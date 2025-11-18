@@ -454,7 +454,7 @@ export default function AppRoutes() {
 
         {/* Admin Login (public) */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        
+
         {/* Admin Password Reset (public) */}
         <Route path="/admin/forgot-password" element={<ForgotPassword />} />
         <Route path="/admin/reset-password" element={<ResetPassword />} />

@@ -12,7 +12,7 @@ export default function ForgotPassword() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!email || !email.trim()) {
       toast.error("Please enter your email address");
       return;
@@ -26,7 +26,9 @@ export default function ForgotPassword() {
     forgotPasswordMutation.mutate(email.trim().toLowerCase(), {
       onSuccess: () => {
         setSubmitted(true);
-        toast.success("If an account exists, a reset link has been sent to your email");
+        toast.success(
+          "If an account exists, a reset link has been sent to your email"
+        );
       },
       onError: (error) => {
         toast.error(error.message || "Failed to send reset email");
@@ -67,7 +69,8 @@ export default function ForgotPassword() {
                   <strong>⏱️ The link expires in 10 minutes</strong>
                 </p>
                 <p className="text-sm text-yellow-700 mt-2">
-                  Please check your spam folder if you don't see the email within a few minutes.
+                  Please check your spam folder if you don't see the email
+                  within a few minutes.
                 </p>
               </div>
             </div>

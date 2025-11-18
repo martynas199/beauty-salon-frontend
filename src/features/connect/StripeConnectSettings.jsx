@@ -70,10 +70,14 @@ export default function StripeConnectSettings({ beauticianId, email }) {
   };
 
   const handleDisconnect = async () => {
-    if (!confirm("Are you sure you want to disconnect your Stripe account? This will remove your payment integration.")) {
+    if (
+      !confirm(
+        "Are you sure you want to disconnect your Stripe account? This will remove your payment integration."
+      )
+    ) {
       return;
     }
-    
+
     setError(null);
     try {
       await StripeConnectAPI.disconnectAccount(beauticianId);
@@ -205,7 +209,11 @@ export default function StripeConnectSettings({ beauticianId, email }) {
               <Button onClick={loadStatus} variant="outline">
                 🔄 Refresh Status
               </Button>
-              <Button onClick={handleDisconnect} variant="outline" className="text-red-600 hover:text-red-700 hover:border-red-300">
+              <Button
+                onClick={handleDisconnect}
+                variant="outline"
+                className="text-red-600 hover:text-red-700 hover:border-red-300"
+              >
                 🔌 Disconnect
               </Button>
             </>

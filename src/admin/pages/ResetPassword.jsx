@@ -122,9 +122,7 @@ export default function ResetPassword() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Set New Password
             </h2>
-            <p className="text-gray-600">
-              Enter your new password below.
-            </p>
+            <p className="text-gray-600">Enter your new password below.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

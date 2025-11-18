@@ -271,7 +271,8 @@ export default function AdminBeauticianLink() {
         <div className="flex flex-col gap-3">
           <p className="font-medium">Unlock admin account "{admin.name}"?</p>
           <p className="text-sm text-gray-600">
-            This will reset failed login attempts and allow the user to log in immediately.
+            This will reset failed login attempts and allow the user to log in
+            immediately.
           </p>
           <div className="flex gap-2">
             <button
@@ -906,17 +907,18 @@ export default function AdminBeauticianLink() {
                       </td>
                       <td className="px-3 sm:px-6 py-4 text-right text-sm">
                         <div className="flex gap-2 justify-end flex-wrap">
-                          {admin.isLocked && currentAdmin?.role === "super_admin" && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleUnlock(admin)}
-                              className="text-xs sm:text-sm border-green-300 text-green-700 hover:bg-green-50"
-                              title="Unlock account"
-                            >
-                              🔓 Unlock
-                            </Button>
-                          )}
+                          {admin.isLocked &&
+                            currentAdmin?.role === "super_admin" && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleUnlock(admin)}
+                                className="text-xs sm:text-sm border-green-300 text-green-700 hover:bg-green-50"
+                                title="Unlock account"
+                              >
+                                🔓 Unlock
+                              </Button>
+                            )}
                           <Button
                             variant="danger"
                             size="sm"

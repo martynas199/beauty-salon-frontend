@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 import { store } from "./app/store";
 import AppRoutes from "./app/routes";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -27,6 +28,7 @@ createRoot(document.getElementById("root")).render(
                   <AppRoutes />
                   <ToastProvider />
                   <SpeedInsights />
+                  <Analytics />
                 </LanguageProvider>
               </CurrencyProvider>
             </AuthProvider>
