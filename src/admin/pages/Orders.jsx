@@ -370,7 +370,7 @@ export default function Orders() {
                       Cancel Order
                     </Button>
                   )}
-                  
+
                   <Button
                     variant="danger"
                     size="sm"
@@ -566,26 +566,57 @@ export default function Orders() {
                 </div>
               </div>
 
-              {/* Shipping Address */}
+              {/* Shipping Address / Collection Info */}
               <div>
                 <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
-                  Shipping Address
+                  {selectedOrder.isCollection
+                    ? "Collection Details"
+                    : "Shipping Address"}
                 </h3>
+                {selectedOrder.isCollection && (
+                  <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-blue-800 font-medium mb-1">
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                        />
+                      </svg>
+                      <span>COLLECT IN PERSON</span>
+                    </div>
+                    <p className="text-sm text-blue-700">
+                      Collection Address:{" "}
+                      {selectedOrder.collectionAddress ||
+                        "12 Blackfriars Rd, PE13 1AT"}
+                    </p>
+                  </div>
+                )}
                 <div className="text-xs sm:text-sm text-gray-600 space-y-1">
                   <p className="font-medium text-gray-900 break-words">
                     {selectedOrder.shippingAddress.firstName}{" "}
                     {selectedOrder.shippingAddress.lastName}
                   </p>
-                  <p className="break-words">
-                    {selectedOrder.shippingAddress.address}
-                  </p>
-                  <p className="break-words">
-                    {selectedOrder.shippingAddress.city},{" "}
-                    {selectedOrder.shippingAddress.postalCode}
-                  </p>
-                  <p className="break-words">
-                    {selectedOrder.shippingAddress.country}
-                  </p>
+                  {!selectedOrder.isCollection && (
+                    <>
+                      <p className="break-words">
+                        {selectedOrder.shippingAddress.address}
+                      </p>
+                      <p className="break-words">
+                        {selectedOrder.shippingAddress.city},{" "}
+                        {selectedOrder.shippingAddress.postalCode}
+                      </p>
+                      <p className="break-words">
+                        {selectedOrder.shippingAddress.country}
+                      </p>
+                    </>
+                  )}
                   <p className="pt-2">
                     <span className="text-gray-500">Email:</span>{" "}
                     <span className="break-all">

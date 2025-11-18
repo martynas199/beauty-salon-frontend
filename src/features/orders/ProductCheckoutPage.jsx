@@ -21,7 +21,9 @@ export default function ProductCheckoutPage() {
   // Check for multiple beauticians in cart
   const beauticians = new Set(
     cartItems
-      .map((item) => item.product?.beauticianId?._id || item.product?.beauticianId)
+      .map(
+        (item) => item.product?.beauticianId?._id || item.product?.beauticianId
+      )
       .filter(Boolean)
   );
   const hasMultipleBeauticians = beauticians.size > 1;
@@ -246,6 +248,7 @@ export default function ProductCheckoutPage() {
           postalCode: formData.postalCode,
           country: formData.country,
         },
+        isCollection: selectedShipping?.isCollection || false, // Flag if customer is collecting in person
         shippingMethod: selectedShipping
           ? {
               id: selectedShipping.id,
@@ -324,11 +327,12 @@ export default function ProductCheckoutPage() {
             Multiple Sellers in Cart
           </h2>
           <p className="text-gray-600 mb-4">
-            Your cart contains products from {beauticians.size} different sellers.
+            Your cart contains products from {beauticians.size} different
+            sellers.
           </p>
           <p className="text-gray-600 mb-6">
-            Please checkout separately for each seller. Remove items from one seller
-            to continue with the other.
+            Please checkout separately for each seller. Remove items from one
+            seller to continue with the other.
           </p>
           <div className="flex gap-4 justify-center">
             <Button onClick={() => navigate("/shop")}>Back to Shop</Button>
@@ -357,6 +361,41 @@ export default function ProductCheckoutPage() {
                 <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 break-words">
                   Shipping Information
                 </h2>
+
+                {/* Collection Notice */}
+                {selectedShipping?.isCollection && (
+                  <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <svg
+                        className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                        />
+                      </svg>
+                      <div>
+                        <h3 className="font-semibold text-red-600 mb-1">
+                          Collect in Person
+                        </h3>
+                        <p className="text-sm text-gray-800 mb-1">
+                          Your order will be ready for collection at:
+                        </p>
+                        <p className="text-sm font-medium text-gray-900">
+                          12 Blackfriars Rd, PE13 1AT
+                        </p>
+                        <p className="text-xs text-gray-700 mt-2">
+                          We'll notify you when your order is ready to collect.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
@@ -429,52 +468,67 @@ export default function ProductCheckoutPage() {
 
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Address *
+                      Address {!selectedShipping?.isCollection && "*"}
                     </label>
                     <input
                       type="text"
-                      required
+                      required={!selectedShipping?.isCollection}
                       autoComplete="street-address"
                       value={formData.address}
                       onChange={(e) =>
                         setFormData({ ...formData, address: e.target.value })
                       }
                       className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                      placeholder="123 Main Street, Apt 4B"
+                      placeholder={
+                        selectedShipping?.isCollection
+                          ? "Optional for collection"
+                          : "123 Main Street, Apt 4B"
+                      }
+                      disabled={selectedShipping?.isCollection}
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      City *
+                      City {!selectedShipping?.isCollection && "*"}
                     </label>
                     <input
                       type="text"
-                      required
+                      required={!selectedShipping?.isCollection}
                       autoComplete="address-level2"
                       value={formData.city}
                       onChange={(e) =>
                         setFormData({ ...formData, city: e.target.value })
                       }
                       className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                      placeholder="London"
+                      placeholder={
+                        selectedShipping?.isCollection
+                          ? "Optional for collection"
+                          : "London"
+                      }
+                      disabled={selectedShipping?.isCollection}
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Postal Code *
+                      Postal Code {!selectedShipping?.isCollection && "*"}
                     </label>
                     <input
                       type="text"
-                      required
+                      required={!selectedShipping?.isCollection}
                       autoComplete="postal-code"
                       value={formData.postalCode}
                       onChange={(e) =>
                         setFormData({ ...formData, postalCode: e.target.value })
                       }
                       className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                      placeholder="SW1A 1AA"
+                      placeholder={
+                        selectedShipping?.isCollection
+                          ? "Optional for collection"
+                          : "SW1A 1AA"
+                      }
+                      disabled={selectedShipping?.isCollection}
                     />
                   </div>
 

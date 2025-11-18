@@ -70,6 +70,14 @@ export const getUKShippingRates = (weight) => {
         estimatedDays: "1 business day",
         description: "Next day delivery aim with signature",
       },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
+      },
     ];
   } else if (weight <= 10) {
     // Medium parcel (2-10kg)
@@ -81,6 +89,14 @@ export const getUKShippingRates = (weight) => {
         estimatedDays: "2-3 business days",
         description: "Two day delivery aim with signature",
       },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
+      },
     ];
   } else {
     // Over 10kg - custom quote needed
@@ -91,6 +107,14 @@ export const getUKShippingRates = (weight) => {
         price: 15.99,
         estimatedDays: "Contact us",
         description: "Please contact us for a custom shipping quote",
+      },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
       },
     ];
   }
@@ -107,9 +131,17 @@ export const getEUShippingRates = (weight) => {
       {
         id: "eu-standard-100g",
         name: "International Standard",
-        price: 6.30,
+        price: 6.3,
         estimatedDays: "3-5 business days",
         description: "Europe delivery (up to 100g)",
+      },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
       },
     ];
   } else if (weight <= 0.25) {
@@ -117,9 +149,17 @@ export const getEUShippingRates = (weight) => {
       {
         id: "eu-standard-250g",
         name: "International Standard",
-        price: 8.50,
+        price: 8.5,
         estimatedDays: "3-5 business days",
         description: "Europe delivery (up to 250g)",
+      },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
       },
     ];
   } else if (weight <= 0.5) {
@@ -131,6 +171,14 @@ export const getEUShippingRates = (weight) => {
         estimatedDays: "3-5 business days",
         description: "Europe delivery (up to 500g)",
       },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
+      },
     ];
   } else if (weight <= 0.75) {
     return [
@@ -141,15 +189,31 @@ export const getEUShippingRates = (weight) => {
         estimatedDays: "3-5 business days",
         description: "Europe delivery (up to 750g)",
       },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
+      },
     ];
   } else if (weight <= 1.0) {
     return [
       {
         id: "eu-standard-1kg",
         name: "International Standard",
-        price: 12.20,
+        price: 12.2,
         estimatedDays: "3-5 business days",
         description: "Europe delivery (up to 1kg)",
+      },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
       },
     ];
   } else if (weight <= 1.25) {
@@ -157,9 +221,17 @@ export const getEUShippingRates = (weight) => {
       {
         id: "eu-standard-1.25kg",
         name: "International Standard",
-        price: 12.90,
+        price: 12.9,
         estimatedDays: "3-5 business days",
         description: "Europe delivery (up to 1.25kg)",
+      },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
       },
     ];
   } else if (weight <= 1.5) {
@@ -167,9 +239,17 @@ export const getEUShippingRates = (weight) => {
       {
         id: "eu-standard-1.5kg",
         name: "International Standard",
-        price: 14.60,
+        price: 14.6,
         estimatedDays: "3-5 business days",
         description: "Europe delivery (up to 1.5kg)",
+      },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
       },
     ];
   } else if (weight <= 1.75) {
@@ -177,9 +257,17 @@ export const getEUShippingRates = (weight) => {
       {
         id: "eu-standard-1.75kg",
         name: "International Standard",
-        price: 16.30,
+        price: 16.3,
         estimatedDays: "3-5 business days",
         description: "Europe delivery (up to 1.75kg)",
+      },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
       },
     ];
   } else if (weight <= 2.0) {
@@ -187,9 +275,17 @@ export const getEUShippingRates = (weight) => {
       {
         id: "eu-standard-2kg",
         name: "International Standard",
-        price: 18.00,
+        price: 18.0,
         estimatedDays: "3-5 business days",
         description: "Europe delivery (up to 2kg)",
+      },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
       },
     ];
   } else {
@@ -197,9 +293,17 @@ export const getEUShippingRates = (weight) => {
       {
         id: "custom-quote-eu",
         name: "Custom Shipping Quote",
-        price: 25.00,
+        price: 25.0,
         estimatedDays: "Contact us",
         description: "Please contact us for a custom shipping quote",
+      },
+      {
+        id: "collect-in-person",
+        name: "Collect in Person",
+        price: 0,
+        estimatedDays: "Ready for collection",
+        description: "Collect from 12 Blackfriars Rd, PE13 1AT",
+        isCollection: true,
       },
     ];
   }
@@ -213,12 +317,17 @@ export const getEUShippingRates = (weight) => {
  * @param {string} params.countryCode - Destination country code
  * @returns {Object} Shipping calculation result
  */
-export const calculateShippingOptions = ({ items, currency, countryCode = "GB" }) => {
+export const calculateShippingOptions = ({
+  items,
+  currency,
+  countryCode = "GB",
+}) => {
   const weightData = calculateTotalWeight(items);
   const { totalWeight } = weightData;
 
   // Determine shipping region based on currency or country
-  const isEUShipping = currency === "EUR" || (countryCode !== "GB" && countryCode !== "US");
+  const isEUShipping =
+    currency === "EUR" || (countryCode !== "GB" && countryCode !== "US");
 
   let options;
   if (countryCode === "GB" && !isEUShipping) {
