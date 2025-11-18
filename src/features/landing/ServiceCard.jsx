@@ -10,15 +10,15 @@ import { useCurrency } from "../../contexts/CurrencyContext";
  */
 function ServiceCard({ service, onClick }) {
   const { formatPrice } = useCurrency();
-  
+
   // DEBUG: Log service to see if priceVaries field exists
-  console.log('[ServiceCard] Service:', {
+  console.log("[ServiceCard] Service:", {
     id: service._id,
     name: service.name,
     priceVaries: service.priceVaries,
-    hasField: 'priceVaries' in service
+    hasField: "priceVaries" in service,
   });
-  
+
   // Support both new image object and legacy imageUrl string
   const imageUrl = service.image?.url || service.imageUrl;
   const imageAlt = service.image?.alt || service.name;
@@ -28,6 +28,16 @@ function ServiceCard({ service, onClick }) {
     service.variants?.map((v) => Number(v.price)).filter(Boolean) || [];
   const minPrice = prices.length > 0 ? Math.min(...prices) : null;
   const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
+
+  // Check if service or any variant has promo price
+  const hasPromoPrice =
+    service.promoPrice || service.variants?.some((v) => v.promoPrice);
+  const promoPrices =
+    service.variants?.map((v) => Number(v.promoPrice)).filter(Boolean) || [];
+  const minPromoPrice =
+    promoPrices.length > 0 ? Math.min(...promoPrices) : service.promoPrice;
+  const maxPromoPrice =
+    promoPrices.length > 0 ? Math.max(...promoPrices) : service.promoPrice;
 
   return (
     <Card
@@ -51,7 +61,7 @@ function ServiceCard({ service, onClick }) {
         )}
         <div className="flex flex-col flex-1 p-2.5 sm:p-4 min-w-0 overflow-x-hidden">
           <div className="flex flex-col gap-0.5 mb-1 min-w-0 flex-shrink-0">
-            <div className="font-bold text-sm sm:text-lg text-gray-900 leading-tight truncate">
+            <div className="font-bold text-sm sm:text-lg text-gray-900 leading-tight break-words">
               {service.name}
             </div>
             {service.category && (
@@ -98,33 +108,73 @@ function ServiceCard({ service, onClick }) {
             {/* Price and Duration Display */}
             <div className="flex flex-col gap-0.5 min-w-0 w-full sm:w-auto">
               {minPrice !== null && (
-                <div className="flex items-baseline gap-0.5 sm:gap-1">
-                  <span className="text-[10px] sm:text-xs text-gray-500">
-                    {service.priceVaries ? "Up to" : "From"}
-                  </span>
-                  <span className="text-base sm:text-xl font-bold text-brand-700">
-                    {formatPrice(service.priceVaries ? maxPrice : minPrice)}
-                  </span>
-                  {!service.priceVaries && maxPrice > minPrice && (
-                    <span className="text-[10px] sm:text-xs text-gray-400">
-                      - {formatPrice(maxPrice)}
+                <>
+                  <div className="flex items-baseline gap-0.5 sm:gap-1 flex-wrap">
+                    <span className="text-[10px] sm:text-xs text-gray-500">
+                      {service.priceVaries ? "Up to" : "From"}
+                    </span>
+                    {hasPromoPrice && minPromoPrice ? (
+                      <>
+                        <span className="text-sm sm:text-base font-medium text-gray-400 line-through">
+                          {formatPrice(
+                            service.priceVaries ? maxPrice : minPrice
+                          )}
+                        </span>
+                        <span className="text-base sm:text-xl font-bold text-red-600">
+                          {formatPrice(
+                            service.priceVaries ? maxPromoPrice : minPromoPrice
+                          )}
+                        </span>
+                        {!service.priceVaries &&
+                          maxPromoPrice &&
+                          maxPromoPrice > minPromoPrice && (
+                            <span className="text-[10px] sm:text-xs text-gray-400">
+                              - {formatPrice(maxPromoPrice)}
+                            </span>
+                          )}
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-base sm:text-xl font-bold text-brand-700">
+                          {formatPrice(
+                            service.priceVaries ? maxPrice : minPrice
+                          )}
+                        </span>
+                        {!service.priceVaries && maxPrice > minPrice && (
+                          <span className="text-[10px] sm:text-xs text-gray-400">
+                            - {formatPrice(maxPrice)}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  {hasPromoPrice && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 border border-red-300 rounded-full text-[9px] sm:text-[10px] text-red-700 font-bold whitespace-nowrap w-fit">
+                      <svg
+                        className="w-2.5 h-2.5 sm:w-3 sm:h-3"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      SPECIAL OFFER
                     </span>
                   )}
-                </div>
+                </>
               )}
               {service.priceVaries && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 border border-amber-200 rounded-full text-[9px] sm:text-[10px] text-amber-700 font-medium">
-                  <svg 
-                    className="w-2.5 h-2.5 sm:w-3 sm:h-3" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
+                  <svg
+                    className="w-2.5 h-2.5 sm:w-3 sm:h-3"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
                     viewBox="0 0 24 24"
                   >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
                   Price varies - consultation required

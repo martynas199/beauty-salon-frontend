@@ -134,11 +134,13 @@ export default function BeauticianSelectionPage() {
 
   const handleVariantConfirm = (selectedVariant, service) => {
     // Set booking data with selected variant
+    // Use promo price if available, otherwise use regular price
+    const finalPrice = selectedVariant.promoPrice || selectedVariant.price;
     dispatch(
       setService({
         serviceId: service._id,
         variantName: selectedVariant.name,
-        price: selectedVariant.price,
+        price: finalPrice,
         durationMin: selectedVariant.durationMin,
         bufferBeforeMin: selectedVariant.bufferBeforeMin,
         bufferAfterMin: selectedVariant.bufferAfterMin,

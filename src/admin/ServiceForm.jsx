@@ -51,6 +51,7 @@ export default function ServiceForm({
         name: "Standard",
         durationMin: 30,
         price: 0,
+        promoPrice: null,
         bufferBeforeMin: 0,
         bufferAfterMin: 0,
       },
@@ -129,6 +130,7 @@ export default function ServiceForm({
           name: "",
           durationMin: 30,
           price: 0,
+          promoPrice: null,
           bufferBeforeMin: 0,
           bufferAfterMin: 0,
         },
@@ -198,6 +200,20 @@ export default function ServiceForm({
       ) {
         newErrors[`variant_${i}_price`] =
           "Please enter a valid price greater than £0";
+      }
+      // Validate promoPrice if provided
+      if (
+        v.promoPrice !== null &&
+        v.promoPrice !== undefined &&
+        v.promoPrice !== ""
+      ) {
+        if (isNaN(v.promoPrice) || v.promoPrice <= 0) {
+          newErrors[`variant_${i}_promoPrice`] =
+            "Promo price must be greater than £0";
+        } else if (v.promoPrice >= v.price) {
+          newErrors[`variant_${i}_promoPrice`] =
+            "Promo price must be less than regular price";
+        }
       }
     });
 
@@ -505,7 +521,8 @@ export default function ServiceForm({
               </label>
             </div>
             <p className="text-xs text-gray-500 ml-6">
-              Check this if the service price varies (will show "Up to" instead of "From")
+              Check this if the service price varies (will show "Up to" instead
+              of "From")
             </p>
           </div>
         </div>
@@ -624,6 +641,33 @@ export default function ServiceForm({
                       }
                       className={`w-full px-3 py-2 border rounded-lg ${
                         errors[`variant_${index}_price`]
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
+                      placeholder="0.00"
+                    />
+                  </FormField>
+
+                  <FormField
+                    label="Promo Price (Optional)"
+                    error={errors[`variant_${index}_promoPrice`]}
+                    htmlFor={`variant-${index}-promo-price`}
+                    hint="Special promotional price - if set, this service will display 'Special offer' label"
+                  >
+                    <input
+                      type="text"
+                      id={`variant-${index}-promo-price`}
+                      inputMode="decimal"
+                      value={variant.promoPrice || ""}
+                      onChange={(e) =>
+                        handleVariantChange(
+                          index,
+                          "promoPrice",
+                          e.target.value ? parseFloat(e.target.value) : null
+                        )
+                      }
+                      className={`w-full px-3 py-2 border rounded-lg ${
+                        errors[`variant_${index}_promoPrice`]
                           ? "border-red-500"
                           : "border-gray-300"
                       }`}
