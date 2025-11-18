@@ -19,7 +19,6 @@ import logo from "../../assets/logo.svg";
 import ScrollRevealText from "../../components/ui/ScrollRevealText";
 import ProductCarousel from "../products/ProductCarousel";
 import ShopByBrand from "./ShopByBrand";
-import CountdownOverlay from "../../components/CountdownOverlay";
 
 export default function LandingPage() {
   const [services, setServices] = useState([]);
@@ -151,9 +150,6 @@ export default function LandingPage() {
 
   return (
     <>
-      {/* Countdown Overlay - Full Screen until 6 PM UK Time */}
-      <CountdownOverlay />
-
       {/* Fixed Background Logo with Parallax Effect - Behind all content */}
       <motion.div
         className="fixed inset-0 flex items-center justify-center pointer-events-none"
