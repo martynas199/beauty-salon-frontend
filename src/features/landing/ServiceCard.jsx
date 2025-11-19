@@ -1,5 +1,6 @@
-﻿import { memo } from "react";
+﻿import { memo, useState } from "react";
 import Card from "../../components/ui/Card";
+import Modal from "../../components/ui/Modal";
 import { useCurrency } from "../../contexts/CurrencyContext";
 
 /**
@@ -10,6 +11,7 @@ import { useCurrency } from "../../contexts/CurrencyContext";
  */
 function ServiceCard({ service, onClick }) {
   const { formatPrice } = useCurrency();
+  const [showDescriptionModal, setShowDescriptionModal] = useState(false);
 
   // Support both new image object and legacy imageUrl string
   const imageUrl = service.image?.url || service.imageUrl;
@@ -32,12 +34,11 @@ function ServiceCard({ service, onClick }) {
     promoPrices.length > 0 ? Math.max(...promoPrices) : service.promoPrice;
 
   return (
-    <Card
-      hoverable
-      clickable
-      className="p-0 overflow-hidden cursor-pointer group border border-gray-200 hover:border-brand-300"
-      onClick={onClick}
-    >
+    <>
+      <Card
+        hoverable
+        className="p-0 overflow-hidden group border border-gray-200 hover:border-brand-300"
+      >
       <div className="flex flex-row overflow-x-hidden w-full min-h-[140px]">
         {imageUrl && (
           <div className="relative w-28 sm:w-40 self-stretch overflow-hidden bg-gray-100 flex-shrink-0">
@@ -70,8 +71,19 @@ function ServiceCard({ service, onClick }) {
             )}
           </div>
           {service.description && (
-            <div className="text-gray-500 text-[11px] sm:text-sm mb-1.5 sm:mb-3 line-clamp-2 flex-shrink-0">
-              {service.description}
+            <div className="mb-1.5 sm:mb-3 flex-shrink-0">
+              <div className="text-gray-500 text-[11px] sm:text-sm line-clamp-2">
+                {service.description}
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDescriptionModal(true);
+                }}
+                className="text-brand-600 hover:text-brand-700 text-[10px] sm:text-xs font-medium mt-0.5 underline"
+              >
+                Read more
+              </button>
             </div>
           )}
 
@@ -264,6 +276,55 @@ function ServiceCard({ service, onClick }) {
         </div>
       </div>
     </Card>
+
+    {/* Description Modal */}
+    <Modal
+      open={showDescriptionModal}
+      onClose={() => setShowDescriptionModal(false)}
+      title={service.name}
+    >
+      <div className="p-4 sm:p-6">
+        {service.category && (
+          <div className="text-brand-600 text-sm font-semibold uppercase tracking-wide mb-3">
+            {service.category}
+          </div>
+        )}
+
+        <div className="text-gray-700 text-sm sm:text-base leading-relaxed whitespace-pre-line">
+          {service.description}
+        </div>
+
+        {/* Price Information */}
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Price</p>
+              <p className="text-lg font-bold text-brand-700">
+                {(() => {
+                  const prices = service.variants?.map((v) => Number(v.price)).filter(Boolean) || [];
+                  const minPrice = prices.length > 0 ? Math.min(...prices) : null;
+                  const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
+                  
+                  if (minPrice === null) return "Contact for price";
+                  if (minPrice === maxPrice) return formatPrice(minPrice);
+                  return `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`;
+                })()}
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setShowDescriptionModal(false);
+                onClick?.();
+              }}
+              className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-full shadow-md hover:shadow-lg transition-all"
+            >
+              {service.variants && service.variants.length > 1 ? "Choose Option" : "Book Now"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  </>
   );
 }
 
