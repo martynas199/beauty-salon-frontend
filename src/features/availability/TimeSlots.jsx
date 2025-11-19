@@ -70,12 +70,7 @@ export default function TimeSlots() {
           return;
         }
 
-        // Store beautician ID in Redux state for checkout
-        dispatch(
-          setBeauticianInState({ beauticianId: targetBeauticianId, any: false })
-        );
-
-        // Fetch beautician details with cancellation
+        // Fetch beautician details with cancellation FIRST
         return api.get(`/beauticians/${targetBeauticianId}`, {
           signal: abortController.signal,
         });
@@ -84,6 +79,15 @@ export default function TimeSlots() {
         if (isCancelled || !beauticianResponse) return;
 
         const beauticianData = beauticianResponse.data;
+
+        // Store beautician ID AND inSalonPayment flag in Redux state for checkout
+        dispatch(
+          setBeauticianInState({ 
+            beauticianId: beauticianData._id, 
+            any: false,
+            inSalonPayment: beauticianData.inSalonPayment || false
+          })
+        );
 
         // Convert legacy working hours to new format if needed
         if (

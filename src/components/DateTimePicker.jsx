@@ -64,16 +64,6 @@ export default function DateTimePicker({
     return new Set(beauticianWorkingHours.map((wh) => wh.dayOfWeek));
   }, [beauticianWorkingHours]);
 
-  // Debug logging for custom schedule
-  useEffect(() => {
-    console.log("[DateTimePicker] Props received:", {
-      beauticianId,
-      customSchedule,
-      beauticianWorkingHours,
-      customScheduleDates: Object.keys(customSchedule),
-    });
-  }, [beauticianId, customSchedule, beauticianWorkingHours]);
-
   // Determine if a date should be disabled
   const isDateDisabled = useCallback(
     (date) => {
@@ -89,10 +79,6 @@ export default function DateTimePicker({
       // Check if date has custom schedule override
       if (customSchedule[dateStr]) {
         const customHours = customSchedule[dateStr];
-        console.log(
-          `[DateTimePicker] Date ${dateStr} has custom schedule:`,
-          customHours
-        );
         // If custom schedule exists but is empty array, day is not working
         if (customHours.length === 0) return true;
         // If custom schedule has hours, day is working

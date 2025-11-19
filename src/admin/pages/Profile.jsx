@@ -37,6 +37,10 @@ export default function Profile() {
   const [workingHours, setWorkingHours] = useState([]);
   const [savingWorkingHours, setSavingWorkingHours] = useState(false);
 
+  // Payment settings state
+  const [inSalonPayment, setInSalonPayment] = useState(false);
+  const [savingPaymentSettings, setSavingPaymentSettings] = useState(false);
+
   useEffect(() => {
     if (admin) {
       setName(admin.name || "");
@@ -54,6 +58,7 @@ export default function Profile() {
       const response = await api.get(`/beauticians/${admin.beauticianId}`);
       setBeautician(response.data);
       setWorkingHours(response.data.workingHours || []);
+      setInSalonPayment(response.data.inSalonPayment || false);
     } catch (err) {
       console.error("Failed to fetch beautician data:", err);
     }
@@ -163,6 +168,31 @@ export default function Profile() {
       );
     } finally {
       setSavingWorkingHours(false);
+    }
+  };
+
+  const handleSavePaymentSettings = async () => {
+    try {
+      setSavingPaymentSettings(true);
+      const loadingToast = toast.loading("Saving payment settings...");
+
+      await api.patch(`/beauticians/${admin.beauticianId}`, {
+        inSalonPayment,
+      });
+
+      toast.dismiss(loadingToast);
+      toast.success("Payment settings updated successfully");
+
+      // Refresh beautician data
+      if (admin.beauticianId) {
+        await fetchBeauticianData();
+      }
+    } catch (err) {
+      toast.error(
+        err.response?.data?.error || "Failed to update payment settings"
+      );
+    } finally {
+      setSavingPaymentSettings(false);
     }
   };
 
@@ -667,6 +697,101 @@ export default function Profile() {
                 disabled={savingWorkingHours}
               >
                 {savingWorkingHours ? "Saving..." : "Save Working Hours"}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Payment Settings - Only for beauticians */}
+      {beautician && (
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <svg
+                className="w-6 h-6 text-brand-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                />
+              </svg>
+              <h3 className="text-xl font-semibold text-gray-900">
+                Payment Settings
+              </h3>
+            </div>
+
+            <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-800">
+                Configure how you want to receive payments from clients.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <label className="flex items-start gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={inSalonPayment}
+                  onChange={(e) => setInSalonPayment(e.target.checked)}
+                  className="mt-1 w-5 h-5 text-brand-600 border-gray-300 rounded focus:ring-2 focus:ring-brand-500"
+                />
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900 mb-1">
+                    Accept Payment in Salon
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    When enabled, clients will only pay a booking fee online (no
+                    deposit required). You'll collect the full service payment
+                    in person at your salon.
+                  </div>
+                </div>
+              </label>
+
+              {inSalonPayment && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex gap-2">
+                    <svg
+                      className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-1">How it works:</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Clients pay only the booking fee online</li>
+                        <li>No deposit or service payment through Stripe</li>
+                        <li>Collect full payment in-salon after service</li>
+                        <li>
+                          The "Pay Deposit" button won't be shown to clients
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3 pt-6 mt-6 border-t border-gray-200">
+              <Button
+                variant="brand"
+                onClick={handleSavePaymentSettings}
+                loading={savingPaymentSettings}
+                disabled={savingPaymentSettings}
+              >
+                {savingPaymentSettings ? "Saving..." : "Save Payment Settings"}
               </Button>
             </div>
           </div>

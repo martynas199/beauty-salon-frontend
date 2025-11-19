@@ -30,6 +30,7 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
     bio: "",
     specialties: [],
     active: true,
+    inSalonPayment: false,
     color: "#3B82F6",
     image: null,
     workingHours: [],
@@ -60,6 +61,7 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
         bio: staff.bio || "",
         specialties: staff.specialties || [],
         active: staff.active !== undefined ? staff.active : true,
+        inSalonPayment: staff.inSalonPayment || false,
         color: staff.color || "#3B82F6",
         image: staff.image || null,
         workingHours: staff.workingHours || [],
@@ -392,6 +394,34 @@ export default function StaffForm({ staff, onSave, onCancel, onDelete }) {
             <label htmlFor="active" className="text-sm font-medium">
               Active (can accept bookings)
             </label>
+          </div>
+
+          {/* In-Salon Payment */}
+          <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="inSalonPayment"
+                checked={formData.inSalonPayment}
+                onChange={(e) =>
+                  handleChange("inSalonPayment", e.target.checked)
+                }
+                className="mt-1 w-4 h-4 text-brand-600 rounded focus:ring-brand-500"
+              />
+              <div className="flex-1">
+                <label
+                  htmlFor="inSalonPayment"
+                  className="text-sm font-medium cursor-pointer"
+                >
+                  Accept Payment in Salon
+                </label>
+                <p className="text-xs text-gray-600 mt-1">
+                  When enabled, clients will only pay a booking fee online (no
+                  deposit required). Full service payment will be collected
+                  in-salon.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

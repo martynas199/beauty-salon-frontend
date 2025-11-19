@@ -48,7 +48,16 @@ export default function BeauticianSelectionPage() {
   }, [searchParams]);
 
   const handleBeauticianSelect = async (beautician) => {
-    setSelectedBeautician(beautician);
+    // Fetch the full beautician data to ensure we have the latest inSalonPayment flag
+    let fullBeauticianData = beautician;
+    try {
+      const beauticianRes = await api.get(`/beauticians/${beautician._id}`);
+      fullBeauticianData = beauticianRes.data;
+    } catch (err) {
+      console.error('Failed to fetch full beautician data:', err);
+    }
+
+    setSelectedBeautician(fullBeauticianData);
     setServicesLoading(true);
 
     // Update URL to include selected beautician
@@ -96,14 +105,6 @@ export default function BeauticianSelectionPage() {
         return false;
       });
 
-      console.log("Beautician selected:", beautician.name, beautician._id);
-      console.log("Total services fetched:", res.data.length);
-      console.log(
-        "Filtered services for this beautician:",
-        beauticianServices.length
-      );
-      console.log("Services:", beauticianServices);
-
       setServices(beauticianServices);
     } catch (err) {
       console.error("Failed to fetch services:", err);
@@ -146,10 +147,12 @@ export default function BeauticianSelectionPage() {
         bufferAfterMin: selectedVariant.bufferAfterMin,
       })
     );
+    
     dispatch(
       setBeautician({
         beauticianId: selectedBeautician._id,
         any: false,
+        inSalonPayment: selectedBeautician.inSalonPayment || false,
       })
     );
 

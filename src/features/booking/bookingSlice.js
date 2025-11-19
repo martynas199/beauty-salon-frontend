@@ -4,6 +4,7 @@ const initial = {
   variantName: undefined,
   beauticianId: undefined,
   any: false,
+  inSalonPayment: false,
   date: undefined,
   startISO: undefined,
   client: undefined,
@@ -32,6 +33,7 @@ const slice = createSlice({
       Object.assign(s, {
         beauticianId: payload.beauticianId,
         any: !!payload.any,
+        inSalonPayment: !!payload.inSalonPayment,
       });
     },
     setDate(s, { payload }) {

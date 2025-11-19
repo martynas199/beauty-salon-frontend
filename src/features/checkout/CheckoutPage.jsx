@@ -124,6 +124,13 @@ export default function CheckoutPage() {
     }
   }
 
+  // Pricing helpers
+  const bookingFee = 0.5;
+  const servicePrice = Number(booking.price || 0);
+  const totalAmount = booking.inSalonPayment
+    ? bookingFee
+    : servicePrice + bookingFee;
+
   return (
     <PageTransition className="max-w-2xl mx-auto px-4 py-10 space-y-10">
       <BackBar onBack={() => navigate(-1)} />
@@ -131,6 +138,26 @@ export default function CheckoutPage() {
         <h1 className="text-3xl font-serif font-bold text-center mb-2 tracking-wide">
           Checkout
         </h1>
+
+        {/* In-Salon Payment Notice */}
+        {booking.inSalonPayment && (
+          <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">💳</span>
+              <div>
+                <div className="font-semibold text-amber-900 mb-1">
+                  Pay in Salon
+                </div>
+                <div className="text-sm text-amber-800">
+                  You'll only pay a £{bookingFee.toFixed(2)} booking fee now.
+                  The full service amount of {formatPrice(servicePrice)} will be
+                  paid directly at the salon.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <div className="font-semibold text-lg mb-2">Your Details</div>
@@ -233,16 +260,18 @@ export default function CheckoutPage() {
                 variant="brand"
                 className="w-full"
               >
-                Pay now
+                {booking.inSalonPayment ? "Pay Booking Fee" : "Pay now"}
               </Button>
-              <Button
-                disabled={loading}
-                onClick={() => submit("deposit")}
-                variant="default"
-                className="w-full"
-              >
-                Pay deposit
-              </Button>
+              {!booking.inSalonPayment && (
+                <Button
+                  disabled={loading}
+                  onClick={() => submit("deposit")}
+                  variant="default"
+                  className="w-full"
+                >
+                  Pay deposit
+                </Button>
+              )}
               {/* <Button
                 disabled={loading}
                 onClick={() => submit("pay_in_salon")}
@@ -261,20 +290,26 @@ export default function CheckoutPage() {
                 <div>
                   {service?.name} — {booking.variantName}
                 </div>
-                <div className="font-semibold">
-                  {formatPrice(booking.price || 0)}
-                </div>
+                <div className="font-semibold">{formatPrice(servicePrice)}</div>
               </div>
               <div className="flex items-center justify-between mb-2 pt-2 border-t border-gray-200">
                 <div className="text-sm text-gray-600">Booking Fee</div>
-                <div className="text-sm font-semibold">{formatPrice(0.5)}</div>
+                <div className="text-sm font-semibold">
+                  {formatPrice(bookingFee)}
+                </div>
               </div>
               <div className="flex items-center justify-between mb-3 pt-2 border-t border-gray-300">
                 <div className="font-semibold">Total</div>
                 <div className="font-bold text-brand-600">
-                  {formatPrice(Number(booking.price || 0) + 0.5)}
+                  {formatPrice(totalAmount)}
                 </div>
               </div>
+              {booking.inSalonPayment && (
+                <div className="text-sm text-gray-600 mb-2">
+                  Full service amount {formatPrice(servicePrice)} payable in
+                  salon.
+                </div>
+              )}
               {booking.startISO && (
                 <>
                   <div className="text-sm text-gray-600 mt-3">Time</div>

@@ -11,14 +11,6 @@ import { useCurrency } from "../../contexts/CurrencyContext";
 function ServiceCard({ service, onClick }) {
   const { formatPrice } = useCurrency();
 
-  // DEBUG: Log service to see if priceVaries field exists
-  console.log("[ServiceCard] Service:", {
-    id: service._id,
-    name: service.name,
-    priceVaries: service.priceVaries,
-    hasField: "priceVaries" in service,
-  });
-
   // Support both new image object and legacy imageUrl string
   const imageUrl = service.image?.url || service.imageUrl;
   const imageAlt = service.image?.alt || service.name;
