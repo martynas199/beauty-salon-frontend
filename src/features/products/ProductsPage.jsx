@@ -19,6 +19,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 import { api } from "../../lib/apiClient";
 import { useAuth } from "../../app/AuthContext";
 import { toggleWishlist as toggleWishlistAPI } from "../profile/wishlist.api";
@@ -64,6 +66,28 @@ export default function ProductsPage() {
   const [prevFilteredCount, setPrevFilteredCount] = useState(0);
 
   const productsGridRef = useRef(null);
+
+  // Embla carousel for brands with autoplay
+  const autoplayOptions = {
+    delay: 2500,
+    stopOnInteraction: false,
+    stopOnMouseEnter: true,
+    playOnInit: true,
+  };
+
+  const [emblaRef] = useEmblaCarousel(
+    {
+      loop: true,
+      align: "center",
+      slidesToScroll: 1,
+      skipSnaps: false,
+      containScroll: "trimSnaps",
+      duration: 25,
+      dragFree: false,
+      inViewThreshold: 0.7,
+    },
+    [Autoplay(autoplayOptions)]
+  );
 
   useEffect(() => {
     loadProducts();
@@ -351,17 +375,24 @@ export default function ProductsPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       {/* Modern Elegant Hero Section */}
       <section
-        className="relative overflow-hidden -mt-20 md:-mt-24"
+        className="relative overflow-hidden -mt-20 md:-mt-24 bg-center bg-no-repeat"
         style={{
           backgroundImage: heroImage
             ? `url(${heroImage})`
             : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
           minHeight: "450px",
         }}
       >
+        <style jsx>{`
+          section {
+            background-size: cover;
+          }
+          @media (min-width: 768px) {
+            section {
+              background-size: 100% 100%;
+            }
+          }
+        `}</style>
         {/* Modern Gradient Overlay - Better for readability */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900/80 via-gray-900/70 to-black/80"></div>
 
@@ -542,79 +573,50 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        {/* Brand Showcase Slider */}
+        {/* Brand Showcase Carousel */}
         {brands.length > 0 && (
-          <div className="mb-8 overflow-hidden py-6 border-t border-b border-gray-200">
+          <div className="mb-8 py-6 border-t border-b border-gray-200">
             <div className="relative">
-              {/* Gradient overlays for fade effect */}
+              {/* Gradient overlays */}
               <div
-                className="absolute left-0 top-0 bottom-0 w-20 z-10 pointer-events-none"
+                className="absolute left-0 top-0 bottom-0 w-12 md:w-20 z-10 pointer-events-none"
                 style={{
                   background: "linear-gradient(to right, white, transparent)",
                 }}
               />
               <div
-                className="absolute right-0 top-0 bottom-0 w-20 z-10 pointer-events-none"
+                className="absolute right-0 top-0 bottom-0 w-12 md:w-20 z-10 pointer-events-none"
                 style={{
                   background: "linear-gradient(to left, white, transparent)",
                 }}
               />
 
-              {/* Animated slider */}
-              <div
-                className="flex gap-4 md:gap-8 brand-slider"
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.animationPlayState = "paused")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.animationPlayState = "running")
-                }
-              >
-                {/* First set of brands */}
-                {brands.map((brand, index) => (
-                  <button
-                    key={`brand-1-${index}`}
-                    onClick={() => setSelectedBrand(brand)}
-                    className={`flex-shrink-0 px-4 py-2 md:px-8 md:py-4 text-lg md:text-2xl font-serif text-black font-semibold transition-all whitespace-nowrap ${
-                      selectedBrand === brand ? "scale-110" : "hover:scale-105"
-                    }`}
-                  >
-                    {brand}
-                  </button>
-                ))}
-                {/* Duplicate set for seamless loop */}
-                {brands.map((brand, index) => (
-                  <button
-                    key={`brand-2-${index}`}
-                    onClick={() => setSelectedBrand(brand)}
-                    className={`flex-shrink-0 px-4 py-2 md:px-8 md:py-4 text-lg md:text-2xl font-serif text-black font-semibold transition-all whitespace-nowrap ${
-                      selectedBrand === brand ? "scale-110" : "hover:scale-105"
-                    }`}
-                  >
-                    {brand}
-                  </button>
-                ))}
+              {/* Embla Carousel */}
+              <div className="overflow-hidden" ref={emblaRef}>
+                <div className="flex gap-6 md:gap-8">
+                  {/* Triple the brands for smooth infinite scroll */}
+                  {[...Array(3)].flatMap((_, setIndex) =>
+                    brands.map((brand, brandIndex) => (
+                      <div
+                        key={`brand-${setIndex}-${brandIndex}`}
+                        className="flex-[0_0_auto] min-w-fit"
+                      >
+                        <button
+                          onClick={() => setSelectedBrand(brand)}
+                          className={`block px-3 py-2 md:px-8 md:py-4 text-base md:text-2xl font-serif font-semibold whitespace-nowrap transition-colors ${
+                            selectedBrand === brand
+                              ? "text-brand-600"
+                              : "text-black hover:text-brand-500"
+                          }`}
+                        >
+                          {brand}
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
-
-            {/* Add keyframes with responsive animation speed */}
-            <style>{`
-              @keyframes scroll {
-                0% { transform: translateX(0); }
-                100% { transform: translateX(-50%); }
-              }
-              
-              .brand-slider {
-                animation: scroll 7s linear infinite;
-                will-change: transform;
-              }
-              
-              @media (min-width: 768px) {
-                .brand-slider {
-                  animation: scroll 30s linear infinite;
-                }
-              }
-            `}</style>
           </div>
         )}
 
