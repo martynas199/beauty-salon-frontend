@@ -327,6 +327,20 @@ export default function Appointments() {
     }
   }
 
+  async function deleteAppointment(id) {
+    if (!window.confirm("Delete this canceled appointment? This cannot be undone.")) {
+      return;
+    }
+
+    try {
+      await api.delete(`/appointments/${id}`);
+      setRows((old) => old.filter((x) => x._id !== id));
+      toast.success("Appointment deleted successfully");
+    } catch (e) {
+      toast.error(e.message || "Failed to delete appointment");
+    }
+  }
+
   async function handleDeleteAll() {
     if (!admin?.beauticianId) {
       toast.error("No beautician linked to this account");
@@ -974,6 +988,15 @@ export default function Appointments() {
                       >
                         No Show
                       </button>
+                      {String(r.status || "").startsWith("cancelled") && (
+                        <button
+                          className="border rounded px-3 py-1.5 text-sm text-red-700 border-red-300 hover:bg-red-50"
+                          onClick={() => deleteAppointment(r._id)}
+                          title="Delete Canceled Appointment"
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -1138,6 +1161,14 @@ export default function Appointments() {
                     👤 No Show
                   </button>
                 </div>
+                {String(r.status || "").startsWith("cancelled") && (
+                  <button
+                    className="w-full border-2 rounded-xl px-4 py-3 text-sm sm:text-base text-red-700 border-red-300 hover:bg-red-50 font-medium transition-colors active:scale-[0.98]"
+                    onClick={() => deleteAppointment(r._id)}
+                  >
+                    🗑️ Delete Canceled Appointment
+                  </button>
+                )}
               </div>
             </div>
           ))}
