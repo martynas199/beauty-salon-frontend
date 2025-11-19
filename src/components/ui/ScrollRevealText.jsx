@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { useMemo } from "react";
+import wrap from "word-wrap";
 
 /**
  * ScrollRevealText - Letter-by-letter reveal animation
@@ -11,8 +13,25 @@ export default function ScrollRevealText({
   revealColor = "#d4a710", // Brand gold color
   captionColor = "text-gray-600",
 }) {
-  // Split text into lines
-  const lines = text.split("\n").filter((line) => line.trim());
+  // Smart word wrapping based on viewport width
+  const lines = useMemo(() => {
+    // Determine wrap width based on screen size
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    const wrapWidth = isMobile ? 30 : 50; // Characters per line
+    
+    // Remove existing newlines and wrap the text
+    const cleanText = text.replace(/\n/g, ' ').replace(/"/g, '');
+    const wrappedText = wrap(cleanText, { width: wrapWidth, indent: '' });
+    
+    // Add quotes back to first and last line
+    const wrappedLines = wrappedText.split('\n').filter((line) => line.trim());
+    if (wrappedLines.length > 0) {
+      wrappedLines[0] = '"' + wrappedLines[0];
+      wrappedLines[wrappedLines.length - 1] = wrappedLines[wrappedLines.length - 1] + '"';
+    }
+    
+    return wrappedLines;
+  }, [text]);
 
   // Animation variants for container
   const container = {
