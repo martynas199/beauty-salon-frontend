@@ -328,7 +328,11 @@ export default function Appointments() {
   }
 
   async function deleteAppointment(id) {
-    if (!window.confirm("Delete this canceled appointment? This cannot be undone.")) {
+    if (
+      !window.confirm(
+        "Delete this canceled appointment? This cannot be undone."
+      )
+    ) {
       return;
     }
 
@@ -944,19 +948,55 @@ export default function Appointments() {
                     £{Number(r.price || 0).toFixed(2)}
                   </td>
                   <td className="p-3">
-                    <span
-                      className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                        r.status === "confirmed"
-                          ? "bg-green-100 text-green-800"
-                          : r.status === "reserved_unpaid"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : String(r.status).startsWith("cancelled")
-                          ? "bg-red-100 text-red-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {r.status}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                          r.status === "confirmed"
+                            ? "bg-green-100 text-green-800"
+                            : r.status === "reserved_unpaid"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : String(r.status).startsWith("cancelled")
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {r.status}
+                      </span>
+                      {r.payment?.stripe?.lastPaymentError && (
+                        <div
+                          className="group relative"
+                          title={r.payment.stripe.lastPaymentError.message}
+                        >
+                          <svg
+                            className="w-4 h-4 text-red-500 cursor-help"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                            />
+                          </svg>
+                          <div className="absolute hidden group-hover:block z-10 w-64 p-2 bg-red-50 border border-red-200 rounded shadow-lg text-xs text-red-700 left-0 top-6">
+                            <div className="font-semibold mb-1">
+                              Payment Failed
+                            </div>
+                            <div>
+                              {r.payment.stripe.lastPaymentError.message}
+                            </div>
+                            {r.payment.stripe.lastPaymentError.declineCode && (
+                              <div className="mt-1 text-red-600">
+                                Code:{" "}
+                                {r.payment.stripe.lastPaymentError.declineCode}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="p-3">
                     <div className="flex gap-2">
@@ -1129,6 +1169,40 @@ export default function Appointments() {
                     </div>
                   </div>
                 </div>
+
+                {/* Payment Error Details */}
+                {r.payment?.stripe?.lastPaymentError && (
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-red-50 flex items-center justify-center">
+                      <svg
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-red-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-xs text-red-500 font-medium mb-0.5">
+                        Payment Failed
+                      </div>
+                      <div className="text-xs sm:text-sm text-red-700 font-medium">
+                        {r.payment.stripe.lastPaymentError.message}
+                      </div>
+                      {r.payment.stripe.lastPaymentError.declineCode && (
+                        <div className="text-xs text-red-600 mt-1">
+                          Code: {r.payment.stripe.lastPaymentError.declineCode}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
