@@ -50,8 +50,8 @@ export default function SalonDetails() {
     <div className="pb-10">
       {/* SEO Meta Tags */}
       <SEOHead
-        title="Contact Us - Location, Hours & Directions"
-        description="Visit Noble Elegance Beauty Salon at 12 Blackfriars Rd, PE13 1AT, Wisbech, Cambridgeshire. Call +44 7928 775746. Open Monday-Sunday, 9am-5pm. Easy parking available. Find our location, opening hours, contact details and directions. We're conveniently located to serve clients from Wisbech, March, King's Lynn, Peterborough, Downham Market and Chatteris."
+        title="Contact Noble Elegance Wisbech | Location, Hours & Directions"
+        description="Visit Noble Elegance at 12 Blackfriars Rd, Wisbech PE13 1AT. Call +44 7928 775746. Open Mon-Sun 9am-5pm. Serving Wisbech, March, King's Lynn & Peterborough."
         keywords="beauty salon location Wisbech, contact Noble Elegance, beauty salon opening hours, directions to beauty salon Wisbech, beauty salon near me, Wisbech beauty salon address, Cambridgeshire beauty salon contact"
         schema={combinedSchema}
       />
@@ -73,11 +73,43 @@ export default function SalonDetails() {
       <div className="max-w-6xl mx-auto px-4 -mt-8 space-y-6">
         <div className="bg-white rounded-2xl border p-5">
           <h1 className="text-2xl font-serif font-semibold tracking-wide">
-            {data?.name || "Salon"}
+            Contact Noble Elegance Beauty Salon - Wisbech, Cambridgeshire
           </h1>
           {data?.about && (
             <p className="text-gray-700 mt-2 leading-relaxed">{data.about}</p>
           )}
+          <p className="text-gray-700 mt-3 leading-relaxed">
+            Visit us for{" "}
+            <a
+              href="/beauticians"
+              className="text-brand-600 hover:text-brand-700 underline"
+            >
+              professional beauty treatments
+            </a>
+            , browse our{" "}
+            <a
+              href="/products"
+              className="text-brand-600 hover:text-brand-700 underline"
+            >
+              premium product range
+            </a>
+            , or
+            <a
+              href="/beauticians"
+              className="text-brand-600 hover:text-brand-700 underline"
+            >
+              {" "}
+              book an appointment online
+            </a>
+            . Check our{" "}
+            <a
+              href="/faq"
+              className="text-brand-600 hover:text-brand-700 underline"
+            >
+              FAQ
+            </a>{" "}
+            for more information.
+          </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">

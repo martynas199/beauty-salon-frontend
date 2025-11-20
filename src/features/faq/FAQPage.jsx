@@ -145,8 +145,8 @@ export default function FAQPage() {
     <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
       {/* SEO Meta Tags */}
       <SEOHead
-        title="FAQ - Frequently Asked Questions"
-        description="Get answers to frequently asked questions about Noble Elegance Beauty Salon in Wisbech. Learn about our booking process, payment options, cancellation policy, beauty services, and more. Located at 12 Blackfriars Rd, PE13 1AT. Serving Wisbech, March, King's Lynn, Peterborough, Downham Market and Cambridgeshire."
+        title="FAQ Wisbech Beauty Salon | Noble Elegance Booking & Services Guide"
+        description="Answers to beauty salon FAQs in Wisbech: booking process, payment options, cancellation policy & services. Noble Elegance at 12 Blackfriars Rd, PE13 1AT."
         keywords="beauty salon FAQ, booking questions Wisbech, cancellation policy beauty salon, beauty treatment questions, payment options beauty salon, beauty salon information Wisbech"
         schema={combinedSchema}
       />
@@ -155,11 +155,35 @@ export default function FAQPage() {
 
       <div className="text-center space-y-2">
         <h1 className="text-4xl font-bold text-gray-900">
-          Frequently Asked Questions - Noble Elegance Huntingdon
+          Frequently Asked Questions - Noble Elegance Wisbech
         </h1>
         <p className="text-gray-600">
-          Find answers to common questions about bookings, payments,
-          cancellations and our beauty services in Huntingdon
+          Find answers to common questions about{" "}
+          <a
+            href="/beauticians"
+            className="text-brand-600 hover:text-brand-700 underline"
+          >
+            bookings
+          </a>
+          , payments, cancellations and our{" "}
+          <a href="/" className="text-brand-600 hover:text-brand-700 underline">
+            beauty services
+          </a>{" "}
+          in Wisbech. Browse our{" "}
+          <a
+            href="/products"
+            className="text-brand-600 hover:text-brand-700 underline"
+          >
+            product catalog
+          </a>{" "}
+          or{" "}
+          <a
+            href="/contact"
+            className="text-brand-600 hover:text-brand-700 underline"
+          >
+            contact us
+          </a>{" "}
+          for more help.
         </p>
       </div>
 

@@ -383,8 +383,8 @@ export default function ProductsPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       {/* SEO Meta Tags */}
       <SEOHead
-        title="Beauty Products Catalog - Premium Beauty & Skincare"
-        description="Shop premium beauty products, cosmetics, and skincare at Noble Elegance in Wisbech. Discover professional-grade makeup, skincare, hair care products and beauty tools. Free delivery on orders over £50. Based at 12 Blackfriars Rd, PE13 1AT. Serving Wisbech, March, King's Lynn, Peterborough and Cambridgeshire."
+        title="Beauty Products Wisbech | Premium Skincare & Cosmetics - Noble Elegance"
+        description="Shop premium beauty products at Noble Elegance Wisbech. Professional skincare, makeup, hair care & beauty tools. Free delivery over £50. Browse now!"
         keywords="beauty products Wisbech, buy cosmetics online, professional beauty products, skincare products Cambridgeshire, makeup shop Wisbech, beauty store March, hair care products, beauty supplies Wisbech"
         schema={breadcrumbSchema}
       />
@@ -436,7 +436,7 @@ export default function ProductsPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold mb-4 sm:mb-6 text-white leading-tight"
             >
-              Our Collection
+              Premium Beauty Products
             </motion.h1>
 
             {/* Subtitle with accent */}
@@ -453,8 +453,16 @@ export default function ProductsPage() {
                 </p>
               </div>
               <p className="text-base sm:text-lg text-white/90 leading-relaxed max-w-2xl">
-                Experience the finest selection of premium beauty products,
-                meticulously chosen to elevate your daily rituals
+                Experience the finest selection of premium beauty products.{" "}
+                Discover professional skincare, luxury cosmetics, and beauty
+                essentials. Complement your{" "}
+                <a
+                  href="/beauticians"
+                  className="text-brand-300 hover:text-brand-200 underline transition-colors"
+                >
+                  beauty treatments
+                </a>{" "}
+                with our curated products.
               </p>
             </motion.div>
           </div>

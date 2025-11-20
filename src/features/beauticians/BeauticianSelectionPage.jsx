@@ -195,8 +195,8 @@ export default function BeauticianSelectionPage() {
     <PageTransition className="min-h-screen bg-gray-50 py-8 overflow-x-hidden">
       {/* SEO Meta Tags */}
       <SEOHead
-        title="Book Appointment - Select Your Beautician"
-        description="Book your beauty appointment at Noble Elegance in Wisbech, Cambridgeshire. Choose from our team of expert beauticians specializing in permanent makeup, brows, lashes and beauty treatments. Located at 12 Blackfriars Rd, PE13 1AT. Open 7 days, 9am-5pm. Serving Wisbech, March, King's Lynn, Peterborough and Cambridgeshire."
+        title="Book Appointment Wisbech | Expert Beauticians - Noble Elegance"
+        description="Book your beauty appointment in Wisbech. Expert beauticians specializing in permanent makeup, brows, lashes & treatments. Online booking available 24/7!"
         keywords="book beauty appointment Wisbech, beauty booking Cambridgeshire, permanent makeup appointment, book beautician Wisbech, beauty salon booking March, online booking beauty salon, King's Lynn beauty appointments"
         schema={breadcrumbSchema}
       />
@@ -207,11 +207,10 @@ export default function BeauticianSelectionPage() {
           <>
             <div className="mb-8">
               <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2 tracking-wide">
-                Book Your Appointment in Huntingdon
+                Book Your Beauty Appointment in Wisbech
               </h1>
               <p className="text-gray-600 font-light">
-                Choose your preferred beauty professional at Noble Elegance
-                Beauty Salon
+                Choose your preferred beauty treatment
               </p>
             </div>
 

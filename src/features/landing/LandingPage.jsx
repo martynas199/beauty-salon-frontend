@@ -167,8 +167,8 @@ export default function LandingPage() {
     <>
       {/* SEO Meta Tags */}
       <SEOHead
-        title="Home - Premier Aesthetic & Beauty Clinic"
-        description="Noble Elegance in Wisbech, Cambridgeshire - Your premier destination for permanent makeup, lip fillers, anti-wrinkle injections, dermal fillers, skin boosters, laser treatments, facial treatments, brow lamination, hair extensions and professional beauty services. Expert aesthetics clinic located at 12 Blackfriars Rd, PE13 1AT. Open 7 days, 9am-5pm. Serving Wisbech, March, King's Lynn, Peterborough and Cambridgeshire."
+        title="Noble Elegance Beauty Salon Wisbech | Aesthetic Clinic Cambridgeshire"
+        description="Premier beauty salon in Wisbech offering lip fillers, anti-wrinkle injections, dermal fillers, permanent makeup, laser treatments & hair services. Book now!"
         keywords="aesthetic clinic Wisbech, lip fillers Wisbech, anti wrinkle injections Cambridgeshire, dermal fillers Wisbech, skin boosters Wisbech, laser tattoo removal Wisbech, laser teeth whitening Wisbech, facial treatments Wisbech, brow lamination March, hair extensions Wisbech, permanent makeup lips, cheek augmentation, chin fillers, nasolabial folds treatment, waxing services Wisbech, beauty salon King's Lynn"
         schema={homepageSchema}
       />
@@ -192,6 +192,50 @@ export default function LandingPage() {
         {/* Hero Section Display */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-12 overflow-x-hidden">
           <HeroSectionDisplay />
+
+          {/* Main H1 Heading - SEO Critical */}
+          <h1 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 text-center mt-12 mb-4 tracking-wide">
+            Premier Aesthetic & Beauty Salon in Wisbech
+          </h1>
+          <p className="text-center text-gray-600 text-lg max-w-4xl mx-auto mb-8 font-light">
+            Expert cosmetic treatments including{" "}
+            <a
+              href="/beauticians"
+              className="text-brand-600 hover:text-brand-700 underline"
+            >
+              Hair extensions
+            </a>
+            ,{" "}
+            <a
+              href="/beauticians"
+              className="text-brand-600 hover:text-brand-700 underline"
+            >
+              anti-wrinkle injections
+            </a>
+            ,{" "}
+            <a
+              href="/beauticians"
+              className="text-brand-600 hover:text-brand-700 underline"
+            >
+              dermal fillers
+            </a>
+            ,{" "}
+            <a
+              href="/beauticians"
+              className="text-brand-600 hover:text-brand-700 underline"
+            >
+              permanent makeup
+            </a>
+            , and{" "}
+            <a
+              href="/beauticians"
+              className="text-brand-600 hover:text-brand-700 underline"
+            >
+              laser treatments
+            </a>
+            . Located in <strong>Wisbech, Cambridgeshire</strong>, serving
+            March, King's Lynn, and Peterborough.
+          </p>
         </div>
 
         {/* Scroll Reveal Text Quote - Opening */}
@@ -221,7 +265,7 @@ export default function LandingPage() {
           {/* Section Header */}
           <div className="mb-6 sm:mb-8">
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-2 tracking-wide">
-              Our Expert Beauticians in Huntingdon
+              Our Expert Beauticians
             </h2>
             <p className="text-gray-600 font-light">
               Choose your preferred beauty professional for personalized
