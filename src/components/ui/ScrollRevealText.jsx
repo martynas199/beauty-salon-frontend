@@ -16,20 +16,21 @@ export default function ScrollRevealText({
   // Smart word wrapping based on viewport width
   const lines = useMemo(() => {
     // Determine wrap width based on screen size
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
     const wrapWidth = isMobile ? 30 : 50; // Characters per line
-    
+
     // Remove existing newlines and wrap the text
-    const cleanText = text.replace(/\n/g, ' ').replace(/"/g, '');
-    const wrappedText = wrap(cleanText, { width: wrapWidth, indent: '' });
-    
+    const cleanText = text.replace(/\n/g, " ").replace(/"/g, "");
+    const wrappedText = wrap(cleanText, { width: wrapWidth, indent: "" });
+
     // Add quotes back to first and last line
-    const wrappedLines = wrappedText.split('\n').filter((line) => line.trim());
+    const wrappedLines = wrappedText.split("\n").filter((line) => line.trim());
     if (wrappedLines.length > 0) {
       wrappedLines[0] = '"' + wrappedLines[0];
-      wrappedLines[wrappedLines.length - 1] = wrappedLines[wrappedLines.length - 1] + '"';
+      wrappedLines[wrappedLines.length - 1] =
+        wrappedLines[wrappedLines.length - 1] + '"';
     }
-    
+
     return wrappedLines;
   }, [text]);
 

@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { HelmetProvider } from "react-helmet-async";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
 import { store } from "./app/store";
@@ -19,24 +20,26 @@ import "./styles.css";
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <Provider store={store}>
-          <BrowserRouter>
-            <AuthProvider>
-              <CurrencyProvider>
-                <LanguageProvider>
-                  <AppRoutes />
-                  <ToastProvider />
-                  <SpeedInsights />
-                  <Analytics />
-                </LanguageProvider>
-              </CurrencyProvider>
-            </AuthProvider>
-          </BrowserRouter>
-        </Provider>
-        {/* React Query DevTools - Only shows in development */}
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <Provider store={store}>
+            <BrowserRouter>
+              <AuthProvider>
+                <CurrencyProvider>
+                  <LanguageProvider>
+                    <AppRoutes />
+                    <ToastProvider />
+                    <SpeedInsights />
+                    <Analytics />
+                  </LanguageProvider>
+                </CurrencyProvider>
+              </AuthProvider>
+            </BrowserRouter>
+          </Provider>
+          {/* React Query DevTools - Only shows in development */}
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </HelmetProvider>
     </ErrorBoundary>
   </React.StrictMode>
 );

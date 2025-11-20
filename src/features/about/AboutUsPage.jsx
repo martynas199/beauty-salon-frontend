@@ -1,5 +1,10 @@
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { useAboutUs } from "./hooks/useAboutUsQueries";
+import SEOHead from "../../components/seo/SEOHead";
+import {
+  generateOrganizationSchema,
+  generateBreadcrumbSchema,
+} from "../../utils/schemaGenerator";
 
 export default function AboutUsPage() {
   const {
@@ -53,8 +58,28 @@ export default function AboutUsPage() {
 
   const paragraphs = aboutUs.description.split("\n\n").filter((p) => p.trim());
 
+  // Generate schemas
+  const organizationSchema = generateOrganizationSchema();
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "About Us", url: "/about" },
+  ]);
+
+  const combinedSchema = {
+    "@context": "https://schema.org",
+    "@graph": [organizationSchema, breadcrumbSchema],
+  };
+
   return (
     <div className="min-h-screen">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title="About Us - Our Story & Mission"
+        description="Discover Noble Elegance Beauty Salon in Wisbech, Cambridgeshire. Learn about our expert beauticians, premium beauty services, and our commitment to excellence. Located at 12 Blackfriars Rd, PE13 1AT. We specialize in permanent makeup, brows, lashes and luxury beauty treatments for clients across Wisbech, March, King's Lynn, Peterborough and Cambridgeshire."
+        keywords="about Noble Elegance, beauty salon Wisbech story, experienced beauticians Cambridgeshire, professional beauty services, award winning beauty salon, best beauty salon Wisbech"
+        schema={combinedSchema}
+      />
+
       {/* Background Refresh Indicator */}
       {isFetching && !isLoading && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-brand-500 text-white text-center py-1 text-sm">
@@ -78,8 +103,9 @@ export default function AboutUsPage() {
         <div className="absolute inset-0 md:hidden">
           <img
             src={aboutUs.image.url}
-            alt="About Noble Elegance"
+            alt="Noble Elegance Beauty Salon - Premier Beauty and Permanent Makeup Salon in Huntingdon, Cambridgeshire"
             className="w-full h-full object-cover object-center"
+            loading="eager"
           />
           <div className="absolute inset-0 bg-black/40"></div>
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/60"></div>
@@ -94,8 +120,9 @@ export default function AboutUsPage() {
               <div className="relative p-2 bg-gradient-to-br from-brand-200 via-white to-brand-200 rounded-lg shadow-2xl">
                 <img
                   src={aboutUs.image.url}
-                  alt="About Noble Elegance"
+                  alt="Noble Elegance Beauty Salon Team - Expert Beauticians in Huntingdon providing Premium Beauty Services"
                   className="w-full h-auto object-contain rounded-md shadow-lg max-h-[70vh]"
+                  loading="eager"
                 />
               </div>
 

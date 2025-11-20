@@ -1,6 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import Card from "../../components/ui/Card";
 import BackBar from "../../components/ui/BackBar";
+import SEOHead from "../../components/seo/SEOHead";
+import {
+  generateFAQSchema,
+  generateBreadcrumbSchema,
+} from "../../utils/schemaGenerator";
 
 export default function FAQPage() {
   const navigate = useNavigate();
@@ -117,17 +122,44 @@ export default function FAQPage() {
     },
   ];
 
+  // Generate FAQ schema
+  const allFAQs = faqs.flatMap((category) =>
+    category.questions.map((q) => ({
+      question: q.q,
+      answer:
+        q.a + (q.details ? "\n" + q.details.map((d) => d.text).join("\n") : ""),
+    }))
+  );
+  const faqSchema = generateFAQSchema(allFAQs);
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "FAQ", url: "/faq" },
+  ]);
+
+  const combinedSchema = {
+    "@context": "https://schema.org",
+    "@graph": [faqSchema, breadcrumbSchema],
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title="FAQ - Frequently Asked Questions"
+        description="Get answers to frequently asked questions about Noble Elegance Beauty Salon in Wisbech. Learn about our booking process, payment options, cancellation policy, beauty services, and more. Located at 12 Blackfriars Rd, PE13 1AT. Serving Wisbech, March, King's Lynn, Peterborough, Downham Market and Cambridgeshire."
+        keywords="beauty salon FAQ, booking questions Wisbech, cancellation policy beauty salon, beauty treatment questions, payment options beauty salon, beauty salon information Wisbech"
+        schema={combinedSchema}
+      />
+
       <BackBar onBack={() => navigate(-1)} />
 
       <div className="text-center space-y-2">
         <h1 className="text-4xl font-bold text-gray-900">
-          Frequently Asked Questions
+          Frequently Asked Questions - Noble Elegance Huntingdon
         </h1>
         <p className="text-gray-600">
-          Find answers to common questions about bookings, payments, and
-          cancellations
+          Find answers to common questions about bookings, payments,
+          cancellations and our beauty services in Huntingdon
         </p>
       </div>
 

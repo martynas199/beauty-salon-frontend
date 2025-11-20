@@ -19,6 +19,11 @@ import logo from "../../assets/logo.svg";
 import ScrollRevealText from "../../components/ui/ScrollRevealText";
 import ProductCarousel from "../products/ProductCarousel";
 import ShopByBrand from "./ShopByBrand";
+import SEOHead from "../../components/seo/SEOHead";
+import {
+  generateLocalBusinessSchema,
+  generateWebSiteSchema,
+} from "../../utils/schemaGenerator";
 
 export default function LandingPage() {
   const [services, setServices] = useState([]);
@@ -28,9 +33,6 @@ export default function LandingPage() {
   const [salon, setSalon] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], [0, -20]);
 
   useEffect(() => {
     // Parallelize all API calls for faster loading
@@ -129,6 +131,19 @@ export default function LandingPage() {
     return services.filter((s) => s.category === activeCat);
   }, [services, activeCat]);
 
+  // Generate combined schema for homepage
+  const homepageSchema = useMemo(() => {
+    const schemas = [generateLocalBusinessSchema(), generateWebSiteSchema()];
+
+    return {
+      "@context": "https://schema.org",
+      "@graph": schemas,
+    };
+  }, []);
+
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], [0, -20]);
+
   if (loading) {
     return (
       <div className="-mt-8">
@@ -150,6 +165,14 @@ export default function LandingPage() {
 
   return (
     <>
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title="Home - Premier Aesthetic & Beauty Clinic"
+        description="Noble Elegance in Wisbech, Cambridgeshire - Your premier destination for permanent makeup, lip fillers, anti-wrinkle injections, dermal fillers, skin boosters, laser treatments, facial treatments, brow lamination, hair extensions and professional beauty services. Expert aesthetics clinic located at 12 Blackfriars Rd, PE13 1AT. Open 7 days, 9am-5pm. Serving Wisbech, March, King's Lynn, Peterborough and Cambridgeshire."
+        keywords="aesthetic clinic Wisbech, lip fillers Wisbech, anti wrinkle injections Cambridgeshire, dermal fillers Wisbech, skin boosters Wisbech, laser tattoo removal Wisbech, laser teeth whitening Wisbech, facial treatments Wisbech, brow lamination March, hair extensions Wisbech, permanent makeup lips, cheek augmentation, chin fillers, nasolabial folds treatment, waxing services Wisbech, beauty salon King's Lynn"
+        schema={homepageSchema}
+      />
+
       {/* Fixed Background Logo with Parallax Effect - Behind all content */}
       <motion.div
         className="fixed inset-0 flex items-center justify-center pointer-events-none"
@@ -160,7 +183,7 @@ export default function LandingPage() {
       >
         <img
           src={logo}
-          alt="Logo"
+          alt="Noble Elegance Beauty Salon Logo"
           className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] opacity-40"
         />
       </motion.div>
@@ -198,10 +221,11 @@ export default function LandingPage() {
           {/* Section Header */}
           <div className="mb-6 sm:mb-8">
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-2 tracking-wide">
-              Our Beauticians
+              Our Expert Beauticians in Huntingdon
             </h2>
             <p className="text-gray-600 font-light">
-              Choose your preferred beauty professional
+              Choose your preferred beauty professional for personalized
+              treatments in Cambridgeshire
             </p>
           </div>
           {/* Beauticians Grid with scroll-in and parallax animations */}
@@ -251,8 +275,9 @@ export default function LandingPage() {
                     {beautician.image?.url ? (
                       <img
                         src={beautician.image.url}
-                        alt={beautician.name}
+                        alt={`${beautician.name} - Professional Beautician at Noble Elegance Beauty Salon Huntingdon`}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400">

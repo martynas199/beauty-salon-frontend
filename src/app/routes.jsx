@@ -25,6 +25,8 @@ import ProfilePage from "../features/profile/ProfilePage";
 import ProfileEditPage from "../features/profile/ProfileEditPage";
 import BeauticianSelectionPage from "../features/beauticians/BeauticianSelectionPage";
 import AboutUsPage from "../features/about/AboutUsPage";
+import BlogPage from "../features/blog/BlogPage";
+import BlogPostPage from "../features/blog/BlogPostPage";
 import TokenDebugPage from "../features/auth/TokenDebugPage";
 import { useAuth } from "./AuthContext";
 
@@ -70,6 +72,7 @@ const OnboardingComplete = lazy(() =>
 );
 const ReauthOnboarding = lazy(() => import("../admin/pages/ReauthOnboarding"));
 const ShippingRates = lazy(() => import("../admin/pages/ShippingRates"));
+const BlogPosts = lazy(() => import("../admin/pages/BlogPosts"));
 
 function CustomerLayout() {
   const dispatch = useDispatch();
@@ -117,6 +120,12 @@ function CustomerLayout() {
                 className="text-sm font-serif font-medium text-gray-700 hover:text-brand-600 transition-colors tracking-wide"
               >
                 Catalog
+              </Link>
+              <Link
+                to="/blog"
+                className="text-sm font-serif font-medium text-gray-700 hover:text-brand-600 transition-colors tracking-wide"
+              >
+                Blog
               </Link>
               <Link
                 to="/about"
@@ -353,6 +362,13 @@ function CustomerLayout() {
                   Catalog
                 </Link>
                 <Link
+                  to="/blog"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-3 text-sm font-serif font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-all duration-250 tracking-wide"
+                >
+                  Blog
+                </Link>
+                <Link
                   to="/about"
                   onClick={() => setMobileMenuOpen(false)}
                   className="px-4 py-3 text-sm font-serif font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-all duration-250 tracking-wide"
@@ -430,6 +446,8 @@ function CustomerLayout() {
             element={<OrderSuccessPage />}
           />
           <Route path="/about" element={<AboutUsPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/token-debug" element={<TokenDebugPage />} />
@@ -625,6 +643,14 @@ export default function AppRoutes() {
             element={
               <Suspense fallback={<LoadingSpinner center size="lg" />}>
                 <ShippingRates />
+              </Suspense>
+            }
+          />
+          <Route
+            path="blog-posts"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <BlogPosts />
               </Suspense>
             }
           />

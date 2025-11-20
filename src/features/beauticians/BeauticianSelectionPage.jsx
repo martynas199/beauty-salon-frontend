@@ -10,6 +10,8 @@ import PageTransition, {
 import Card from "../../components/ui/Card";
 import ServiceCard from "../landing/ServiceCard";
 import ServiceVariantSelector from "../../components/ServiceVariantSelector";
+import SEOHead from "../../components/seo/SEOHead";
+import { generateBreadcrumbSchema } from "../../utils/schemaGenerator";
 
 export default function BeauticianSelectionPage() {
   const [beauticians, setBeauticians] = useState([]);
@@ -54,7 +56,7 @@ export default function BeauticianSelectionPage() {
       const beauticianRes = await api.get(`/beauticians/${beautician._id}`);
       fullBeauticianData = beauticianRes.data;
     } catch (err) {
-      console.error('Failed to fetch full beautician data:', err);
+      console.error("Failed to fetch full beautician data:", err);
     }
 
     setSelectedBeautician(fullBeauticianData);
@@ -147,7 +149,7 @@ export default function BeauticianSelectionPage() {
         bufferAfterMin: selectedVariant.bufferAfterMin,
       })
     );
-    
+
     dispatch(
       setBeautician({
         beauticianId: selectedBeautician._id,
@@ -183,18 +185,33 @@ export default function BeauticianSelectionPage() {
     );
   }
 
+  // Breadcrumb schema
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Book Appointment", url: "/beauticians" },
+  ]);
+
   return (
     <PageTransition className="min-h-screen bg-gray-50 py-8 overflow-x-hidden">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title="Book Appointment - Select Your Beautician"
+        description="Book your beauty appointment at Noble Elegance in Wisbech, Cambridgeshire. Choose from our team of expert beauticians specializing in permanent makeup, brows, lashes and beauty treatments. Located at 12 Blackfriars Rd, PE13 1AT. Open 7 days, 9am-5pm. Serving Wisbech, March, King's Lynn, Peterborough and Cambridgeshire."
+        keywords="book beauty appointment Wisbech, beauty booking Cambridgeshire, permanent makeup appointment, book beautician Wisbech, beauty salon booking March, online booking beauty salon, King's Lynn beauty appointments"
+        schema={breadcrumbSchema}
+      />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-hidden">
         {!selectedBeautician ? (
           // Step 1: Select a Beautician
           <>
             <div className="mb-8">
               <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2 tracking-wide">
-                Select a Beautician
+                Book Your Appointment in Huntingdon
               </h1>
               <p className="text-gray-600 font-light">
-                Choose your preferred beauty professional
+                Choose your preferred beauty professional at Noble Elegance
+                Beauty Salon
               </p>
             </div>
 
@@ -211,8 +228,14 @@ export default function BeauticianSelectionPage() {
                       {beautician.image?.url ? (
                         <img
                           src={beautician.image.url}
-                          alt={beautician.name}
+                          alt={`${
+                            beautician.name
+                          } - Expert Beautician in Huntingdon specializing in ${
+                            beautician.specialties?.slice(0, 2).join(", ") ||
+                            "beauty treatments"
+                          }`}
                           className="w-full h-full object-cover"
+                          loading="lazy"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400">

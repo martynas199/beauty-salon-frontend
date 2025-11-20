@@ -27,6 +27,8 @@ import { toggleWishlist as toggleWishlistAPI } from "../profile/wishlist.api";
 import ProductCard from "./ProductCard";
 import ProductDetailModal from "./ProductDetailModal";
 import toast from "react-hot-toast";
+import SEOHead from "../../components/seo/SEOHead";
+import { generateBreadcrumbSchema } from "../../utils/schemaGenerator";
 
 export default function ProductsPage() {
   const navigate = useNavigate();
@@ -371,8 +373,22 @@ export default function ProductsPage() {
     (sortBy !== "featured" ? 1 : 0) +
     (priceFilterActive ? 1 : 0);
 
+  // Breadcrumb schema
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Beauty Products Catalog", url: "/products" },
+  ]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title="Beauty Products Catalog - Premium Beauty & Skincare"
+        description="Shop premium beauty products, cosmetics, and skincare at Noble Elegance in Wisbech. Discover professional-grade makeup, skincare, hair care products and beauty tools. Free delivery on orders over £50. Based at 12 Blackfriars Rd, PE13 1AT. Serving Wisbech, March, King's Lynn, Peterborough and Cambridgeshire."
+        keywords="beauty products Wisbech, buy cosmetics online, professional beauty products, skincare products Cambridgeshire, makeup shop Wisbech, beauty store March, hair care products, beauty supplies Wisbech"
+        schema={breadcrumbSchema}
+      />
+
       {/* Modern Elegant Hero Section */}
       <section
         className="relative overflow-hidden -mt-20 md:-mt-24 bg-center bg-no-repeat"

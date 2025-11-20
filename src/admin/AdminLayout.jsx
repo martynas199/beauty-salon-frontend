@@ -405,6 +405,12 @@ const items = [
     superAdminOnly: true,
   },
   {
+    to: "/admin/blog-posts",
+    labelKey: "blogPosts",
+    label: "Blog Posts",
+    iconName: "document",
+  },
+  {
     to: "/admin/cancellation",
     labelKey: "cancellationPolicy",
     label: "Cancellation Policy",

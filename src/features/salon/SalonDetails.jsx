@@ -1,6 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { SalonAPI } from "./salon.api";
 import Card from "../../components/ui/Card";
+import SEOHead from "../../components/seo/SEOHead";
+import {
+  generateLocalBusinessSchema,
+  generateBreadcrumbSchema,
+} from "../../utils/schemaGenerator";
 
 const DAY_LABELS = {
   mon: "Monday",
@@ -29,8 +34,28 @@ export default function SalonDetails() {
     [data]
   );
 
+  // Generate schemas
+  const localBusinessSchema = generateLocalBusinessSchema();
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Contact Us", url: "/salon" },
+  ]);
+
+  const combinedSchema = {
+    "@context": "https://schema.org",
+    "@graph": [localBusinessSchema, breadcrumbSchema],
+  };
+
   return (
     <div className="pb-10">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title="Contact Us - Location, Hours & Directions"
+        description="Visit Noble Elegance Beauty Salon at 12 Blackfriars Rd, PE13 1AT, Wisbech, Cambridgeshire. Call +44 7928 775746. Open Monday-Sunday, 9am-5pm. Easy parking available. Find our location, opening hours, contact details and directions. We're conveniently located to serve clients from Wisbech, March, King's Lynn, Peterborough, Downham Market and Chatteris."
+        keywords="beauty salon location Wisbech, contact Noble Elegance, beauty salon opening hours, directions to beauty salon Wisbech, beauty salon near me, Wisbech beauty salon address, Cambridgeshire beauty salon contact"
+        schema={combinedSchema}
+      />
+
       {/* Hero */}
       {data?.heroUrl ? (
         <div
