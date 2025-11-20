@@ -3,11 +3,13 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { OrdersAPI } from "./orders.api";
 import Button from "../../components/ui/Button";
 import { formatCurrency } from "../../utils/currency";
+import { useAuth } from "../../app/AuthContext";
 
 export default function OrderSuccessPage() {
   const { orderNumber } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   const [order, setOrder] = useState(location.state?.order || null);
   const [loading, setLoading] = useState(!location.state?.order);
@@ -82,8 +84,48 @@ export default function OrderSuccessPage() {
     );
   }
 
+  // Determine where the back button should go
+  const handleBack = () => {
+    // Check if user came from profile page
+    const fromProfile = location.state?.fromProfile || document.referrer.includes('/profile');
+    
+    if (isAuthenticated && fromProfile) {
+      // Logged-in user viewing from profile - go back to profile
+      navigate("/profile");
+    } else if (isAuthenticated) {
+      // Logged-in user just completed checkout - go to profile to see orders
+      navigate("/profile");
+    } else {
+      // Guest user - go to home page
+      navigate("/");
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
+      {/* Back Button */}
+      <button
+        onClick={handleBack}
+        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+      >
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        <span className="font-medium">
+          {isAuthenticated ? "Back to Profile" : "Back to Home"}
+        </span>
+      </button>
+
       {/* Success Icon */}
       <div className="text-center mb-8">
         <div

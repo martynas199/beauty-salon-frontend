@@ -358,22 +358,32 @@ export default function Orders() {
                     </Button>
                   )}
 
-                  {order.orderStatus === "processing" && (
-                    <Button
-                      variant="brand"
-                      size="sm"
-                      onClick={() =>
-                        order.isCollection
-                          ? handleMarkReadyForCollection(order._id)
-                          : handleUpdateStatus(order._id, "shipped")
-                      }
-                      disabled={updating}
-                    >
-                      {order.isCollection
-                        ? "Mark Ready for Collection"
-                        : "Mark Shipped"}
-                    </Button>
-                  )}
+                  {order.orderStatus === "processing" &&
+                    (!order.isCollection ||
+                      !order.collectionStatus ||
+                      order.collectionStatus === "pending") && (
+                      <Button
+                        variant="brand"
+                        size="sm"
+                        onClick={() =>
+                          order.isCollection
+                            ? handleMarkReadyForCollection(order._id)
+                            : handleUpdateStatus(order._id, "shipped")
+                        }
+                        disabled={updating}
+                      >
+                        {order.isCollection
+                          ? "Mark Ready for Collection"
+                          : "Mark Shipped"}
+                      </Button>
+                    )}
+
+                  {order.isCollection &&
+                    order.collectionStatus === "ready" && (
+                      <div className="px-3 py-2 bg-green-50 border border-green-200 rounded text-green-700 text-sm font-medium text-center">
+                        ✓ Ready for Collection
+                      </div>
+                    )}
 
                   {order.orderStatus === "shipped" && (
                     <Button

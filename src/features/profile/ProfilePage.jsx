@@ -212,17 +212,19 @@ const ProfilePage = () => {
         )}
 
         {/* Tabs */}
-        <div className="mb-6 border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
+        <div className="mb-6 border-b border-gray-200 overflow-x-auto">
+          <nav className="-mb-px flex space-x-2 sm:space-x-4 md:space-x-8 min-w-max sm:min-w-0">
             <button
               onClick={() => setActiveTab("bookings")}
               className={`${
                 activeTab === "bookings"
                   ? "border-rose-500 text-rose-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              } whitespace-nowrap py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors flex-shrink-0`}
             >
-              My Bookings ({bookings.length})
+              <span className="hidden sm:inline">My Bookings</span>
+              <span className="sm:hidden">Bookings</span>
+              <span className="ml-1">({bookings.length})</span>
             </button>
             <button
               onClick={() => setActiveTab("orders")}
@@ -230,9 +232,11 @@ const ProfilePage = () => {
                 activeTab === "orders"
                   ? "border-rose-500 text-rose-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              } whitespace-nowrap py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors flex-shrink-0`}
             >
-              My Orders ({orders.length})
+              <span className="hidden sm:inline">My Orders</span>
+              <span className="sm:hidden">Orders</span>
+              <span className="ml-1">({orders.length})</span>
             </button>
             <button
               onClick={() => setActiveTab("wishlist")}
@@ -240,9 +244,10 @@ const ProfilePage = () => {
                 activeTab === "wishlist"
                   ? "border-rose-500 text-rose-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              } whitespace-nowrap py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors flex-shrink-0`}
             >
-              Wishlist ({wishlist.length})
+              <span>Wishlist</span>
+              <span className="ml-1">({wishlist.length})</span>
             </button>
             <button
               onClick={() => setActiveTab("settings")}
@@ -250,7 +255,7 @@ const ProfilePage = () => {
                 activeTab === "settings"
                   ? "border-rose-500 text-rose-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              } whitespace-nowrap py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors flex-shrink-0`}
             >
               Settings
             </button>
@@ -579,7 +584,8 @@ const ProfilePage = () => {
                               navigate(
                                 `/order-success/${
                                   order.orderNumber || order._id.slice(-8)
-                                }`
+                                }`,
+                                { state: { fromProfile: true } }
                               )
                             }
                             className="w-full"
