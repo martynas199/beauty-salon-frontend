@@ -67,7 +67,7 @@ export default function HeroSectionDisplay() {
               <div className="relative h-[400px] md:h-[500px] overflow-hidden animate-slideInBottom">
                 <img
                   src={section.centerImage.url}
-                  alt={section.title}
+                  alt={`${section.title} - Professional beauty treatments at Noble Elegance Wisbech Cambridgeshire`}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none"></div>
@@ -79,7 +79,7 @@ export default function HeroSectionDisplay() {
               <div className="relative h-[400px] md:h-[500px] overflow-hidden animate-slideInRight">
                 <img
                   src={section.rightImage.url}
-                  alt="Showcase"
+                  alt={`${section.title} showcase - Expert beauty services at Noble Elegance Beauty Salon`}
                   className="w-full h-full object-cover"
                 />
               </div>

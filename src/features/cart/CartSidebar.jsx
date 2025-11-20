@@ -20,7 +20,9 @@ export default function CartSidebar() {
   // Check for multiple beauticians in cart
   const beauticians = new Set(
     items
-      .map((item) => item.product?.beauticianId?._id || item.product?.beauticianId)
+      .map(
+        (item) => item.product?.beauticianId?._id || item.product?.beauticianId
+      )
       .filter(Boolean)
   );
   const hasMultipleBeauticians = beauticians.size > 1;
@@ -123,7 +125,7 @@ export default function CartSidebar() {
                     {item.product?.image?.url || item.product?.image ? (
                       <img
                         src={item.product.image?.url || item.product.image}
-                        alt={item.product.title}
+                        alt={`${item.product.title} - Beauty product in your cart`}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -287,8 +289,9 @@ export default function CartSidebar() {
                       Multiple Sellers
                     </h4>
                     <p className="text-xs text-amber-800">
-                      Your cart contains products from {beauticians.size} different sellers.
-                      You'll need to check out separately for each seller.
+                      Your cart contains products from {beauticians.size}{" "}
+                      different sellers. You'll need to check out separately for
+                      each seller.
                     </p>
                   </div>
                 </div>

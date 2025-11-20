@@ -212,52 +212,56 @@ const ProfilePage = () => {
         )}
 
         {/* Tabs */}
-        <div className="mb-6 border-b border-gray-200 overflow-x-auto">
-          <nav className="-mb-px flex space-x-2 sm:space-x-4 md:space-x-8 min-w-max sm:min-w-0">
+        <div className="mb-6">
+          <nav className="grid grid-cols-2 sm:flex sm:border-b sm:border-gray-200 gap-2 sm:gap-0 sm:space-x-8">
             <button
               onClick={() => setActiveTab("bookings")}
               className={`${
                 activeTab === "bookings"
-                  ? "border-rose-500 text-rose-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors flex-shrink-0`}
+                  ? "bg-rose-50 border-rose-500 text-rose-600 sm:bg-transparent sm:border-b-2 sm:border-t-0 sm:border-x-0"
+                  : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-900 sm:bg-transparent sm:border-transparent sm:border-b-2"
+              } py-3 px-3 sm:px-1 border-2 sm:border-0 sm:border-b-2 rounded-lg sm:rounded-none font-medium text-xs sm:text-sm transition-all sm:-mb-px`}
             >
-              <span className="hidden sm:inline">My Bookings</span>
-              <span className="sm:hidden">Bookings</span>
-              <span className="ml-1">({bookings.length})</span>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-1">
+                <span>Bookings</span>
+                <span className="text-xs sm:text-sm">({bookings.length})</span>
+              </div>
             </button>
             <button
               onClick={() => setActiveTab("orders")}
               className={`${
                 activeTab === "orders"
-                  ? "border-rose-500 text-rose-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors flex-shrink-0`}
+                  ? "bg-rose-50 border-rose-500 text-rose-600 sm:bg-transparent sm:border-b-2 sm:border-t-0 sm:border-x-0"
+                  : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-900 sm:bg-transparent sm:border-transparent sm:border-b-2"
+              } py-3 px-3 sm:px-1 border-2 sm:border-0 sm:border-b-2 rounded-lg sm:rounded-none font-medium text-xs sm:text-sm transition-all sm:-mb-px`}
             >
-              <span className="hidden sm:inline">My Orders</span>
-              <span className="sm:hidden">Orders</span>
-              <span className="ml-1">({orders.length})</span>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-1">
+                <span>Orders</span>
+                <span className="text-xs sm:text-sm">({orders.length})</span>
+              </div>
             </button>
             <button
               onClick={() => setActiveTab("wishlist")}
               className={`${
                 activeTab === "wishlist"
-                  ? "border-rose-500 text-rose-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors flex-shrink-0`}
+                  ? "bg-rose-50 border-rose-500 text-rose-600 sm:bg-transparent sm:border-b-2 sm:border-t-0 sm:border-x-0"
+                  : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-900 sm:bg-transparent sm:border-transparent sm:border-b-2"
+              } py-3 px-3 sm:px-1 border-2 sm:border-0 sm:border-b-2 rounded-lg sm:rounded-none font-medium text-xs sm:text-sm transition-all sm:-mb-px`}
             >
-              <span>Wishlist</span>
-              <span className="ml-1">({wishlist.length})</span>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-1">
+                <span>Wishlist</span>
+                <span className="text-xs sm:text-sm">({wishlist.length})</span>
+              </div>
             </button>
             <button
               onClick={() => setActiveTab("settings")}
               className={`${
                 activeTab === "settings"
-                  ? "border-rose-500 text-rose-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors flex-shrink-0`}
+                  ? "bg-rose-50 border-rose-500 text-rose-600 sm:bg-transparent sm:border-b-2 sm:border-t-0 sm:border-x-0"
+                  : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-900 sm:bg-transparent sm:border-transparent sm:border-b-2"
+              } py-3 px-3 sm:px-1 border-2 sm:border-0 sm:border-b-2 rounded-lg sm:rounded-none font-medium text-xs sm:text-sm transition-all sm:-mb-px`}
             >
-              Settings
+              <span>Settings</span>
             </button>
           </nav>
         </div>

@@ -15,7 +15,7 @@ export function generateLocalBusinessSchema() {
     "@type": ["BeautySalon", "MedicalClinic", "LocalBusiness"],
     name: businessName,
     description:
-      "Leading aesthetic clinic and beauty salon in Wisbech, Cambridgeshire offering lip fillers, anti-wrinkle injections, dermal fillers, skin boosters, permanent makeup, laser treatments, facial treatments, brow lamination, hair extensions and professional beauty services. Expert aestheticians serving Wisbech, March, King's Lynn, Peterborough and surrounding Cambridgeshire areas.",
+      "Noble Elegance is a premier aesthetic clinic and beauty salon in Wisbech, Cambridgeshire, offering expert cosmetic treatments and professional beauty services. We specialize in lip fillers, anti-wrinkle injections, dermal fillers, skin boosters, and permanent makeup for lips and brows. Our services include laser tattoo removal, laser teeth whitening, professional facial treatments, brow lamination, hair extensions, cutting, coloring, styling, and full body waxing. Located at 12 Blackfriars Rd, PE13 1AT, we serve clients from Wisbech, March, King's Lynn, Peterborough, Downham Market, and surrounding Cambridgeshire areas. Open 7 days a week, 9am-5pm. Expert aestheticians committed to enhancing your natural beauty with premium treatments.",
     image: `${baseUrl}/src/assets/logo.svg`,
     "@id": baseUrl,
     url: baseUrl,

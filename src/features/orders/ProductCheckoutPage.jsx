@@ -9,6 +9,7 @@ import { clearCart } from "../cart/cartSlice";
 import Button from "../../components/ui/Button";
 import { useAuth } from "../../app/AuthContext";
 import { useCurrency } from "../../contexts/CurrencyContext";
+import SEOHead from "../../components/seo/SEOHead";
 
 export default function ProductCheckoutPage() {
   const dispatch = useDispatch();
@@ -346,499 +347,510 @@ export default function ProductCheckoutPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8 overflow-x-hidden">
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-8 break-words">
-        Checkout
-      </h1>
+    <>
+      <SEOHead
+        title="Product Checkout - Noble Elegance"
+        description="Complete your product order at Noble Elegance Beauty Salon."
+        noindex={true}
+      />
+      <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8 overflow-x-hidden">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-8 break-words">
+          Checkout
+        </h1>
 
-      <form onSubmit={handleSubmit} className="overflow-x-hidden">
-        <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
-          {/* Left: Shipping Form */}
-          <div className="lg:col-span-2">
-            <div className="space-y-6">
-              {/* Shipping Information */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 overflow-hidden">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 break-words">
-                  Shipping Information
-                </h2>
+        <form onSubmit={handleSubmit} className="overflow-x-hidden">
+          <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
+            {/* Left: Shipping Form */}
+            <div className="lg:col-span-2">
+              <div className="space-y-6">
+                {/* Shipping Information */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 overflow-hidden">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 break-words">
+                    Shipping Information
+                  </h2>
 
-                {/* Collection Notice */}
-                {selectedShipping?.isCollection && (
-                  <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                    <div className="flex items-start gap-3">
-                      <svg
-                        className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                        />
-                      </svg>
-                      <div>
-                        <h3 className="font-semibold text-red-600 mb-1">
-                          Collect in Person
-                        </h3>
-                        <p className="text-sm text-gray-800 mb-1">
-                          Your order will be ready for collection at:
-                        </p>
-                        <p className="text-sm font-medium text-gray-900">
-                          12 Blackfriars Rd, PE13 1AT
-                        </p>
-                        <p className="text-xs text-gray-700 mt-2">
-                          We'll notify you when your order is ready to collect.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      First Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.firstName}
-                      onChange={(e) =>
-                        setFormData({ ...formData, firstName: e.target.value })
-                      }
-                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                      placeholder="John"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Last Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.lastName}
-                      onChange={(e) =>
-                        setFormData({ ...formData, lastName: e.target.value })
-                      }
-                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                      placeholder="Doe"
-                    />
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Email *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      autoComplete="email"
-                      inputMode="email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                      placeholder="john@example.com"
-                    />
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Phone *
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      autoComplete="tel"
-                      inputMode="tel"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
-                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                      placeholder="+44 7700 900000"
-                    />
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Address {!selectedShipping?.isCollection && "*"}
-                    </label>
-                    <input
-                      type="text"
-                      required={!selectedShipping?.isCollection}
-                      autoComplete="street-address"
-                      value={formData.address}
-                      onChange={(e) =>
-                        setFormData({ ...formData, address: e.target.value })
-                      }
-                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                      placeholder={
-                        selectedShipping?.isCollection
-                          ? "Optional for collection"
-                          : "123 Main Street, Apt 4B"
-                      }
-                      disabled={selectedShipping?.isCollection}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      City {!selectedShipping?.isCollection && "*"}
-                    </label>
-                    <input
-                      type="text"
-                      required={!selectedShipping?.isCollection}
-                      autoComplete="address-level2"
-                      value={formData.city}
-                      onChange={(e) =>
-                        setFormData({ ...formData, city: e.target.value })
-                      }
-                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                      placeholder={
-                        selectedShipping?.isCollection
-                          ? "Optional for collection"
-                          : "London"
-                      }
-                      disabled={selectedShipping?.isCollection}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Postal Code {!selectedShipping?.isCollection && "*"}
-                    </label>
-                    <input
-                      type="text"
-                      required={!selectedShipping?.isCollection}
-                      autoComplete="postal-code"
-                      value={formData.postalCode}
-                      onChange={(e) =>
-                        setFormData({ ...formData, postalCode: e.target.value })
-                      }
-                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                      placeholder={
-                        selectedShipping?.isCollection
-                          ? "Optional for collection"
-                          : "SW1A 1AA"
-                      }
-                      disabled={selectedShipping?.isCollection}
-                    />
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Country *
-                    </label>
-                    <select
-                      required
-                      autoComplete="country-name"
-                      value={formData.country}
-                      onChange={(e) =>
-                        setFormData({ ...formData, country: e.target.value })
-                      }
-                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none bg-white"
-                      style={{
-                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                        backgroundPosition: "right 0.5rem center",
-                        backgroundRepeat: "no-repeat",
-                        backgroundSize: "1.5em 1.5em",
-                        paddingRight: "2.5rem",
-                      }}
-                    >
-                      <option value="United Kingdom">United Kingdom</option>
-                      <option value="Ireland">Ireland</option>
-                      <option value="France">France</option>
-                      <option value="Germany">Germany</option>
-                      <option value="Spain">Spain</option>
-                      <option value="Italy">Italy</option>
-                    </select>
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Order Notes (Optional)
-                    </label>
-                    <textarea
-                      value={formData.notes}
-                      onChange={(e) =>
-                        setFormData({ ...formData, notes: e.target.value })
-                      }
-                      rows={3}
-                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
-                      placeholder="Special delivery instructions..."
-                    />
-                  </div>
-                </div>
-
-                {/* Sign-in prompt for guests */}
-                {!user && (
-                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm">
-                    <div className="flex items-start gap-2">
-                      <span className="text-blue-600 mt-0.5">ℹ️</span>
-                      <div>
-                        <span className="text-gray-700">
-                          <Link
-                            to="/login"
-                            state={{ from: location.pathname }}
-                            className="text-brand-600 hover:text-brand-700 font-medium underline"
-                          >
-                            Sign in
-                          </Link>{" "}
-                          or{" "}
-                          <Link
-                            to="/register"
-                            state={{ from: location.pathname }}
-                            className="text-brand-600 hover:text-brand-700 font-medium underline"
-                          >
-                            create an account
-                          </Link>{" "}
-                          to track your orders and easily reorder in the future.
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Place Order Button - Mobile (Sticky at bottom) */}
-              <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-10 shadow-lg">
-                <Button
-                  type="submit"
-                  variant="brand"
-                  size="lg"
-                  loading={loading}
-                  disabled={loading}
-                  className="w-full py-4 text-lg"
-                >
-                  {loading
-                    ? "Processing..."
-                    : `Place Order • ${formatPrice(total)}`}
-                </Button>
-              </div>
-
-              {/* Spacer for mobile button */}
-              <div className="lg:hidden h-20"></div>
-            </div>
-          </div>
-
-          {/* Right: Order Summary */}
-          <div className="lg:col-span-1 order-first lg:order-last mb-4 lg:mb-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-8 overflow-hidden">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 break-words">
-                Order Summary
-              </h2>
-
-              {/* Items */}
-              <div className="space-y-3 mb-4 sm:mb-6 max-h-60 sm:max-h-80 overflow-y-auto overflow-x-hidden">
-                {cartItems.map((item) => (
-                  <div
-                    key={`${item.productId}-${item.variantId}`}
-                    className="flex gap-3"
-                  >
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                      {item.product?.image?.url || item.product?.image ? (
-                        <img
-                          src={item.product.image?.url || item.product.image}
-                          alt={item.product.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <svg
-                            className="w-8 h-8"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium text-gray-900 break-words line-clamp-2">
-                        {item.product?.title}
-                      </h3>
-                      {item.product?.size && (
-                        <p className="text-xs text-gray-500 break-words">
-                          {item.product.size}
-                        </p>
-                      )}
-                      <p className="text-sm text-gray-600 mt-1">
-                        Qty: {item.quantity}
-                      </p>
-                    </div>
-
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-sm font-semibold text-gray-900">
-                        {formatPrice(
-                          (item.product?.price || 0) * item.quantity
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Shipping Options Selector */}
-              {shippingOptions.length > 0 && (
-                <div className="border-t border-gray-200 pt-4 mb-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">
-                    Shipping Method
-                  </h3>
-
-                  {loadingShipping ? (
-                    <div className="flex items-center justify-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand-600"></div>
-                      <span className="ml-2 text-xs text-gray-600">
-                        Loading options...
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {shippingOptions.map((option) => (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => setSelectedShipping(option)}
-                          className={`w-full text-left p-3 rounded-lg border transition-all ${
-                            selectedShipping?.id === option.id
-                              ? "border-brand-600 bg-brand-50"
-                              : "border-gray-200 hover:border-gray-300 bg-white"
-                          }`}
+                  {/* Collection Notice */}
+                  {selectedShipping?.isCollection && (
+                    <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <svg
+                          className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-start gap-2 flex-1">
-                              <div
-                                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                                  selectedShipping?.id === option.id
-                                    ? "border-brand-600"
-                                    : "border-gray-300"
-                                }`}
-                              >
-                                {selectedShipping?.id === option.id && (
-                                  <div className="w-2 h-2 rounded-full bg-brand-600"></div>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-baseline justify-between gap-2">
-                                  <h4 className="text-sm font-semibold text-gray-900 break-words">
-                                    {option.name}
-                                  </h4>
-                                  <span className="text-sm font-bold text-gray-900 whitespace-nowrap">
-                                    {formatPrice(option.price)}
-                                  </span>
-                                </div>
-                                <p className="text-xs text-gray-600 break-words">
-                                  {option.estimatedDays}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                          />
+                        </svg>
+                        <div>
+                          <h3 className="font-semibold text-red-600 mb-1">
+                            Collect in Person
+                          </h3>
+                          <p className="text-sm text-gray-800 mb-1">
+                            Your order will be ready for collection at:
+                          </p>
+                          <p className="text-sm font-medium text-gray-900">
+                            12 Blackfriars Rd, PE13 1AT
+                          </p>
+                          <p className="text-xs text-gray-700 mt-2">
+                            We'll notify you when your order is ready to
+                            collect.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        First Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.firstName}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            firstName: e.target.value,
+                          })
+                        }
+                        className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                        placeholder="John"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Last Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.lastName}
+                        onChange={(e) =>
+                          setFormData({ ...formData, lastName: e.target.value })
+                        }
+                        className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                        placeholder="Doe"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        autoComplete="email"
+                        inputMode="email"
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
+                        className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                        placeholder="john@example.com"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Phone *
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        autoComplete="tel"
+                        inputMode="tel"
+                        value={formData.phone}
+                        onChange={(e) =>
+                          setFormData({ ...formData, phone: e.target.value })
+                        }
+                        className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                        placeholder="+44 7700 900000"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Address {!selectedShipping?.isCollection && "*"}
+                      </label>
+                      <input
+                        type="text"
+                        required={!selectedShipping?.isCollection}
+                        autoComplete="street-address"
+                        value={formData.address}
+                        onChange={(e) =>
+                          setFormData({ ...formData, address: e.target.value })
+                        }
+                        className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                        placeholder={
+                          selectedShipping?.isCollection
+                            ? "Optional for collection"
+                            : "123 Main Street, Apt 4B"
+                        }
+                        disabled={selectedShipping?.isCollection}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        City {!selectedShipping?.isCollection && "*"}
+                      </label>
+                      <input
+                        type="text"
+                        required={!selectedShipping?.isCollection}
+                        autoComplete="address-level2"
+                        value={formData.city}
+                        onChange={(e) =>
+                          setFormData({ ...formData, city: e.target.value })
+                        }
+                        className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                        placeholder={
+                          selectedShipping?.isCollection
+                            ? "Optional for collection"
+                            : "London"
+                        }
+                        disabled={selectedShipping?.isCollection}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Postal Code {!selectedShipping?.isCollection && "*"}
+                      </label>
+                      <input
+                        type="text"
+                        required={!selectedShipping?.isCollection}
+                        autoComplete="postal-code"
+                        value={formData.postalCode}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            postalCode: e.target.value,
+                          })
+                        }
+                        className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                        placeholder={
+                          selectedShipping?.isCollection
+                            ? "Optional for collection"
+                            : "SW1A 1AA"
+                        }
+                        disabled={selectedShipping?.isCollection}
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Country *
+                      </label>
+                      <select
+                        required
+                        autoComplete="country-name"
+                        value={formData.country}
+                        onChange={(e) =>
+                          setFormData({ ...formData, country: e.target.value })
+                        }
+                        className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none bg-white"
+                        style={{
+                          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                          backgroundPosition: "right 0.5rem center",
+                          backgroundRepeat: "no-repeat",
+                          backgroundSize: "1.5em 1.5em",
+                          paddingRight: "2.5rem",
+                        }}
+                      >
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="Lithuania">Lithuania</option>
+                      </select>
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Order Notes (Optional)
+                      </label>
+                      <textarea
+                        value={formData.notes}
+                        onChange={(e) =>
+                          setFormData({ ...formData, notes: e.target.value })
+                        }
+                        rows={3}
+                        className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
+                        placeholder="Special delivery instructions..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Sign-in prompt for guests */}
+                  {!user && (
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm">
+                      <div className="flex items-start gap-2">
+                        <span className="text-blue-600 mt-0.5">ℹ️</span>
+                        <div>
+                          <span className="text-gray-700">
+                            <Link
+                              to="/login"
+                              state={{ from: location.pathname }}
+                              className="text-brand-600 hover:text-brand-700 font-medium underline"
+                            >
+                              Sign in
+                            </Link>{" "}
+                            or{" "}
+                            <Link
+                              to="/register"
+                              state={{ from: location.pathname }}
+                              className="text-brand-600 hover:text-brand-700 font-medium underline"
+                            >
+                              create an account
+                            </Link>{" "}
+                            to track your orders and easily reorder in the
+                            future.
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
-              )}
 
-              {/* Totals */}
-              <div className="border-t border-gray-200 pt-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">{formatPrice(subtotal)}</span>
+                {/* Place Order Button - Mobile (Sticky at bottom) */}
+                <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-10 shadow-lg">
+                  <Button
+                    type="submit"
+                    variant="brand"
+                    size="lg"
+                    loading={loading}
+                    disabled={loading}
+                    className="w-full py-4 text-lg"
+                  >
+                    {loading
+                      ? "Processing..."
+                      : `Place Order • ${formatPrice(total)}`}
+                  </Button>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Shipping</span>
-                  <div className="text-right">
+
+                {/* Spacer for mobile button */}
+                <div className="lg:hidden h-20"></div>
+              </div>
+            </div>
+
+            {/* Right: Order Summary */}
+            <div className="lg:col-span-1 order-first lg:order-last mb-4 lg:mb-0">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-8 overflow-hidden">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 break-words">
+                  Order Summary
+                </h2>
+
+                {/* Items */}
+                <div className="space-y-3 mb-4 sm:mb-6 max-h-60 sm:max-h-80 overflow-y-auto overflow-x-hidden">
+                  {cartItems.map((item) => (
+                    <div
+                      key={`${item.productId}-${item.variantId}`}
+                      className="flex gap-3"
+                    >
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                        {item.product?.image?.url || item.product?.image ? (
+                          <img
+                            src={item.product.image?.url || item.product.image}
+                            alt={item.product.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <svg
+                              className="w-8 h-8"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-medium text-gray-900 break-words line-clamp-2">
+                          {item.product?.title}
+                        </h3>
+                        {item.product?.size && (
+                          <p className="text-xs text-gray-500 break-words">
+                            {item.product.size}
+                          </p>
+                        )}
+                        <p className="text-sm text-gray-600 mt-1">
+                          Qty: {item.quantity}
+                        </p>
+                      </div>
+
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-sm font-semibold text-gray-900">
+                          {formatPrice(
+                            (item.product?.price || 0) * item.quantity
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Shipping Options Selector */}
+                {shippingOptions.length > 0 && (
+                  <div className="border-t border-gray-200 pt-4 mb-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                      Shipping Method
+                    </h3>
+
                     {loadingShipping ? (
-                      <span className="text-gray-500 text-xs">
-                        Calculating...
-                      </span>
-                    ) : selectedShipping ? (
-                      <div>
-                        <span className="font-medium">
-                          {formatPrice(selectedShipping.price)}
+                      <div className="flex items-center justify-center py-4">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand-600"></div>
+                        <span className="ml-2 text-xs text-gray-600">
+                          Loading options...
                         </span>
-                        <div className="text-xs text-gray-500">
-                          {selectedShipping.name}
-                        </div>
                       </div>
                     ) : (
-                      <span className="font-medium text-gray-500">
-                        Select shipping
-                      </span>
+                      <div className="space-y-2">
+                        {shippingOptions.map((option) => (
+                          <button
+                            key={option.id}
+                            type="button"
+                            onClick={() => setSelectedShipping(option)}
+                            className={`w-full text-left p-3 rounded-lg border transition-all ${
+                              selectedShipping?.id === option.id
+                                ? "border-brand-600 bg-brand-50"
+                                : "border-gray-200 hover:border-gray-300 bg-white"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-start gap-2 flex-1">
+                                <div
+                                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                                    selectedShipping?.id === option.id
+                                      ? "border-brand-600"
+                                      : "border-gray-300"
+                                  }`}
+                                >
+                                  {selectedShipping?.id === option.id && (
+                                    <div className="w-2 h-2 rounded-full bg-brand-600"></div>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-baseline justify-between gap-2">
+                                    <h4 className="text-sm font-semibold text-gray-900 break-words">
+                                      {option.name}
+                                    </h4>
+                                    <span className="text-sm font-bold text-gray-900 whitespace-nowrap">
+                                      {formatPrice(option.price)}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-600 break-words">
+                                    {option.estimatedDays}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
                     )}
                   </div>
-                </div>
-                <div className="border-t border-gray-200 pt-2 mt-2">
-                  <div className="flex justify-between">
-                    <span className="text-base font-semibold text-gray-900">
-                      Total
-                    </span>
-                    <span
-                      className="text-xl font-bold"
-                      style={{ color: "#76540E" }}
-                    >
-                      {formatPrice(total)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Shipping Info */}
-              {!loadingShipping &&
-                shippingOptions.length === 0 &&
-                (formData.postalCode.length < 5 || !formData.city) && (
-                  <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                    <p className="text-xs text-amber-800">
-                      📮 Enter city and postal code to see shipping options
-                    </p>
-                  </div>
                 )}
 
-              {!loadingShipping &&
-                selectedShipping &&
-                shippingOptions.length > 1 && (
-                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-xs text-blue-800">
-                      💡 {shippingOptions.length} shipping options available
-                    </p>
+                {/* Totals */}
+                <div className="border-t border-gray-200 pt-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium">{formatPrice(subtotal)}</span>
                   </div>
-                )}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Shipping</span>
+                    <div className="text-right">
+                      {loadingShipping ? (
+                        <span className="text-gray-500 text-xs">
+                          Calculating...
+                        </span>
+                      ) : selectedShipping ? (
+                        <div>
+                          <span className="font-medium">
+                            {formatPrice(selectedShipping.price)}
+                          </span>
+                          <div className="text-xs text-gray-500">
+                            {selectedShipping.name}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="font-medium text-gray-500">
+                          Select shipping
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="border-t border-gray-200 pt-2 mt-2">
+                    <div className="flex justify-between">
+                      <span className="text-base font-semibold text-gray-900">
+                        Total
+                      </span>
+                      <span
+                        className="text-xl font-bold"
+                        style={{ color: "#76540E" }}
+                      >
+                        {formatPrice(total)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-              {/* Place Order Button - Desktop */}
-              <div className="hidden lg:block mt-6">
-                <Button
-                  type="submit"
-                  variant="brand"
-                  size="lg"
-                  loading={loading}
-                  disabled={loading}
-                  className="w-full"
-                >
-                  {loading
-                    ? "Processing..."
-                    : `Place Order • ${formatPrice(total)}`}
-                </Button>
+                {/* Shipping Info */}
+                {!loadingShipping &&
+                  shippingOptions.length === 0 &&
+                  (formData.postalCode.length < 5 || !formData.city) && (
+                    <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                      <p className="text-xs text-amber-800">
+                        📮 Enter city and postal code to see shipping options
+                      </p>
+                    </div>
+                  )}
+
+                {!loadingShipping &&
+                  selectedShipping &&
+                  shippingOptions.length > 1 && (
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-xs text-blue-800">
+                        💡 {shippingOptions.length} shipping options available
+                      </p>
+                    </div>
+                  )}
+
+                {/* Place Order Button - Desktop */}
+                <div className="hidden lg:block mt-6">
+                  <Button
+                    type="submit"
+                    variant="brand"
+                    size="lg"
+                    loading={loading}
+                    disabled={loading}
+                    className="w-full"
+                  >
+                    {loading
+                      ? "Processing..."
+                      : `Place Order • ${formatPrice(total)}`}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
+    </>
   );
 }

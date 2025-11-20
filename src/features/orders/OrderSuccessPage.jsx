@@ -87,8 +87,9 @@ export default function OrderSuccessPage() {
   // Determine where the back button should go
   const handleBack = () => {
     // Check if user came from profile page
-    const fromProfile = location.state?.fromProfile || document.referrer.includes('/profile');
-    
+    const fromProfile =
+      location.state?.fromProfile || document.referrer.includes("/profile");
+
     if (isAuthenticated && fromProfile) {
       // Logged-in user viewing from profile - go back to profile
       navigate("/profile");

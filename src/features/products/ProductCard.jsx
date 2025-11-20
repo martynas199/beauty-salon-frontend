@@ -2,7 +2,7 @@ import { useCurrency } from "../../contexts/CurrencyContext";
 
 export default function ProductCard({ product, onClick }) {
   const { formatPrice, getPrice, getOriginalPrice, currency } = useCurrency();
-  
+
   // Check if product has variants
   const hasVariants = product.variants && product.variants.length > 0;
 
@@ -11,7 +11,7 @@ export default function ProductCard({ product, onClick }) {
 
   if (hasVariants) {
     // Get prices for current currency
-    const prices = product.variants.map((v) => 
+    const prices = product.variants.map((v) =>
       currency === "EUR" && v.priceEUR != null ? v.priceEUR : v.price
     );
     const minPrice = Math.min(...prices);
@@ -22,24 +22,33 @@ export default function ProductCard({ product, onClick }) {
 
     // Check if any variant has a discount for current currency
     const variantsWithDiscount = product.variants.filter((v) => {
-      const price = currency === "EUR" && v.priceEUR != null ? v.priceEUR : v.price;
-      const originalPrice = currency === "EUR" && v.originalPriceEUR != null ? v.originalPriceEUR : v.originalPrice;
+      const price =
+        currency === "EUR" && v.priceEUR != null ? v.priceEUR : v.price;
+      const originalPrice =
+        currency === "EUR" && v.originalPriceEUR != null
+          ? v.originalPriceEUR
+          : v.originalPrice;
       return originalPrice && originalPrice > price;
     });
     hasDiscount = variantsWithDiscount.length > 0;
 
     if (hasDiscount && !showPriceRange) {
       const firstVariant = product.variants[0];
-      displayOriginalPrice = currency === "EUR" && firstVariant.originalPriceEUR != null 
-        ? firstVariant.originalPriceEUR 
-        : firstVariant.originalPrice;
+      displayOriginalPrice =
+        currency === "EUR" && firstVariant.originalPriceEUR != null
+          ? firstVariant.originalPriceEUR
+          : firstVariant.originalPrice;
     }
   } else {
     // Fallback to legacy fields with currency selection
-    displayPrice = currency === "EUR" && product.priceEUR != null ? product.priceEUR : product.price;
-    displayOriginalPrice = currency === "EUR" && product.originalPriceEUR != null 
-      ? product.originalPriceEUR 
-      : product.originalPrice;
+    displayPrice =
+      currency === "EUR" && product.priceEUR != null
+        ? product.priceEUR
+        : product.price;
+    displayOriginalPrice =
+      currency === "EUR" && product.originalPriceEUR != null
+        ? product.originalPriceEUR
+        : product.originalPrice;
     hasDiscount = displayOriginalPrice && displayOriginalPrice > displayPrice;
     showPriceRange = false;
   }
@@ -54,7 +63,9 @@ export default function ProductCard({ product, onClick }) {
         {product.image?.url ? (
           <img
             src={product.image.url}
-            alt={product.title}
+            alt={`${product.title} - ${
+              product.brand || "Premium beauty product"
+            } available at Noble Elegance Beauty Salon Wisbech`}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           />
         ) : (
