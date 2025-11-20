@@ -275,37 +275,52 @@ const ProfilePage = () => {
                 <StaggerContainer className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {bookings.map((booking) => (
                     <StaggerItem key={booking._id}>
-                      <Card hoverable className="p-6">
-                        <div className="flex justify-between items-start mb-4">
-                          <h3 className="text-lg font-semibold text-gray-900">
+                      <Card hoverable className="p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4 mb-3 sm:mb-4">
+                          <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words flex-1 min-w-0">
                             {booking.serviceId?.name || "Service"}
                           </h3>
-                          <Chip color={getStatusColor(booking.status)}>
+                          <Chip
+                            color={getStatusColor(booking.status)}
+                            className="self-start"
+                          >
                             {booking.status.replace(/_/g, " ")}
                           </Chip>
                         </div>
 
-                        <div className="space-y-2 text-sm text-gray-600 mb-4">
-                          <p className="flex items-center">
-                            <span className="font-medium mr-2">👤</span>
-                            {booking.beauticianId?.name || "Beautician"}
+                        <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
+                          <p className="flex items-center break-words">
+                            <span className="font-medium mr-2 flex-shrink-0">
+                              👤
+                            </span>
+                            <span className="break-words">
+                              {booking.beauticianId?.name || "Beautician"}
+                            </span>
                           </p>
                           <p className="flex items-center">
-                            <span className="font-medium mr-2">📅</span>
-                            {formatDate(booking.start)}
+                            <span className="font-medium mr-2 flex-shrink-0">
+                              📅
+                            </span>
+                            <span>{formatDate(booking.start)}</span>
                           </p>
                           <p className="flex items-center">
-                            <span className="font-medium mr-2">🕐</span>
-                            {formatTime(booking.start)} -{" "}
-                            {formatTime(booking.end)}
+                            <span className="font-medium mr-2 flex-shrink-0">
+                              🕐
+                            </span>
+                            <span>
+                              {formatTime(booking.start)} -{" "}
+                              {formatTime(booking.end)}
+                            </span>
                           </p>
                           <p className="flex items-center">
-                            <span className="font-medium mr-2">💷</span>£
-                            {booking.price?.toFixed(2)}
+                            <span className="font-medium mr-2 flex-shrink-0">
+                              💷
+                            </span>
+                            <span>£{booking.price?.toFixed(2)}</span>
                           </p>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           {canCancelBooking(booking) && (
                             <Button
                               variant="outline"
@@ -340,7 +355,7 @@ const ProfilePage = () => {
             <div className="space-y-4">
               {/* Refresh Button */}
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
                   My Orders
                 </h2>
                 <Button
@@ -380,13 +395,13 @@ const ProfilePage = () => {
                 <StaggerContainer className="grid grid-cols-1 gap-4">
                   {orders.map((order) => (
                     <StaggerItem key={order._id}>
-                      <Card hoverable className="p-6">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900">
+                      <Card hoverable className="p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">
                               Order #{order.orderNumber || order._id.slice(-8)}
                             </h3>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-xs sm:text-sm text-gray-500">
                               {new Date(order.createdAt).toLocaleDateString(
                                 "en-GB",
                                 {
@@ -397,22 +412,125 @@ const ProfilePage = () => {
                               )}
                             </p>
                           </div>
-                          <Chip
-                            color={
-                              order.paymentStatus === "paid"
-                                ? "green"
-                                : "yellow"
-                            }
-                          >
-                            {order.orderStatus}
-                          </Chip>
+                          <div className="flex flex-row sm:flex-col gap-2 items-start sm:items-end flex-wrap">
+                            <Chip
+                              color={
+                                order.paymentStatus === "paid"
+                                  ? "green"
+                                  : "yellow"
+                              }
+                            >
+                              {order.orderStatus}
+                            </Chip>
+                            {order.isCollection && (
+                              <Chip
+                                color={
+                                  order.collectionStatus === "ready"
+                                    ? "green"
+                                    : order.collectionStatus === "collected"
+                                    ? "gray"
+                                    : "blue"
+                                }
+                              >
+                                {order.collectionStatus === "ready"
+                                  ? "Ready for Pickup!"
+                                  : order.collectionStatus === "collected"
+                                  ? "Collected"
+                                  : "Collection Pending"}
+                              </Chip>
+                            )}
+                          </div>
                         </div>
 
-                        <div className="border-t border-gray-200 pt-4">
+                        {/* Collection Info Banner */}
+                        {order.isCollection &&
+                          order.collectionStatus === "ready" && (
+                            <div className="mb-4 p-3 sm:p-4 bg-green-50 border border-green-200 rounded-lg">
+                              <div className="flex items-start gap-2 sm:gap-3">
+                                <svg
+                                  className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 flex-shrink-0 mt-0.5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
+                                </svg>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-xs sm:text-sm font-semibold text-green-900 mb-1">
+                                    Your order is ready for collection!
+                                  </h4>
+                                  <p className="text-xs sm:text-sm text-green-800 break-words">
+                                    <strong>Collection Address:</strong>{" "}
+                                    {order.collectionAddress ||
+                                      "12 Blackfriars Rd, PE13 1AT"}
+                                  </p>
+                                  <p className="text-xs sm:text-sm text-green-800 mt-1">
+                                    <strong>Opening Hours:</strong>{" "}
+                                    Monday-Sunday, 9am-5pm
+                                  </p>
+                                  {order.collectionReadyAt && (
+                                    <p className="text-xs text-green-700 mt-2">
+                                      Ready since:{" "}
+                                      {new Date(
+                                        order.collectionReadyAt
+                                      ).toLocaleDateString("en-GB", {
+                                        day: "numeric",
+                                        month: "long",
+                                        year: "numeric",
+                                      })}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                        {order.isCollection &&
+                          order.collectionStatus !== "ready" &&
+                          order.collectionStatus !== "collected" && (
+                            <div className="mb-4 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                              <div className="flex items-start gap-2 sm:gap-3">
+                                <svg
+                                  className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0 mt-0.5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
+                                </svg>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-xs sm:text-sm font-semibold text-blue-900 mb-1">
+                                    Collection Order
+                                  </h4>
+                                  <p className="text-xs sm:text-sm text-blue-800 break-words">
+                                    We're preparing your order. You'll receive
+                                    an email when it's ready for collection.
+                                  </p>
+                                  <p className="text-xs sm:text-sm text-blue-800 mt-1 break-words">
+                                    <strong>Collection Address:</strong>{" "}
+                                    {order.collectionAddress ||
+                                      "12 Blackfriars Rd, PE13 1AT"}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                        <div className="border-t border-gray-200 pt-3 sm:pt-4">
                           {order.items?.map((item, idx) => (
                             <div
                               key={idx}
-                              className="flex gap-3 py-2 items-center"
+                              className="flex gap-2 sm:gap-3 py-2 items-start sm:items-center"
                             >
                               {/* Product Image */}
                               {(item.image?.url ||
@@ -423,35 +541,37 @@ const ProfilePage = () => {
                                     item.productId?.image?.url
                                   }
                                   alt={item.title || item.productId?.title}
-                                  className="w-16 h-16 object-cover rounded-md"
+                                  className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-md flex-shrink-0"
                                 />
                               )}
-                              <div className="flex-1">
-                                <p className="font-medium">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm sm:text-base font-medium break-words">
                                   {item.title || item.productId?.title}
                                 </p>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-xs sm:text-sm text-gray-500">
                                   Qty: {item.quantity}
                                   {item.size && ` • Size: ${item.size}`}
                                 </p>
                               </div>
-                              <p className="font-medium whitespace-nowrap">
+                              <p className="text-sm sm:text-base font-medium whitespace-nowrap flex-shrink-0">
                                 £{(item.price * item.quantity).toFixed(2)}
                               </p>
                             </div>
                           ))}
                         </div>
 
-                        <div className="border-t border-gray-200 pt-4 mt-4">
+                        <div className="border-t border-gray-200 pt-3 sm:pt-4 mt-3 sm:mt-4">
                           <div className="flex justify-between items-center">
-                            <p className="font-bold text-lg">Total</p>
-                            <p className="font-bold text-lg">
+                            <p className="text-base sm:text-lg font-bold">
+                              Total
+                            </p>
+                            <p className="text-base sm:text-lg font-bold">
                               £{order.total?.toFixed(2)}
                             </p>
                           </div>
                         </div>
 
-                        <div className="mt-4">
+                        <div className="mt-3 sm:mt-4">
                           <Button
                             variant="primary"
                             size="sm"
@@ -480,7 +600,7 @@ const ProfilePage = () => {
             <div className="space-y-4">
               {/* Refresh Button */}
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
                   My Wishlist
                 </h2>
                 <Button
@@ -488,10 +608,10 @@ const ProfilePage = () => {
                   size="sm"
                   onClick={handleRefreshWishlist}
                   disabled={loadingWishlist}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1 sm:gap-2"
                 >
                   <svg
-                    className={`w-4 h-4 ${
+                    className={`w-3 h-3 sm:w-4 sm:h-4 ${
                       loadingWishlist ? "animate-spin" : ""
                     }`}
                     fill="none"
@@ -505,7 +625,7 @@ const ProfilePage = () => {
                       d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                     />
                   </svg>
-                  Refresh
+                  <span className="hidden sm:inline">Refresh</span>
                 </Button>
               </div>
 
@@ -599,12 +719,12 @@ const ProfilePage = () => {
                         </div>
 
                         {/* Product Info */}
-                        <div className="p-4">
-                          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                        <div className="p-3 sm:p-4">
+                          <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-2 line-clamp-2 break-words">
                             {product.title}
                           </h3>
                           <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold text-brand-600">
+                            <span className="text-base sm:text-lg font-bold text-brand-600">
                               {formatPrice(getProductPrice(product))}
                             </span>
                             {product.variants &&

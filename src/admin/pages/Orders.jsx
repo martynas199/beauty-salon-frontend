@@ -70,6 +70,28 @@ export default function Orders() {
     }
   };
 
+  const handleMarkReadyForCollection = async (orderId) => {
+    try {
+      setUpdating(true);
+      const updated = await OrdersAPI.markReadyForCollection(orderId);
+      setAllOrders(
+        allOrders.map((o) => (o._id === orderId ? updated.data : o))
+      );
+      setSelectedOrder(updated.data);
+      toast.success(
+        "Order marked as ready for collection. Customer has been notified by email."
+      );
+    } catch (error) {
+      console.error("Error marking order ready:", error);
+      toast.error(
+        error.response?.data?.error ||
+          "Failed to mark order as ready for collection"
+      );
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   const handleCancelOrder = async (orderId) => {
     toast(
       (t) => (
@@ -340,10 +362,16 @@ export default function Orders() {
                     <Button
                       variant="brand"
                       size="sm"
-                      onClick={() => handleUpdateStatus(order._id, "shipped")}
+                      onClick={() =>
+                        order.isCollection
+                          ? handleMarkReadyForCollection(order._id)
+                          : handleUpdateStatus(order._id, "shipped")
+                      }
                       disabled={updating}
                     >
-                      Mark Shipped
+                      {order.isCollection
+                        ? "Mark Ready for Collection"
+                        : "Mark Shipped"}
                     </Button>
                   )}
 
@@ -609,29 +637,78 @@ export default function Orders() {
                     : "Shipping Address"}
                 </h3>
                 {selectedOrder.isCollection && (
-                  <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center gap-2 text-blue-800 font-medium mb-1">
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                        />
-                      </svg>
-                      <span>COLLECT IN PERSON</span>
+                  <>
+                    <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-blue-800 font-medium mb-1">
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                          />
+                        </svg>
+                        <span>COLLECT IN PERSON</span>
+                      </div>
+                      <p className="text-sm text-blue-700">
+                        Collection Address:{" "}
+                        {selectedOrder.collectionAddress ||
+                          "12 Blackfriars Rd, PE13 1AT"}
+                      </p>
+                      {selectedOrder.collectionStatus && (
+                        <div className="mt-2 pt-2 border-t border-blue-200">
+                          <p className="text-xs text-blue-600">
+                            Status:{" "}
+                            <span className="font-semibold capitalize">
+                              {selectedOrder.collectionStatus}
+                            </span>
+                            {selectedOrder.collectionReadyAt &&
+                              selectedOrder.collectionStatus === "ready" && (
+                                <span className="ml-2">
+                                  (Ready since{" "}
+                                  {new Date(
+                                    selectedOrder.collectionReadyAt
+                                  ).toLocaleDateString()}
+                                  )
+                                </span>
+                              )}
+                          </p>
+                        </div>
+                      )}
                     </div>
-                    <p className="text-sm text-blue-700">
-                      Collection Address:{" "}
-                      {selectedOrder.collectionAddress ||
-                        "12 Blackfriars Rd, PE13 1AT"}
-                    </p>
-                  </div>
+                    {(!selectedOrder.collectionStatus ||
+                      selectedOrder.collectionStatus === "pending") && (
+                      <button
+                        onClick={() =>
+                          handleMarkReadyForCollection(selectedOrder._id)
+                        }
+                        disabled={updating}
+                        className="w-full mb-3 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm font-medium"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        {updating
+                          ? "Processing..."
+                          : "Mark Ready for Collection"}
+                      </button>
+                    )}
+                  </>
                 )}
                 <div className="text-xs sm:text-sm text-gray-600 space-y-1">
                   <p className="font-medium text-gray-900 break-words">

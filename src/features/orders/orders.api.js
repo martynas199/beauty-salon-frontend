@@ -45,6 +45,11 @@ export const OrdersAPI = {
     return response.data;
   },
 
+  async markReadyForCollection(id) {
+    const response = await api.patch(`/orders/${id}/ready-for-collection`);
+    return response.data;
+  },
+
   async delete(id) {
     const response = await api.delete(`/orders/${id}`);
     return response.data;
