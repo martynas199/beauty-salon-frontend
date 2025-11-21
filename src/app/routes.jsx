@@ -38,6 +38,7 @@ import ForgotPassword from "../admin/pages/ForgotPassword";
 import ResetPassword from "../admin/pages/ResetPassword";
 import ScrollToTop from "../components/ScrollToTop";
 import CurrencySelector from "../components/CurrencySelector";
+import Footer from "../components/Footer";
 
 // Lazy load admin pages for better performance (code splitting)
 const Dashboard = lazy(() => import("../admin/pages/Dashboard"));
@@ -455,6 +456,9 @@ function CustomerLayout() {
           <Route path="/profile/edit" element={<ProfileEditPage />} />
         </Routes>
       </main>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Cart Sidebar */}
       <CartSidebar />
