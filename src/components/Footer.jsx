@@ -218,6 +218,17 @@ export default function Footer() {
                   Contact
                 </Link>
               </li>
+              <li>
+                <a
+                  href="https://g.page/r/CWuKVGq1Zpp1EBI/review"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-brand-400 transition-colors hover:translate-x-1 inline-block transform duration-200 flex items-center gap-2 group"
+                >
+                  <span className="w-1.5 h-1.5 bg-brand-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  Leave a Review ⭐
+                </a>
+              </li>
             </ul>
           </div>
 
