@@ -14,6 +14,7 @@ import FAQPage from "../features/faq/FAQPage";
 import CartSidebar from "../features/cart/CartSidebar";
 import { toggleCart } from "../features/cart/cartSlice";
 import ProductsPage from "../features/products/ProductsPage";
+import ProductDetailPage from "../features/products/ProductDetailPage";
 import ProductCheckoutPage from "../features/orders/ProductCheckoutPage";
 import OrderSuccessPage from "../features/orders/OrderSuccessPage";
 import ShopSuccessPage from "../features/orders/ShopSuccessPage";
@@ -436,6 +437,7 @@ function CustomerLayout() {
           <Route path="/confirmation" element={<ConfirmationPage />} />
           <Route path="/salon" element={<SalonDetails />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/products/:id" element={<ProductDetailPage />} />
           <Route path="/success" element={<SuccessPage />} />
           <Route path="/cancel" element={<CancelPage />} />
           <Route path="/faq" element={<FAQPage />} />

@@ -1,7 +1,36 @@
 import { useCurrency } from "../../contexts/CurrencyContext";
+import toast from "react-hot-toast";
 
 export default function ProductCard({ product, onClick }) {
   const { formatPrice, getPrice, getOriginalPrice, currency } = useCurrency();
+
+  const handleShare = (e) => {
+    e.stopPropagation(); // Prevent opening modal
+
+    const productUrl = `${window.location.origin}/products/${product._id}`;
+    const shareData = {
+      title: product.title,
+      text: `Check out ${product.title} at Noble Elegance`,
+      url: productUrl,
+    };
+
+    // Try Web Share API (mobile)
+    if (navigator.share) {
+      navigator.share(shareData).catch(() => {
+        // User cancelled, do nothing
+      });
+    } else {
+      // Fallback: Copy to clipboard
+      navigator.clipboard
+        .writeText(productUrl)
+        .then(() => {
+          toast.success("Product link copied!");
+        })
+        .catch(() => {
+          toast.error("Failed to copy link");
+        });
+    }
+  };
 
   // Check if product has variants
   const hasVariants = product.variants && product.variants.length > 0;
@@ -86,6 +115,27 @@ export default function ProductCard({ product, onClick }) {
             </svg>
           </div>
         )}
+
+        {/* Share Button - appears on hover */}
+        <button
+          onClick={handleShare}
+          className="absolute top-2 left-2 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white hover:scale-110 transform"
+          title="Share product"
+        >
+          <svg
+            className="w-4 h-4 text-gray-700"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+            />
+          </svg>
+        </button>
 
         {/* Discount Badge */}
         {hasDiscount && (

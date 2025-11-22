@@ -252,10 +252,57 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
                   {product.category}
                 </div>
 
-                {/* Title */}
-                <h2 className="text-3xl font-serif font-bold text-gray-900 tracking-wide">
-                  {product.title}
-                </h2>
+                {/* Title and Share Button */}
+                <div className="flex items-start justify-between gap-4">
+                  <h2 className="text-3xl font-serif font-bold text-gray-900 tracking-wide flex-1">
+                    {product.title}
+                  </h2>
+
+                  {/* Share Button */}
+                  <button
+                    onClick={() => {
+                      const productUrl = `${window.location.origin}/products/${product._id}`;
+                      const shareData = {
+                        title: product.title,
+                        text: `Check out ${product.title} at Noble Elegance`,
+                        url: productUrl,
+                      };
+
+                      // Try Web Share API (mobile)
+                      if (navigator.share) {
+                        navigator.share(shareData).catch(() => {
+                          // User cancelled, do nothing
+                        });
+                      } else {
+                        // Fallback: Copy to clipboard
+                        navigator.clipboard
+                          .writeText(productUrl)
+                          .then(() => {
+                            toast.success("Product link copied to clipboard!");
+                          })
+                          .catch(() => {
+                            toast.error("Failed to copy link");
+                          });
+                      }
+                    }}
+                    className="flex-shrink-0 p-2 rounded-lg border-2 border-gray-300 hover:border-brand-600 hover:bg-brand-50 text-gray-600 hover:text-brand-600 transition-all group"
+                    title="Share product"
+                  >
+                    <svg
+                      className="w-5 h-5 group-hover:scale-110 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                      />
+                    </svg>
+                  </button>
+                </div>
 
                 {/* Price */}
                 <div className="flex items-baseline gap-3">
