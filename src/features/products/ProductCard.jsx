@@ -6,7 +6,7 @@ export default function ProductCard({ product, onClick }) {
 
   const handleShare = (e) => {
     e.stopPropagation(); // Always prevent opening modal
-    
+
     const productUrl = `${window.location.origin}/products/${product._id}`;
     const shareData = {
       title: product.title,
@@ -116,10 +116,10 @@ export default function ProductCard({ product, onClick }) {
           </div>
         )}
 
-        {/* Share Button - appears on hover */}
+        {/* Share Button - appears on hover (desktop only) */}
         <button
           onClick={handleShare}
-          className="absolute top-2 left-2 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white hover:scale-110 transform"
+          className="hidden md:block absolute top-2 left-2 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white hover:scale-110 transform"
           title="Share product"
         >
           <svg
