@@ -18,6 +18,7 @@
       name="author"
       content="Noble Elegance Aesthetic Clinic & Beauty Salon"
     />
+    <link rel="canonical" href="https://www.nobleelegance.co.uk/" />
 
     <!-- Google Site Verification -->
     <meta
@@ -85,20 +86,25 @@
       />
     </noscript>
 
-    <!-- Google Analytics 4 -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=%VITE_GA_MEASUREMENT_ID%"
-    ></script>
+    <!-- Google Analytics 4 - Deferred loading -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-      gtag("config", "%VITE_GA_MEASUREMENT_ID%", {
-        page_path: window.location.pathname,
-        cookie_flags: "SameSite=None;Secure",
+      // Defer GA loading until page is interactive
+      window.addEventListener("load", function () {
+        var script = document.createElement("script");
+        script.async = true;
+        script.src =
+          "https://www.googletagmanager.com/gtag/js?id=%VITE_GA_MEASUREMENT_ID%";
+        document.head.appendChild(script);
+
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+          dataLayer.push(arguments);
+        }
+        gtag("js", new Date());
+        gtag("config", "%VITE_GA_MEASUREMENT_ID%", {
+          page_path: window.location.pathname,
+          cookie_flags: "SameSite=None;Secure",
+        });
       });
     </script>
   </head>

@@ -37,7 +37,7 @@ createRoot(document.getElementById("root")).render(
             </BrowserRouter>
           </Provider>
           {/* React Query DevTools - Only shows in development */}
-          <ReactQueryDevtools initialIsOpen={false} />
+          {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
         </QueryClientProvider>
       </HelmetProvider>
     </ErrorBoundary>
