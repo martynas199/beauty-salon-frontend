@@ -1,9 +1,11 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { ProductsAPI } from "./products.api";
 import ProductCard from "./ProductCard";
-import ProductDetailModal from "./ProductDetailModal";
 import { ProductCardSkeleton } from "../../components/ui/Skeleton";
 import { motion } from "framer-motion";
+
+// Lazy load ProductDetailModal (only loads when user clicks a product)
+const ProductDetailModal = lazy(() => import("./ProductDetailModal"));
 
 export default function PopularCollections() {
   const [products, setProducts] = useState([]);
@@ -89,11 +91,15 @@ export default function PopularCollections() {
       </motion.div>
 
       {/* Product Detail Modal */}
-      <ProductDetailModal
-        product={selectedProduct}
-        isOpen={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-      />
+      {selectedProduct && (
+        <Suspense fallback={<div />}>
+          <ProductDetailModal
+            product={selectedProduct}
+            isOpen={!!selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

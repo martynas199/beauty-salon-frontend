@@ -66,6 +66,7 @@ export default function ProductCard({ product, onClick }) {
             alt={`${product.title} - ${
               product.brand || "Premium beauty product"
             } available at Noble Elegance Beauty Salon Wisbech`}
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           />
         ) : (

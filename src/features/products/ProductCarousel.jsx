@@ -1,16 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { ProductsAPI } from "./products.api";
 import { useCurrency } from "../../contexts/CurrencyContext";
-import ProductDetailModal from "./ProductDetailModal";
 import { motion } from "framer-motion";
 
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+
+// Lazy load ProductDetailModal (only loads when user clicks a product)
+const ProductDetailModal = lazy(() => import("./ProductDetailModal"));
 
 export default function ProductCarousel() {
   const [products, setProducts] = useState([]);
@@ -190,6 +192,7 @@ export default function ProductCarousel() {
                         <img
                           src={product.image.url}
                           alt={product.title}
+                          loading="lazy"
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                       ) : (
@@ -361,11 +364,13 @@ export default function ProductCarousel() {
 
       {/* Product Detail Modal */}
       {selectedProduct && (
-        <ProductDetailModal
-          product={selectedProduct}
-          isOpen={!!selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-        />
+        <Suspense fallback={<div />}>
+          <ProductDetailModal
+            product={selectedProduct}
+            isOpen={!!selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+          />
+        </Suspense>
       )}
     </>
   );

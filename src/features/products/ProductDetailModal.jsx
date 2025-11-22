@@ -143,6 +143,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
                     <img
                       src={allImages[selectedImageIndex]?.url}
                       alt={product.title}
+                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -235,6 +236,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
                         <img
                           src={img.url}
                           alt={`${product.title} ${index + 1}`}
+                          loading="lazy"
                           className="w-full h-full object-cover"
                         />
                       </button>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { useDispatch } from "react-redux";
 import { ServicesAPI } from "./services.api";
 import { setService, setBeautician } from "../booking/bookingSlice";
@@ -17,13 +17,15 @@ import Card from "../../components/ui/Card";
 import { motion, useScroll, useTransform } from "framer-motion";
 import logo from "../../assets/logo.svg";
 import ScrollRevealText from "../../components/ui/ScrollRevealText";
-import ProductCarousel from "../products/ProductCarousel";
 import ShopByBrand from "./ShopByBrand";
 import SEOHead from "../../components/seo/SEOHead";
 import {
   generateLocalBusinessSchema,
   generateWebSiteSchema,
 } from "../../utils/schemaGenerator";
+
+// Lazy load ProductCarousel (Swiper carousel - ~12KB)
+const ProductCarousel = lazy(() => import("../products/ProductCarousel"));
 
 export default function LandingPage() {
   const [services, setServices] = useState([]);
@@ -371,7 +373,23 @@ export default function LandingPage() {
         />
 
         {/* Product Carousel */}
-        <ProductCarousel />
+        <Suspense
+          fallback={
+            <div className="max-w-7xl mx-auto px-6 py-16 text-center">
+              <div className="animate-pulse">
+                <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-96 mx-auto mb-8"></div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-80 bg-gray-200 rounded-2xl"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          }
+        >
+          <ProductCarousel />
+        </Suspense>
         {/* Shop by Brand Section */}
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-8 md:pt-16 lg:pt-20 mb-16 overflow-x-hidden">
           {/* Section Header */}

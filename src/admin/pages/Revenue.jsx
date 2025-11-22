@@ -1,16 +1,32 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { RevenueAPI } from "../../features/revenue/revenue.api";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
 import dayjs from "dayjs";
+
+// Lazy load recharts components (~50KB)
+const BarChart = lazy(() =>
+  import("recharts").then((module) => ({ default: module.BarChart }))
+);
+const Bar = lazy(() =>
+  import("recharts").then((module) => ({ default: module.Bar }))
+);
+const XAxis = lazy(() =>
+  import("recharts").then((module) => ({ default: module.XAxis }))
+);
+const YAxis = lazy(() =>
+  import("recharts").then((module) => ({ default: module.YAxis }))
+);
+const CartesianGrid = lazy(() =>
+  import("recharts").then((module) => ({ default: module.CartesianGrid }))
+);
+const Tooltip = lazy(() =>
+  import("recharts").then((module) => ({ default: module.Tooltip }))
+);
+const ResponsiveContainer = lazy(() =>
+  import("recharts").then((module) => ({ default: module.ResponsiveContainer }))
+);
+const Legend = lazy(() =>
+  import("recharts").then((module) => ({ default: module.Legend }))
+);
 
 export default function Revenue() {
   const [startDate, setStartDate] = useState(
@@ -449,32 +465,40 @@ export default function Revenue() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Revenue by Beautician
               </h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={filteredBeauticians}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="beautician"
-                    tick={{ fontSize: 12 }}
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 12 }}
-                    tickFormatter={(value) => `£${value}`}
-                  />
-                  <Tooltip
-                    formatter={(value) => formatCurrency(value)}
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "0.5rem",
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="revenue" fill="#9333ea" name="Revenue (£)" />
-                </BarChart>
-              </ResponsiveContainer>
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center h-[300px]">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
+                  </div>
+                }
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={filteredBeauticians}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="beautician"
+                      tick={{ fontSize: 12 }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 12 }}
+                      tickFormatter={(value) => `£${value}`}
+                    />
+                    <Tooltip
+                      formatter={(value) => formatCurrency(value)}
+                      contentStyle={{
+                        backgroundColor: "#fff",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "0.5rem",
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="revenue" fill="#9333ea" name="Revenue (£)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Suspense>
             </div>
           )}
 

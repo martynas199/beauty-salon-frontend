@@ -16,7 +16,7 @@
  * 12. Hover Effects - Enhanced hover states with quick actions
  */
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
@@ -25,10 +25,12 @@ import { api } from "../../lib/apiClient";
 import { useAuth } from "../../app/AuthContext";
 import { toggleWishlist as toggleWishlistAPI } from "../profile/wishlist.api";
 import ProductCard from "./ProductCard";
-import ProductDetailModal from "./ProductDetailModal";
 import toast from "react-hot-toast";
 import SEOHead from "../../components/seo/SEOHead";
 import { generateBreadcrumbSchema } from "../../utils/schemaGenerator";
+
+// Lazy load ProductDetailModal (only loads when user clicks a product)
+const ProductDetailModal = lazy(() => import("./ProductDetailModal"));
 
 export default function ProductsPage() {
   const navigate = useNavigate();
@@ -1479,11 +1481,13 @@ export default function ProductsPage() {
       {/* Product Detail Modal */}
       <AnimatePresence>
         {modalOpen && selectedProduct && (
-          <ProductDetailModal
-            product={selectedProduct}
-            isOpen={modalOpen}
-            onClose={handleCloseModal}
-          />
+          <Suspense fallback={<div />}>
+            <ProductDetailModal
+              product={selectedProduct}
+              isOpen={modalOpen}
+              onClose={handleCloseModal}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
     </div>
