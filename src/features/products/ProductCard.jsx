@@ -5,8 +5,6 @@ export default function ProductCard({ product, onClick }) {
   const { formatPrice, getPrice, getOriginalPrice, currency } = useCurrency();
 
   const handleShare = (e) => {
-    e.stopPropagation(); // Prevent opening modal
-
     const productUrl = `${window.location.origin}/products/${product._id}`;
     const shareData = {
       title: product.title,
@@ -20,7 +18,8 @@ export default function ProductCard({ product, onClick }) {
         // User cancelled, do nothing
       });
     } else {
-      // Fallback: Copy to clipboard
+      // Fallback: Copy to clipboard (desktop only)
+      e.stopPropagation(); // Prevent opening modal on desktop
       navigator.clipboard
         .writeText(productUrl)
         .then(() => {
