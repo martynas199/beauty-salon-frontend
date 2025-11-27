@@ -16,6 +16,12 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import ToastProvider from "./components/ui/ToastProvider";
 import { queryClient } from "./lib/queryClient";
 import "./styles.css";
+import { initializeCapacitor, addSafeAreaSupport, disablePullToRefresh } from "./capacitor/appInit";
+
+// Initialize Capacitor for mobile apps
+initializeCapacitor();
+addSafeAreaSupport();
+disablePullToRefresh();
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>

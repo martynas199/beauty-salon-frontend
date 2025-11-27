@@ -177,9 +177,13 @@ export default function StripeConnectSettings({ beauticianId, email }) {
           </p>
           <ul className="list-disc list-inside space-y-1 text-gray-600 ml-2">
             <li>Receive payments directly to your bank account</li>
-            <li>Platform fee: £0.50 per completed booking</li>
-            <li>100% of product sales go to you</li>
-            <li>Automatic payouts (2-day rolling basis)</li>
+            <li>
+              Secure payment processing powered by Stripe (industry-leading
+              payment platform)
+            </li>
+            <li>Stripe fees: 1.5% + 20p per transaction (standard UK rates)</li>
+            <li>100% of product sales go to you (minus Stripe fees)</li>
+            <li>Automatic payouts to your bank (7-day rolling basis)</li>
           </ul>
         </div>
 
