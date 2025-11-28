@@ -24,6 +24,28 @@ import {
   generateWebSiteSchema,
 } from "../../utils/schemaGenerator";
 
+// Snowflake component for Christmas decoration
+const Snowflake = ({ delay, duration, left }) => (
+  <motion.div
+    className="absolute text-2xl"
+    style={{ left: `${left}%`, top: -20, color: '#d4a710' }}
+    animate={{
+      y: [0, window.innerHeight + 100],
+      x: [0, Math.random() * 100 - 50],
+      rotate: [0, 360],
+      opacity: [0, 1, 1, 0],
+    }}
+    transition={{
+      duration,
+      delay,
+      repeat: Infinity,
+      ease: 'linear',
+    }}
+  >
+    ❄
+  </motion.div>
+);
+
 // Lazy load ProductCarousel (Swiper carousel - ~12KB)
 const ProductCarousel = lazy(() => import("../products/ProductCarousel"));
 
@@ -33,6 +55,7 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(true);
   const [activeCat, setActiveCat] = useState("All");
   const [salon, setSalon] = useState(null);
+  const [christmasThemeEnabled, setChristmasThemeEnabled] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -45,11 +68,13 @@ export default function LandingPage() {
         .get("/beauticians")
         .then((res) => res.data.filter((b) => b.active))
         .catch(() => []),
+      api.get("/settings").catch(() => ({ data: { christmasThemeEnabled: true } })),
     ])
-      .then(([servicesData, salonData, beauticiansData]) => {
+      .then(([servicesData, salonData, beauticiansData, settingsData]) => {
         setServices(servicesData);
         setSalon(salonData);
         setBeauticians(beauticiansData);
+        setChristmasThemeEnabled(settingsData.data.christmasThemeEnabled !== undefined ? settingsData.data.christmasThemeEnabled : true);
       })
       .catch((err) => console.error("Failed to fetch landing page data:", err))
       .finally(() => setLoading(false));
@@ -175,6 +200,43 @@ export default function LandingPage() {
         schema={homepageSchema}
       />
 
+      {/* Christmas Snowflakes */}
+      {christmasThemeEnabled && (
+        <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 10 }}>
+          {[...Array(15)].map((_, i) => (
+            <Snowflake
+              key={i}
+              delay={i * 2}
+              duration={10 + Math.random() * 10}
+              left={Math.random() * 100}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Christmas Banner */}
+      {christmasThemeEnabled && (
+        <motion.div
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="relative bg-gradient-to-r from-[#76540E] via-[#d4a710] to-[#76540E] text-white py-3 px-4 text-center overflow-hidden"
+        >
+          <motion.div
+            animate={{ x: ['-100%', '100%'] }}
+            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+          />
+          <div className="relative z-10 flex items-center justify-center gap-3 flex-wrap">
+            <span className="text-xl hidden sm:inline">🎁</span>
+            <span className="font-semibold text-sm sm:text-base">🎄 Festive Season Special</span>
+            <span className="hidden md:inline">|</span>
+            <span className="text-sm">Gift the ultimate beauty experience this Christmas</span>
+            <span className="text-xl hidden sm:inline">🎁</span>
+          </div>
+        </motion.div>
+      )}
+
       {/* Fixed Background Logo with Parallax Effect - Behind all content */}
       <motion.div
         className="fixed inset-0 flex items-center justify-center pointer-events-none"
@@ -196,9 +258,31 @@ export default function LandingPage() {
           <HeroSectionDisplay />
 
           {/* Main H1 Heading - SEO Critical */}
-          <h1 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 text-center mt-12 mb-4 tracking-wide">
-            Premier Aesthetic & Beauty Salon in Wisbech
-          </h1>
+          <div className="relative">
+            {christmasThemeEnabled && (
+              <>
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute -left-4 sm:-left-8 top-0 text-3xl sm:text-5xl"
+                  style={{ color: '#d4a710' }}
+                >
+                  🎁
+                </motion.div>
+                <motion.div
+                  animate={{ rotate: [0, -10, 10, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
+                  className="absolute -right-4 sm:-right-8 top-0 text-3xl sm:text-5xl"
+                  style={{ color: '#d4a710' }}
+                >
+                  🎄
+                </motion.div>
+              </>
+            )}
+            <h1 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 text-center mt-12 mb-4 tracking-wide">
+              Premier Aesthetic & Beauty Salon in Wisbech
+            </h1>
+          </div>
           <p className="text-center text-gray-600 text-lg max-w-4xl mx-auto mb-8 font-light">
             Expert cosmetic treatments including{" "}
             <a

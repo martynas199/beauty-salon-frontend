@@ -13,6 +13,7 @@ export default function Settings() {
     salonPhone: "",
     salonEmail: "",
     heroImage: null,
+    christmasThemeEnabled: true,
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -43,6 +44,7 @@ export default function Settings() {
         salonPhone: settings.salonPhone || "",
         salonEmail: settings.salonEmail || "",
         heroImage: settings.heroImage || null,
+        christmasThemeEnabled: settings.christmasThemeEnabled !== undefined ? settings.christmasThemeEnabled : true,
       });
       if (settings.heroImage?.url) {
         setImagePreview(settings.heroImage.url);
@@ -272,6 +274,7 @@ export default function Settings() {
         salonPhone: formData.salonPhone,
         salonEmail: formData.salonEmail,
         heroImage: heroImageData,
+        christmasThemeEnabled: formData.christmasThemeEnabled,
       });
 
       setMessage({
@@ -391,6 +394,35 @@ export default function Settings() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Christmas Theme Toggle */}
+          <div className="bg-gradient-to-r from-[#76540E] via-[#d4a710] to-[#76540E] rounded-lg shadow-sm border border-gray-300 p-6 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold mb-1 flex items-center gap-2">
+                  <span>🎄</span>
+                  <span>Christmas Theme</span>
+                </h2>
+                <p className="text-sm text-white/90">
+                  Enable festive decorations on the landing page
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-white">
+                  {formData.christmasThemeEnabled ? 'ON' : 'OFF'}
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.christmasThemeEnabled}
+                    onChange={(e) => handleChange('christmasThemeEnabled', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-14 h-8 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-white/20"></div>
+                </label>
               </div>
             </div>
           </div>
