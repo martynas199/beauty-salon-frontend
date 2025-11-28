@@ -50,6 +50,7 @@ export default function Products() {
     product: null,
   });
   const [submitting, setSubmitting] = useState(false);
+  const [applyingDiscount, setApplyingDiscount] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -85,6 +86,42 @@ export default function Products() {
       console.error("Failed to load data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleApplyBlackFriday = async () => {
+    if (!confirm('Apply 15% Black Friday discount to all products?')) {
+      return;
+    }
+
+    setApplyingDiscount(true);
+    try {
+      const response = await api.post('/products/apply-black-friday');
+      toast.success(response.message || 'Black Friday discount applied!');
+      await loadProducts();
+    } catch (error) {
+      console.error('Failed to apply discount:', error);
+      toast.error(error.response?.data?.error || 'Failed to apply discount');
+    } finally {
+      setApplyingDiscount(false);
+    }
+  };
+
+  const handleRemoveBlackFriday = async () => {
+    if (!confirm('Remove Black Friday discount and restore original prices?')) {
+      return;
+    }
+
+    setApplyingDiscount(true);
+    try {
+      const response = await api.post('/products/remove-black-friday');
+      toast.success(response.message || 'Black Friday discount removed!');
+      await loadProducts();
+    } catch (error) {
+      console.error('Failed to remove discount:', error);
+      toast.error(error.response?.data?.error || 'Failed to remove discount');
+    } finally {
+      setApplyingDiscount(false);
     }
   };
 
@@ -454,6 +491,39 @@ export default function Products() {
           </Button>
         )}
       </div>
+
+      {/* Black Friday Discount Controls */}
+      {!showForm && (
+        <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg shadow-lg border border-gray-700 p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 className="text-base sm:text-lg font-semibold text-white mb-1 flex items-center gap-2">
+                <span>🎉</span>
+                Black Friday Discount
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-300">
+                Apply or remove 15% discount to all products
+              </p>
+            </div>
+            <div className="flex gap-2 sm:gap-3">
+              <button
+                onClick={handleApplyBlackFriday}
+                disabled={applyingDiscount}
+                className="flex-1 sm:flex-none px-4 py-2 bg-black hover:bg-gray-900 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              >
+                {applyingDiscount ? 'Processing...' : 'Apply Discount'}
+              </button>
+              <button
+                onClick={handleRemoveBlackFriday}
+                disabled={applyingDiscount}
+                className="flex-1 sm:flex-none px-4 py-2 bg-white hover:bg-gray-100 text-gray-900 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+              >
+                Remove Discount
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Brand Filter Pills */}
       {!showForm && brands.length > 0 && (

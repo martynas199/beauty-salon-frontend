@@ -164,8 +164,8 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
                     </div>
                   )}
                   {hasDiscount && (
-                    <div className="absolute top-4 right-4 bg-red-500 text-white text-sm font-bold px-3 py-1.5 rounded">
-                      SALE
+                    <div className="absolute top-4 right-4 bg-black text-white text-sm font-bold px-4 py-2 rounded shadow-lg">
+                      BLACK FRIDAY
                     </div>
                   )}
 
