@@ -1248,21 +1248,35 @@ export default function Appointments() {
                     {r.beautician?.name || r.beauticianId}
                   </div>
                 </div>
-                <span
-                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap ml-2 ${
-                    r.status === "confirmed"
-                      ? "bg-green-100 text-green-800"
-                      : r.status === "reserved_unpaid"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : String(r.status).startsWith("cancelled")
-                      ? "bg-red-100 text-red-800"
-                      : r.status === "no_show"
-                      ? "bg-gray-100 text-gray-800"
-                      : "bg-blue-100 text-blue-800"
-                  }`}
-                >
-                  {r.status?.replace(/_/g, " ").toUpperCase()}
-                </span>
+                <div className="flex flex-col gap-2 ml-2">
+                  <span
+                    className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap ${
+                      r.status === "confirmed"
+                        ? "bg-green-100 text-green-800"
+                        : r.status === "reserved_unpaid"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : String(r.status).startsWith("cancelled")
+                        ? "bg-red-100 text-red-800"
+                        : r.status === "no_show"
+                        ? "bg-gray-100 text-gray-800"
+                        : "bg-blue-100 text-blue-800"
+                    }`}
+                  >
+                    {r.status?.replace(/_/g, " ").toUpperCase()}
+                  </span>
+                  {r.payment?.mode === "deposit" && (
+                    <span
+                      className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap ${
+                        r.payment.status === "succeeded"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                      title={`Payment Mode: Deposit | Status: ${r.payment.status}`}
+                    >
+                      {r.payment.status === "succeeded" ? "✓ Deposit Paid" : "⏱ Awaiting Deposit"}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Appointment Details */}
@@ -1397,6 +1411,16 @@ export default function Appointments() {
                 >
                   ✏️ Edit Appointment
                 </button>
+                {r.payment?.mode === "deposit" &&
+                  r.payment?.status !== "succeeded" && (
+                    <button
+                      className="w-full border-2 rounded-xl px-4 py-3 text-sm sm:text-base text-green-600 border-green-200 hover:bg-green-50 font-medium transition-colors active:scale-[0.98]"
+                      onClick={() => sendDepositPaymentEmail(r._id, r.price)}
+                      title="Send Deposit Payment Email"
+                    >
+                      💳 Send Payment Link
+                    </button>
+                  )}
                 <div className="grid grid-cols-2 gap-2.5">
                   <button
                     className="border-2 rounded-xl px-4 py-3 text-sm sm:text-base text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors active:scale-[0.98]"
