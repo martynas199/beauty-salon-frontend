@@ -44,7 +44,10 @@ export default function Settings() {
         salonPhone: settings.salonPhone || "",
         salonEmail: settings.salonEmail || "",
         heroImage: settings.heroImage || null,
-        christmasThemeEnabled: settings.christmasThemeEnabled !== undefined ? settings.christmasThemeEnabled : true,
+        christmasThemeEnabled:
+          settings.christmasThemeEnabled !== undefined
+            ? settings.christmasThemeEnabled
+            : true,
       });
       if (settings.heroImage?.url) {
         setImagePreview(settings.heroImage.url);
@@ -412,13 +415,15 @@ export default function Settings() {
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium text-white">
-                  {formData.christmasThemeEnabled ? 'ON' : 'OFF'}
+                  {formData.christmasThemeEnabled ? "ON" : "OFF"}
                 </span>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.christmasThemeEnabled}
-                    onChange={(e) => handleChange('christmasThemeEnabled', e.target.checked)}
+                    onChange={(e) =>
+                      handleChange("christmasThemeEnabled", e.target.checked)
+                    }
                     className="sr-only peer"
                   />
                   <div className="w-14 h-8 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-white/20"></div>

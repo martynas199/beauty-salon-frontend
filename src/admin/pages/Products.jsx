@@ -90,36 +90,36 @@ export default function Products() {
   };
 
   const handleApplyBlackFriday = async () => {
-    if (!confirm('Apply 15% Black Friday discount to all products?')) {
+    if (!confirm("Apply 15% Black Friday discount to all products?")) {
       return;
     }
 
     setApplyingDiscount(true);
     try {
-      const response = await api.post('/products/apply-black-friday');
-      toast.success(response.message || 'Black Friday discount applied!');
+      const response = await api.post("/products/apply-black-friday");
+      toast.success(response.message || "Black Friday discount applied!");
       await loadProducts();
     } catch (error) {
-      console.error('Failed to apply discount:', error);
-      toast.error(error.response?.data?.error || 'Failed to apply discount');
+      console.error("Failed to apply discount:", error);
+      toast.error(error.response?.data?.error || "Failed to apply discount");
     } finally {
       setApplyingDiscount(false);
     }
   };
 
   const handleRemoveBlackFriday = async () => {
-    if (!confirm('Remove Black Friday discount and restore original prices?')) {
+    if (!confirm("Remove Black Friday discount and restore original prices?")) {
       return;
     }
 
     setApplyingDiscount(true);
     try {
-      const response = await api.post('/products/remove-black-friday');
-      toast.success(response.message || 'Black Friday discount removed!');
+      const response = await api.post("/products/remove-black-friday");
+      toast.success(response.message || "Black Friday discount removed!");
       await loadProducts();
     } catch (error) {
-      console.error('Failed to remove discount:', error);
-      toast.error(error.response?.data?.error || 'Failed to remove discount');
+      console.error("Failed to remove discount:", error);
+      toast.error(error.response?.data?.error || "Failed to remove discount");
     } finally {
       setApplyingDiscount(false);
     }
@@ -511,7 +511,7 @@ export default function Products() {
                 disabled={applyingDiscount}
                 className="flex-1 sm:flex-none px-4 py-2 bg-black hover:bg-gray-900 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
               >
-                {applyingDiscount ? 'Processing...' : 'Apply Discount'}
+                {applyingDiscount ? "Processing..." : "Apply Discount"}
               </button>
               <button
                 onClick={handleRemoveBlackFriday}

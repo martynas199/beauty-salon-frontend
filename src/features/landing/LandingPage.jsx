@@ -28,7 +28,7 @@ import {
 const Snowflake = ({ delay, duration, left }) => (
   <motion.div
     className="absolute text-2xl"
-    style={{ left: `${left}%`, top: -20, color: '#d4a710' }}
+    style={{ left: `${left}%`, top: -20, color: "#d4a710" }}
     animate={{
       y: [0, window.innerHeight + 100],
       x: [0, Math.random() * 100 - 50],
@@ -39,7 +39,7 @@ const Snowflake = ({ delay, duration, left }) => (
       duration,
       delay,
       repeat: Infinity,
-      ease: 'linear',
+      ease: "linear",
     }}
   >
     ❄
@@ -68,13 +68,19 @@ export default function LandingPage() {
         .get("/beauticians")
         .then((res) => res.data.filter((b) => b.active))
         .catch(() => []),
-      api.get("/settings").catch(() => ({ data: { christmasThemeEnabled: true } })),
+      api
+        .get("/settings")
+        .catch(() => ({ data: { christmasThemeEnabled: true } })),
     ])
       .then(([servicesData, salonData, beauticiansData, settingsData]) => {
         setServices(servicesData);
         setSalon(salonData);
         setBeauticians(beauticiansData);
-        setChristmasThemeEnabled(settingsData.data.christmasThemeEnabled !== undefined ? settingsData.data.christmasThemeEnabled : true);
+        setChristmasThemeEnabled(
+          settingsData.data.christmasThemeEnabled !== undefined
+            ? settingsData.data.christmasThemeEnabled
+            : true
+        );
       })
       .catch((err) => console.error("Failed to fetch landing page data:", err))
       .finally(() => setLoading(false));
@@ -202,7 +208,10 @@ export default function LandingPage() {
 
       {/* Christmas Snowflakes */}
       {christmasThemeEnabled && (
-        <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 10 }}>
+        <div
+          className="fixed inset-0 pointer-events-none overflow-hidden"
+          style={{ zIndex: 10 }}
+        >
           {[...Array(15)].map((_, i) => (
             <Snowflake
               key={i}
@@ -219,19 +228,23 @@ export default function LandingPage() {
         <motion.div
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
           className="relative bg-gradient-to-r from-[#76540E] via-[#d4a710] to-[#76540E] text-white py-3 px-4 text-center overflow-hidden"
         >
           <motion.div
-            animate={{ x: ['-100%', '100%'] }}
-            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+            animate={{ x: ["-100%", "100%"] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
           />
           <div className="relative z-10 flex items-center justify-center gap-3 flex-wrap">
             <span className="text-xl hidden sm:inline">🎁</span>
-            <span className="font-semibold text-sm sm:text-base">🎄 Festive Season Special</span>
+            <span className="font-semibold text-sm sm:text-base">
+              🎄 Festive Season Special
+            </span>
             <span className="hidden md:inline">|</span>
-            <span className="text-sm">Gift the ultimate beauty experience this Christmas</span>
+            <span className="text-sm">
+              Gift the ultimate beauty experience this Christmas
+            </span>
             <span className="text-xl hidden sm:inline">🎁</span>
           </div>
         </motion.div>
@@ -263,17 +276,26 @@ export default function LandingPage() {
               <>
                 <motion.div
                   animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
                   className="absolute -left-4 sm:-left-8 top-0 text-3xl sm:text-5xl"
-                  style={{ color: '#d4a710' }}
+                  style={{ color: "#d4a710" }}
                 >
                   🎁
                 </motion.div>
                 <motion.div
                   animate={{ rotate: [0, -10, 10, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 1.5,
+                  }}
                   className="absolute -right-4 sm:-right-8 top-0 text-3xl sm:text-5xl"
-                  style={{ color: '#d4a710' }}
+                  style={{ color: "#d4a710" }}
                 >
                   🎄
                 </motion.div>

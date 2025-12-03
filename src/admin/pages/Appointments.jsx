@@ -57,6 +57,15 @@ export default function Appointments() {
     paymentStatus: "paid",
   });
 
+  // Deposit modal state
+  const [depositModalOpen, setDepositModalOpen] = useState(false);
+  const [depositModalData, setDepositModalData] = useState({
+    appointmentId: null,
+    price: 0,
+    percent: 50,
+    isCreating: false,
+  });
+
   // Filter state
   const [selectedBeauticianId, setSelectedBeauticianId] = useState("");
   const [dateFilter, setDateFilter] = useState("all"); // all, day, week, month, custom
@@ -444,6 +453,59 @@ export default function Appointments() {
     );
   }
 
+  function sendDepositPaymentEmail(appointmentId, appointmentPrice) {
+    const totalPrice = Number(appointmentPrice) || 0;
+    if (totalPrice <= 0) {
+      toast.error("Invalid appointment price");
+      return;
+    }
+
+    // Open modal to ask for deposit percentage
+    setDepositModalData({
+      appointmentId,
+      price: totalPrice,
+      percent: 50,
+      isCreating: false,
+    });
+    setDepositModalOpen(true);
+  }
+
+  async function confirmSendDepositEmail(percent) {
+    const { appointmentId, price } = depositModalData;
+
+    try {
+      setLoading(true);
+
+      // Calculate deposit amount based on percentage
+      const depositAmount = (price * percent) / 100;
+
+      // Create checkout session with deposit
+      await api.post(`/appointments/${appointmentId}/create-deposit-checkout`, {
+        depositAmount: depositAmount,
+      });
+
+      // Send email with payment link
+      await api.post(`/appointments/${appointmentId}/send-deposit-email`);
+
+      toast.success(
+        `Deposit payment email sent! ${percent}% (£${depositAmount.toFixed(
+          2
+        )}) of £${price.toFixed(2)}`
+      );
+
+      // Refresh appointments
+      fetchAppointments(pagination.page);
+      setDepositModalOpen(false);
+    } catch (error) {
+      console.error("Error sending deposit email:", error);
+      toast.error(
+        error.response?.data?.error || "Failed to send deposit email"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function openEditModal(appointment) {
     setEditingAppointment({
       _id: appointment._id,
@@ -525,6 +587,47 @@ export default function Appointments() {
     setCreateModalOpen(true);
   }
 
+  async function confirmCreateWithDeposit(percent) {
+    setDepositModalOpen(false);
+    setSubmitting(true);
+
+    try {
+      const requestData = {
+        client: {
+          name: newAppointment.clientName,
+          email: newAppointment.clientEmail,
+          phone: newAppointment.clientPhone,
+          notes: newAppointment.clientNotes,
+        },
+        beauticianId: newAppointment.beauticianId,
+        serviceId: newAppointment.serviceId,
+        variantName: newAppointment.variantName,
+        startISO: newAppointment.start,
+        mode: "deposit",
+        depositPercent: percent,
+      };
+
+      const response = await api.post("/appointments", requestData);
+
+      if (response.data.ok) {
+        await fetchAppointments(pagination.page);
+        setCreateModalOpen(false);
+        const depositAmount = (newAppointment.price * percent) / 100;
+        toast.success(
+          `Appointment created! ${percent}% deposit (£${depositAmount.toFixed(
+            2
+          )}) payment link sent to customer.`
+        );
+      }
+    } catch (e) {
+      toast.error(
+        e.response?.data?.error || e.message || "Failed to create appointment"
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   async function saveNewAppointment() {
     if (!newAppointment) return;
 
@@ -546,10 +649,22 @@ export default function Appointments() {
       return;
     }
 
+    // If deposit mode, open modal to ask for deposit percentage
+    if (newAppointment.paymentStatus === "deposit") {
+      setDepositModalData({
+        appointmentId: null,
+        price: newAppointment.price,
+        percent: 50,
+        isCreating: true,
+      });
+      setDepositModalOpen(true);
+      return;
+    }
+
     setSubmitting(true);
 
     try {
-      const response = await api.post("/appointments", {
+      const requestData = {
         client: {
           name: newAppointment.clientName,
           email: newAppointment.clientEmail,
@@ -562,13 +677,56 @@ export default function Appointments() {
         startISO: newAppointment.start,
         mode:
           newAppointment.paymentStatus === "paid" ? "pay_in_salon" : "online",
-      });
+      };
+
+      const response = await api.post("/appointments", requestData);
 
       if (response.data.ok) {
         // Refresh appointments list
         await fetchAppointments(pagination.page);
         setCreateModalOpen(false);
         toast.success("Appointment created successfully");
+      }
+    } catch (e) {
+      toast.error(
+        e.response?.data?.error || e.message || "Failed to create appointment"
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function confirmCreateWithDeposit(percent) {
+    setDepositModalOpen(false);
+    setSubmitting(true);
+
+    try {
+      const requestData = {
+        client: {
+          name: newAppointment.clientName,
+          email: newAppointment.clientEmail,
+          phone: newAppointment.clientPhone,
+          notes: newAppointment.clientNotes,
+        },
+        beauticianId: newAppointment.beauticianId,
+        serviceId: newAppointment.serviceId,
+        variantName: newAppointment.variantName,
+        startISO: newAppointment.start,
+        mode: "deposit",
+        depositPercent: percent,
+      };
+
+      const response = await api.post("/appointments", requestData);
+
+      if (response.data.ok) {
+        await fetchAppointments(pagination.page);
+        setCreateModalOpen(false);
+        const depositAmount = (newAppointment.price * percent) / 100;
+        toast.success(
+          `Appointment created! ${percent}% deposit (£${depositAmount.toFixed(
+            2
+          )}) payment link sent to customer.`
+        );
       }
     } catch (e) {
       toast.error(
@@ -948,7 +1106,7 @@ export default function Appointments() {
                     £{Number(r.price || 0).toFixed(2)}
                   </td>
                   <td className="p-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span
                         className={`inline-block px-2 py-1 rounded text-xs font-medium ${
                           r.status === "confirmed"
@@ -962,6 +1120,20 @@ export default function Appointments() {
                       >
                         {r.status}
                       </span>
+                      {r.payment?.mode === "deposit" && (
+                        <span
+                          className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                            r.payment.status === "succeeded"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                          title={`Payment Mode: Deposit | Status: ${r.payment.status}`}
+                        >
+                          {r.payment.status === "succeeded"
+                            ? "✓ Deposit Paid"
+                            : "⏱ Awaiting Deposit"}
+                        </span>
+                      )}
                       {r.payment?.stripe?.lastPaymentError && (
                         <div
                           className="group relative"
@@ -999,7 +1171,7 @@ export default function Appointments() {
                     </div>
                   </td>
                   <td className="p-3">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       <button
                         className="border rounded px-3 py-1.5 text-sm text-blue-600 border-blue-200 hover:bg-blue-50"
                         onClick={() => openEditModal(r)}
@@ -1028,6 +1200,18 @@ export default function Appointments() {
                       >
                         No Show
                       </button>
+                      {r.payment?.mode === "deposit" &&
+                        r.payment?.status !== "succeeded" && (
+                          <button
+                            className="border rounded px-3 py-1.5 text-sm text-green-600 border-green-200 hover:bg-green-50"
+                            onClick={() =>
+                              sendDepositPaymentEmail(r._id, r.price)
+                            }
+                            title="Send Deposit Payment Email (50% deposit)"
+                          >
+                            💳 Send Payment Link
+                          </button>
+                        )}
                       {String(r.status || "").startsWith("cancelled") && (
                         <button
                           className="border rounded px-3 py-1.5 text-sm text-red-700 border-red-300 hover:bg-red-50"
@@ -1354,6 +1538,22 @@ export default function Appointments() {
         onSave={saveNewAppointment}
         submitting={submitting}
         isSuperAdmin={isSuperAdmin}
+      />
+
+      <DepositPercentModal
+        open={depositModalOpen}
+        onClose={() => setDepositModalOpen(false)}
+        price={depositModalData.price}
+        percent={depositModalData.percent}
+        setPercent={(percent) =>
+          setDepositModalData((prev) => ({ ...prev, percent }))
+        }
+        onConfirm={
+          depositModalData.isCreating
+            ? confirmCreateWithDeposit
+            : confirmSendDepositEmail
+        }
+        submitting={submitting || loading}
       />
     </div>
   );
@@ -1940,6 +2140,7 @@ function CreateModal({
             >
               <option value="paid">Paid (Cash/Card in Person)</option>
               <option value="unpaid">Unpaid (Online Payment Required)</option>
+              <option value="deposit">Deposit (Send Payment Link)</option>
             </select>
           </FormField>
         </div>
@@ -1957,6 +2158,114 @@ function CreateModal({
         >
           Create Appointment
         </Button>
+      </div>
+    </Modal>
+  );
+}
+
+function DepositPercentModal({
+  open,
+  onClose,
+  price,
+  percent,
+  setPercent,
+  onConfirm,
+  submitting,
+}) {
+  const depositAmount = (price * percent) / 100;
+
+  return (
+    <Modal open={open} onClose={onClose} title="Enter Deposit Percentage">
+      <div className="space-y-4">
+        <div>
+          <p className="text-sm text-gray-600 mb-3">
+            Service price:{" "}
+            <span className="font-semibold text-gray-900">
+              £{price.toFixed(2)}
+            </span>
+          </p>
+
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Deposit Percentage (1-100%)
+          </label>
+          <input
+            type="number"
+            min="1"
+            max="100"
+            className="border rounded w-full px-3 py-2 text-lg font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+            value={percent}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              if (val >= 0 && val <= 100) {
+                setPercent(val);
+              }
+            }}
+            autoFocus
+          />
+
+          <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600">
+              Deposit amount:{" "}
+              <span className="font-bold text-lg text-brand-600">
+                £{depositAmount.toFixed(2)}
+              </span>
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              + £0.50 booking fee (total: £{(depositAmount + 0.5).toFixed(2)})
+            </p>
+            {percent < 100 && (
+              <p className="text-xs text-gray-500 mt-1">
+                Remaining balance: £{(price - depositAmount).toFixed(2)} (to be
+                paid at salon)
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Quick select buttons */}
+        <div className="flex gap-2">
+          <button
+            className="flex-1 px-3 py-2 text-sm border rounded hover:bg-gray-50"
+            onClick={() => setPercent(25)}
+          >
+            25%
+          </button>
+          <button
+            className="flex-1 px-3 py-2 text-sm border rounded hover:bg-gray-50"
+            onClick={() => setPercent(50)}
+          >
+            50%
+          </button>
+          <button
+            className="flex-1 px-3 py-2 text-sm border rounded hover:bg-gray-50"
+            onClick={() => setPercent(75)}
+          >
+            75%
+          </button>
+          <button
+            className="flex-1 px-3 py-2 text-sm border rounded hover:bg-gray-50"
+            onClick={() => setPercent(100)}
+          >
+            100%
+          </button>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 pt-2 border-t">
+          <button
+            className="border rounded px-4 py-2 hover:bg-gray-50"
+            onClick={onClose}
+            disabled={submitting}
+          >
+            Cancel
+          </button>
+          <button
+            className="border rounded px-4 py-2 bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50"
+            onClick={() => onConfirm(percent)}
+            disabled={submitting || percent <= 0 || percent > 100}
+          >
+            {submitting ? "Processing..." : "Confirm & Send"}
+          </button>
+        </div>
       </div>
     </Modal>
   );

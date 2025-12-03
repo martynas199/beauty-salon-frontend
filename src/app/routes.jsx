@@ -8,6 +8,8 @@ import SalonDetails from "../features/salon/SalonDetails";
 import TimeSlots from "../features/availability/TimeSlots";
 import CheckoutPage from "../features/checkout/CheckoutPage";
 import ConfirmationPage from "../features/booking/ConfirmationPage";
+import DepositSuccessPage from "../features/booking/DepositSuccessPage";
+import DepositCancelPage from "../features/booking/DepositCancelPage";
 import SuccessPage from "../features/checkout/SuccessPage";
 import CancelPage from "../features/checkout/CancelPage";
 import FAQPage from "../features/faq/FAQPage";
@@ -435,6 +437,14 @@ function CustomerLayout() {
           <Route path="/times" element={<TimeSlots />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/confirmation" element={<ConfirmationPage />} />
+          <Route
+            path="/booking/:id/deposit-success"
+            element={<DepositSuccessPage />}
+          />
+          <Route
+            path="/booking/:id/deposit-cancel"
+            element={<DepositCancelPage />}
+          />
           <Route path="/salon" element={<SalonDetails />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:id" element={<ProductDetailPage />} />
