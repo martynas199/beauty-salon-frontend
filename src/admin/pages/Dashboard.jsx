@@ -947,6 +947,33 @@ export default function Dashboard() {
                   <p className="text-gray-900 font-bold text-xl">
                     {formatCurrency(selectedEvent.resource.price || 0)}
                   </p>
+                  {selectedEvent.resource.payment?.mode === "deposit" && (
+                    <div className="text-xs text-gray-600 mt-2 space-y-1">
+                      <p className="font-medium">Deposit Payment</p>
+                      {selectedEvent.resource.payment.amountTotal && (
+                        <>
+                          <p>
+                            Deposit paid:{" "}
+                            {formatCurrency(
+                              (selectedEvent.resource.payment.amountTotal - 50) / 100
+                            )}
+                          </p>
+                          <p>
+                            Balance due:{" "}
+                            {formatCurrency(
+                              selectedEvent.resource.price - (selectedEvent.resource.payment.amountTotal - 50) / 100
+                            )}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  {selectedEvent.resource.payment?.mode === "pay_now" && (
+                    <p className="text-xs text-gray-600 mt-1">Paid in Full</p>
+                  )}
+                  {selectedEvent.resource.payment?.mode === "pay_in_salon" && (
+                    <p className="text-xs text-gray-600 mt-1">Pay in Salon</p>
+                  )}
                 </div>
               </div>
 
