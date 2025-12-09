@@ -54,7 +54,7 @@ export default function Appointments() {
     start: "",
     end: "",
     price: 0,
-    paymentStatus: "paid",
+    paymentStatus: "", // Empty default to force user selection
   });
 
   // Deposit modal state
@@ -648,6 +648,10 @@ export default function Appointments() {
       toast.error("Start time is required");
       return;
     }
+    if (!newAppointment.paymentStatus || newAppointment.paymentStatus === "") {
+      toast.error("Please select a payment option");
+      return;
+    }
 
     // If deposit mode, open modal to ask for deposit percentage
     if (newAppointment.paymentStatus === "deposit") {
@@ -661,39 +665,47 @@ export default function Appointments() {
       return;
     }
 
-    setSubmitting(true);
+    // If booking fee mode, create appointment with booking fee
+    if (newAppointment.paymentStatus === "booking_fee") {
+      setSubmitting(true);
+      try {
+        const requestData = {
+          client: {
+            name: newAppointment.clientName,
+            email: newAppointment.clientEmail,
+            phone: newAppointment.clientPhone,
+            notes: newAppointment.clientNotes,
+          },
+          beauticianId: newAppointment.beauticianId,
+          serviceId: newAppointment.serviceId,
+          variantName: newAppointment.variantName,
+          startISO: newAppointment.start,
+          mode: "booking_fee",
+        };
 
-    try {
-      const requestData = {
-        client: {
-          name: newAppointment.clientName,
-          email: newAppointment.clientEmail,
-          phone: newAppointment.clientPhone,
-          notes: newAppointment.clientNotes,
-        },
-        beauticianId: newAppointment.beauticianId,
-        serviceId: newAppointment.serviceId,
-        variantName: newAppointment.variantName,
-        startISO: newAppointment.start,
-        mode:
-          newAppointment.paymentStatus === "paid" ? "pay_in_salon" : "online",
-      };
+        const response = await api.post("/appointments", requestData);
 
-      const response = await api.post("/appointments", requestData);
-
-      if (response.data.ok) {
-        // Refresh appointments list
-        await fetchAppointments(pagination.page);
-        setCreateModalOpen(false);
-        toast.success("Appointment created successfully");
+        if (response.data.ok) {
+          await fetchAppointments(pagination.page);
+          setCreateModalOpen(false);
+          toast.success(
+            "Appointment created! £0.50 booking fee payment link sent to customer."
+          );
+        }
+      } catch (e) {
+        toast.error(
+          e.response?.data?.error || e.message || "Failed to create appointment"
+        );
+      } finally {
+        setSubmitting(false);
       }
-    } catch (e) {
-      toast.error(
-        e.response?.data?.error || e.message || "Failed to create appointment"
-      );
-    } finally {
-      setSubmitting(false);
+      return;
     }
+
+    // If we reach here, invalid payment status
+    toast.error(
+      "Invalid payment status. Please select a valid payment option."
+    );
   }
 
   async function confirmCreateWithDeposit(percent) {
@@ -1273,7 +1285,9 @@ export default function Appointments() {
                       }`}
                       title={`Payment Mode: Deposit | Status: ${r.payment.status}`}
                     >
-                      {r.payment.status === "succeeded" ? "✓ Deposit Paid" : "⏱ Awaiting Deposit"}
+                      {r.payment.status === "succeeded"
+                        ? "✓ Deposit Paid"
+                        : "⏱ Awaiting Deposit"}
                     </span>
                   )}
                 </div>
@@ -2154,7 +2168,7 @@ function CreateModal({
               </div>
             )}
 
-          <FormField label="Payment Status *" htmlFor="payment-status-create">
+          <FormField label="Payment *" htmlFor="payment-status-create">
             <select
               id="payment-status-create"
               className="border rounded w-full px-3 py-2"
@@ -2162,8 +2176,8 @@ function CreateModal({
               onChange={(e) => updateField("paymentStatus", e.target.value)}
               required
             >
-              <option value="paid">Paid (Cash/Card in Person)</option>
-              <option value="unpaid">Unpaid (Online Payment Required)</option>
+              <option value="">Select Payment Option</option>
+              <option value="booking_fee">Unpaid (Booking Fee Required)</option>
               <option value="deposit">Deposit (Send Payment Link)</option>
             </select>
           </FormField>

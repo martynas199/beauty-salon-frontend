@@ -10,6 +10,10 @@ export default function DepositSuccessPage() {
   const [appointment, setAppointment] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Check if this is a booking fee payment from URL parameter
+  const searchParams = new URLSearchParams(window.location.search);
+  const isBookingFee = searchParams.get("type") === "booking_fee";
+
   useEffect(() => {
     if (id) {
       loadAppointment();
@@ -113,12 +117,20 @@ export default function DepositSuccessPage() {
     );
   }
 
-  // Calculate deposit details from payment info
+  // Calculate payment details based on payment mode
+  const paymentMode = appointment.payment?.mode;
+  const isBookingFeePayment = paymentMode === "booking_fee" || isBookingFee;
+
   const platformFee = 50; // £0.50 in pence
   const totalPaid = appointment.payment?.amountTotal || 0; // Total in pence
-  const depositAmount = totalPaid - platformFee; // Deposit without fee in pence
   const totalPrice = (appointment.price || 0) * 100; // Convert price to pence
-  const remainingBalance = totalPrice - depositAmount; // Remaining balance in pence
+
+  // For booking fee: full service price is remaining
+  // For deposit: calculate deposit and remaining balance
+  const depositAmount = isBookingFeePayment ? 0 : totalPaid - platformFee;
+  const remainingBalance = isBookingFeePayment
+    ? totalPrice
+    : totalPrice - depositAmount;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50 to-gray-50 py-12 px-4">
@@ -153,7 +165,9 @@ export default function DepositSuccessPage() {
             </div>
           </motion.div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Deposit Paid Successfully!
+            {isBookingFeePayment
+              ? "Booking Fee Paid Successfully!"
+              : "Deposit Paid Successfully!"}
           </h1>
           <p className="text-gray-600">Your appointment is now confirmed</p>
         </div>
@@ -219,33 +233,66 @@ export default function DepositSuccessPage() {
 
           <div className="p-6">
             <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Deposit paid:</span>
-                <span className="font-semibold text-gray-900">
-                  {formatPrice(depositAmount)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Booking fee:</span>
-                <span className="font-semibold text-gray-900">
-                  {formatPrice(platformFee)}
-                </span>
-              </div>
-              <div className="flex justify-between border-t pt-3">
-                <span className="font-semibold text-gray-900">Total paid:</span>
-                <span className="font-bold text-green-600 text-lg">
-                  {formatPrice(totalPaid)}
-                </span>
-              </div>
-              {remainingBalance > 0 && (
-                <div className="flex justify-between bg-amber-50 -mx-6 px-6 py-3">
-                  <span className="text-amber-900 font-medium">
-                    Remaining balance:
-                  </span>
-                  <span className="font-bold text-amber-900">
-                    {formatPrice(remainingBalance)}
-                  </span>
-                </div>
+              {isBookingFeePayment ? (
+                // Booking fee payment summary
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Booking fee paid:</span>
+                    <span className="font-semibold text-gray-900">
+                      {formatPrice(totalPaid)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between border-t pt-3">
+                    <span className="font-semibold text-gray-900">
+                      Total paid:
+                    </span>
+                    <span className="font-bold text-green-600 text-lg">
+                      {formatPrice(totalPaid)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between bg-amber-50 -mx-6 px-6 py-3">
+                    <span className="text-amber-900 font-medium">
+                      Remaining balance (pay at salon):
+                    </span>
+                    <span className="font-bold text-amber-900">
+                      {formatPrice(remainingBalance)}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                // Deposit payment summary
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Deposit paid:</span>
+                    <span className="font-semibold text-gray-900">
+                      {formatPrice(depositAmount)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Platform fee:</span>
+                    <span className="font-semibold text-gray-900">
+                      {formatPrice(platformFee)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between border-t pt-3">
+                    <span className="font-semibold text-gray-900">
+                      Total paid:
+                    </span>
+                    <span className="font-bold text-green-600 text-lg">
+                      {formatPrice(totalPaid)}
+                    </span>
+                  </div>
+                  {remainingBalance > 0 && (
+                    <div className="flex justify-between bg-amber-50 -mx-6 px-6 py-3">
+                      <span className="text-amber-900 font-medium">
+                        Remaining balance:
+                      </span>
+                      <span className="font-bold text-amber-900">
+                        {formatPrice(remainingBalance)}
+                      </span>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

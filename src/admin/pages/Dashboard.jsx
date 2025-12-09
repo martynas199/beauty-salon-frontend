@@ -955,13 +955,18 @@ export default function Dashboard() {
                           <p>
                             Deposit paid:{" "}
                             {formatCurrency(
-                              (selectedEvent.resource.payment.amountTotal - 50) / 100
+                              (selectedEvent.resource.payment.amountTotal -
+                                50) /
+                                100
                             )}
                           </p>
                           <p>
                             Balance due:{" "}
                             {formatCurrency(
-                              selectedEvent.resource.price - (selectedEvent.resource.payment.amountTotal - 50) / 100
+                              selectedEvent.resource.price -
+                                (selectedEvent.resource.payment.amountTotal -
+                                  50) /
+                                  100
                             )}
                           </p>
                         </>
