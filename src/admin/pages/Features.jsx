@@ -159,6 +159,11 @@ export default function Features() {
     featureStatus?.noFeeBookings?.status === "active";
   const isCanceled = featureStatus?.noFeeBookings?.status === "canceled";
 
+  // Check if period end has already passed (immediate cancellation)
+  const periodEnd = featureStatus?.noFeeBookings?.currentPeriodEnd;
+  const hasExpired = periodEnd && new Date(periodEnd) <= new Date();
+  const isFullyCanceled = isCanceled && hasExpired;
+
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
       <motion.div
@@ -213,7 +218,7 @@ export default function Features() {
               </div>
             )}
 
-            {isCanceled && (
+            {isCanceled && !hasExpired && (
               <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
                 <div className="flex items-center gap-2 text-orange-800 font-semibold mb-2">
                   <TimesIcon className="w-5 h-5" />
@@ -229,6 +234,18 @@ export default function Features() {
                       month: "long",
                       year: "numeric",
                     })}
+                </p>
+              </div>
+            )}
+
+            {isFullyCanceled && (
+              <div className="mb-6 p-4 bg-gray-100 border border-gray-300 rounded-lg">
+                <div className="flex items-center gap-2 text-gray-700 font-semibold mb-2">
+                  <TimesIcon className="w-5 h-5" />
+                  <span>Subscription Canceled</span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Your subscription has ended. You can resubscribe at any time.
                 </p>
               </div>
             )}
@@ -300,6 +317,16 @@ export default function Features() {
                   className="flex-1 bg-brand-500 text-gray-900 py-3 px-6 rounded-lg font-semibold hover:bg-brand-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {processing ? "Processing..." : "Subscribe Now"}
+                </button>
+              )}
+
+              {isFullyCanceled && (
+                <button
+                  onClick={handleSubscribe}
+                  disabled={processing}
+                  className="flex-1 bg-brand-500 text-gray-900 py-3 px-6 rounded-lg font-semibold hover:bg-brand-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {processing ? "Processing..." : "Resubscribe"}
                 </button>
               )}
 
