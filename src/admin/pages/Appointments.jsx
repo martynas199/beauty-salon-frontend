@@ -64,6 +64,7 @@ export default function Appointments() {
     price: 0,
     percent: 50,
     isCreating: false,
+    hasNoFeeSubscription: false,
   });
 
   // Filter state
@@ -460,12 +461,21 @@ export default function Appointments() {
       return;
     }
 
+    // Find appointment to check beautician's subscription status
+    const appt = appointments.find((a) => a._id === appointmentId);
+    const beauticianId = appt?.beauticianId?._id || appt?.beauticianId;
+    const beautician = beauticians.find((b) => b._id === beauticianId);
+    const hasNoFeeSubscription =
+      beautician?.subscription?.noFeeBookings?.enabled === true &&
+      beautician?.subscription?.noFeeBookings?.status === "active";
+
     // Open modal to ask for deposit percentage
     setDepositModalData({
       appointmentId,
       price: totalPrice,
       percent: 50,
       isCreating: false,
+      hasNoFeeSubscription,
     });
     setDepositModalOpen(true);
   }
@@ -655,13 +665,58 @@ export default function Appointments() {
 
     // If deposit mode, open modal to ask for deposit percentage
     if (newAppointment.paymentStatus === "deposit") {
+      // Check if selected beautician has no-fee subscription
+      const beautician = beauticians.find(
+        (b) => b._id === newAppointment.beauticianId
+      );
+      const hasNoFeeSubscription =
+        beautician?.subscription?.noFeeBookings?.enabled === true &&
+        beautician?.subscription?.noFeeBookings?.status === "active";
+
       setDepositModalData({
         appointmentId: null,
         price: newAppointment.price,
         percent: 50,
         isCreating: true,
+        hasNoFeeSubscription,
       });
       setDepositModalOpen(true);
+      return;
+    }
+
+    // If confirmed mode (no fee subscription), create confirmed appointment
+    if (newAppointment.paymentStatus === "confirmed") {
+      setSubmitting(true);
+      try {
+        const requestData = {
+          client: {
+            name: newAppointment.clientName,
+            email: newAppointment.clientEmail,
+            phone: newAppointment.clientPhone,
+            notes: newAppointment.clientNotes,
+          },
+          beauticianId: newAppointment.beauticianId,
+          serviceId: newAppointment.serviceId,
+          variantName: newAppointment.variantName,
+          startISO: newAppointment.start,
+          mode: "booking_fee", // Still use booking_fee mode, backend will skip fee if subscription active
+        };
+
+        const response = await api.post("/appointments", requestData);
+
+        if (response.data.ok) {
+          await fetchAppointments(pagination.page);
+          setCreateModalOpen(false);
+          toast.success("Appointment confirmed successfully (no booking fee)!");
+        }
+      } catch (err) {
+        console.error("Error creating confirmed appointment:", err);
+        toast.error(
+          err.response?.data?.error || "Failed to create appointment"
+        );
+      } finally {
+        setSubmitting(false);
+      }
       return;
     }
 
@@ -733,12 +788,18 @@ export default function Appointments() {
       if (response.data.ok) {
         await fetchAppointments(pagination.page);
         setCreateModalOpen(false);
-        const depositAmount = (newAppointment.price * percent) / 100;
-        toast.success(
-          `Appointment created! ${percent}% deposit (£${depositAmount.toFixed(
-            2
-          )}) payment link sent to customer.`
-        );
+
+        if (response.data.warning) {
+          // Show warning if Stripe Connect not set up or email couldn't be sent
+          toast.error(response.data.warning, { duration: 6000 });
+        } else {
+          const depositAmount = (newAppointment.price * percent) / 100;
+          toast.success(
+            `Appointment created! ${percent}% deposit (£${depositAmount.toFixed(
+              2
+            )}) payment link sent to customer.`
+          );
+        }
       }
     } catch (e) {
       toast.error(
@@ -1592,6 +1653,7 @@ export default function Appointments() {
             : confirmSendDepositEmail
         }
         submitting={submitting || loading}
+        hasNoFeeSubscription={depositModalData.hasNoFeeSubscription}
       />
     </div>
   );
@@ -1859,6 +1921,11 @@ function CreateModal({
   const selectedBeautician = beauticians.find(
     (b) => b._id === appointment.beauticianId
   );
+
+  // Check if selected beautician has active no-fee subscription
+  const hasNoFeeSubscription =
+    selectedBeautician?.subscription?.noFeeBookings?.enabled === true &&
+    selectedBeautician?.subscription?.noFeeBookings?.status === "active";
 
   const availableServices = services.filter((service) => {
     if (!appointment.beauticianId) return true; // Show all if no beautician selected
@@ -2177,8 +2244,19 @@ function CreateModal({
               required
             >
               <option value="">Select Payment Option</option>
-              <option value="booking_fee">Unpaid (Booking Fee Required)</option>
-              <option value="deposit">Deposit (Send Payment Link)</option>
+              {hasNoFeeSubscription ? (
+                <>
+                  <option value="confirmed">Confirm Booking (No Fee)</option>
+                  <option value="deposit">Deposit (Send Payment Link)</option>
+                </>
+              ) : (
+                <>
+                  <option value="booking_fee">
+                    Unpaid (Booking Fee Required)
+                  </option>
+                  <option value="deposit">Deposit (Send Payment Link)</option>
+                </>
+              )}
             </select>
           </FormField>
         </div>
@@ -2209,8 +2287,11 @@ function DepositPercentModal({
   setPercent,
   onConfirm,
   submitting,
+  hasNoFeeSubscription = false,
 }) {
   const depositAmount = (price * percent) / 100;
+  const bookingFee = hasNoFeeSubscription ? 0 : 0.5;
+  const totalWithFee = depositAmount + bookingFee;
 
   return (
     <Modal open={open} onClose={onClose} title="Enter Deposit Percentage">
@@ -2248,9 +2329,16 @@ function DepositPercentModal({
                 £{depositAmount.toFixed(2)}
               </span>
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              + £0.50 booking fee (total: £{(depositAmount + 0.5).toFixed(2)})
-            </p>
+            {!hasNoFeeSubscription && (
+              <p className="text-xs text-gray-500 mt-1">
+                + £0.50 booking fee (total: £{totalWithFee.toFixed(2)})
+              </p>
+            )}
+            {hasNoFeeSubscription && (
+              <p className="text-xs text-green-600 mt-1 font-medium">
+                ✓ No booking fee (subscription active)
+              </p>
+            )}
             {percent < 100 && (
               <p className="text-xs text-gray-500 mt-1">
                 Remaining balance: £{(price - depositAmount).toFixed(2)} (to be

@@ -121,7 +121,12 @@ export default function DepositSuccessPage() {
   const paymentMode = appointment.payment?.mode;
   const isBookingFeePayment = paymentMode === "booking_fee" || isBookingFee;
 
-  const platformFee = 50; // £0.50 in pence
+  // Check if beautician has no-fee subscription active
+  const hasNoFeeSubscription =
+    appointment.beautician?.subscription?.noFeeBookings?.enabled === true &&
+    appointment.beautician?.subscription?.noFeeBookings?.status === "active";
+
+  const platformFee = hasNoFeeSubscription ? 0 : 50; // £0.50 in pence or £0 if subscription
   const totalPaid = appointment.payment?.amountTotal || 0; // Total in pence
   const totalPrice = (appointment.price || 0) * 100; // Convert price to pence
 
@@ -268,12 +273,14 @@ export default function DepositSuccessPage() {
                       {formatPrice(depositAmount)}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Platform fee:</span>
-                    <span className="font-semibold text-gray-900">
-                      {formatPrice(platformFee)}
-                    </span>
-                  </div>
+                  {!hasNoFeeSubscription && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Platform fee:</span>
+                      <span className="font-semibold text-gray-900">
+                        {formatPrice(platformFee)}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between border-t pt-3">
                     <span className="font-semibold text-gray-900">
                       Total paid:

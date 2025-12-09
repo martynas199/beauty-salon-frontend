@@ -59,6 +59,13 @@ const Profile = lazy(() => import("../admin/pages/Profile"));
 const CancellationPolicy = lazy(() =>
   import("../admin/pages/CancellationPolicy")
 );
+const AdminFeatures = lazy(() => import("../admin/pages/Features"));
+const FeatureSubscriptionSuccess = lazy(() =>
+  import("../admin/pages/FeatureSubscriptionSuccess")
+);
+const FeatureSubscriptionCancel = lazy(() =>
+  import("../admin/pages/FeatureSubscriptionCancel")
+);
 const TimeOff = lazy(() => import("../admin/pages/TimeOff"));
 const HeroSections = lazy(() => import("../admin/pages/HeroSections"));
 const AboutUsManagement = lazy(() =>
@@ -619,6 +626,30 @@ export default function AppRoutes() {
             element={
               <Suspense fallback={<LoadingSpinner center size="lg" />}>
                 <StripeConnect />
+              </Suspense>
+            }
+          />
+          <Route
+            path="features"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <AdminFeatures />
+              </Suspense>
+            }
+          />
+          <Route
+            path="features/success"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <FeatureSubscriptionSuccess />
+              </Suspense>
+            }
+          />
+          <Route
+            path="features/cancel"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <FeatureSubscriptionCancel />
               </Suspense>
             }
           />

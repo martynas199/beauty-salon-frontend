@@ -431,6 +431,12 @@ const items = [
     iconName: "creditCard",
   },
   {
+    to: "/admin/features",
+    labelKey: "premiumFeatures",
+    label: "Premium Features",
+    iconName: "star",
+  },
+  {
     to: "/admin/subscription",
     labelKey: "ecommerceSubscription",
     label: "E-Commerce Subscription",

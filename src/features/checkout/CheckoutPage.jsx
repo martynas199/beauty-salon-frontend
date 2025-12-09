@@ -32,6 +32,7 @@ export default function CheckoutPage() {
   });
   const [errors, setErrors] = useState({});
   const [service, setService] = useState(null);
+  const [beautician, setBeautician] = useState(null);
   const update = (k) => (e) => {
     setForm({ ...form, [k]: e.target.value });
     // Clear error for this field when user starts typing
@@ -55,6 +56,22 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (booking.serviceId) ServicesAPI.get(booking.serviceId).then(setService);
   }, [booking.serviceId]);
+
+  // Fetch beautician data to check subscription status
+  useEffect(() => {
+    if (booking.beauticianId && !booking.any) {
+      fetch(
+        `${
+          import.meta.env.VITE_API_URL || "http://localhost:4000"
+        }/api/beauticians/${booking.beauticianId}`
+      )
+        .then((res) => res.json())
+        .then(setBeautician)
+        .catch((err) => console.error("Failed to fetch beautician:", err));
+    } else {
+      setBeautician(null);
+    }
+  }, [booking.beauticianId, booking.any]);
 
   function validateForm() {
     const newErrors = {};
@@ -126,7 +143,12 @@ export default function CheckoutPage() {
   }
 
   // Pricing helpers
-  const bookingFee = 0.5;
+  // Check if beautician has active no-fee subscription
+  const hasNoFeeSubscription =
+    beautician?.subscription?.noFeeBookings?.enabled === true &&
+    beautician?.subscription?.noFeeBookings?.status === "active";
+
+  const bookingFee = hasNoFeeSubscription ? 0 : 0.5;
   const servicePrice = Number(booking.price || 0);
   const totalAmount = booking.inSalonPayment
     ? bookingFee
@@ -306,12 +328,24 @@ export default function CheckoutPage() {
                     {formatPrice(servicePrice)}
                   </div>
                 </div>
-                <div className="flex items-center justify-between mb-2 pt-2 border-t border-gray-200">
-                  <div className="text-sm text-gray-600">Booking Fee</div>
-                  <div className="text-sm font-semibold">
-                    {formatPrice(bookingFee)}
+                {bookingFee > 0 && (
+                  <div className="flex items-center justify-between mb-2 pt-2 border-t border-gray-200">
+                    <div className="text-sm text-gray-600">Booking Fee</div>
+                    <div className="text-sm font-semibold">
+                      {formatPrice(bookingFee)}
+                    </div>
                   </div>
-                </div>
+                )}
+                {hasNoFeeSubscription && (
+                  <div className="flex items-center justify-between mb-2 pt-2 border-t border-gray-200">
+                    <div className="text-sm text-green-600 font-medium">
+                      ✓ No Booking Fee
+                    </div>
+                    <div className="text-sm font-semibold text-green-600">
+                      {formatPrice(0)}
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-3 pt-2 border-t border-gray-300">
                   <div className="font-semibold">Total</div>
                   <div className="font-bold text-brand-600">
