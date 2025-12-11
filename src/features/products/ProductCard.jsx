@@ -137,10 +137,10 @@ export default function ProductCard({ product, onClick }) {
           </svg>
         </button>
 
-        {/* Black Friday Badge */}
+        {/* Clearance Badge */}
         {hasDiscount && (
-          <div className="absolute top-2 right-2 bg-black text-white text-xs font-bold px-3 py-1.5 rounded shadow-lg">
-            BLACK FRIDAY
+          <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded shadow-lg">
+            CLEARANCE
           </div>
         )}
       </div>

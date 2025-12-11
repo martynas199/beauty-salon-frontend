@@ -51,6 +51,9 @@ export default function Features() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [featureStatus, setFeatureStatus] = useState(null);
+  const [discountPercentage, setDiscountPercentage] = useState("");
+  const [discountProcessing, setDiscountProcessing] = useState(false);
+  const [promotionStatus, setPromotionStatus] = useState(null);
 
   const beauticianId = admin?.beauticianId;
 
@@ -60,6 +63,7 @@ export default function Features() {
     } else {
       setLoading(false);
     }
+    fetchPromotionStatus();
   }, [beauticianId]);
 
   const fetchFeatureStatus = async () => {
@@ -73,6 +77,59 @@ export default function Features() {
       toast.error("Failed to load feature status");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPromotionStatus = async () => {
+    try {
+      const res = await api.get("/promotions/status");
+      setPromotionStatus(res.data);
+    } catch (error) {
+      console.error("Error fetching promotion status:", error);
+    }
+  };
+
+  const handleApplyDiscount = async () => {
+    const percentage = parseFloat(discountPercentage);
+    
+    if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+      toast.error("Please enter a valid percentage between 0 and 100");
+      return;
+    }
+
+    if (!window.confirm(`Apply ${percentage}% discount to all products?`)) {
+      return;
+    }
+
+    try {
+      setDiscountProcessing(true);
+      const res = await api.post("/promotions/apply-discount", { percentage });
+      toast.success(res.data.message);
+      setDiscountPercentage("");
+      await fetchPromotionStatus();
+    } catch (error) {
+      console.error("Error applying discount:", error);
+      toast.error(error.response?.data?.error || "Failed to apply discount");
+    } finally {
+      setDiscountProcessing(false);
+    }
+  };
+
+  const handleRemoveDiscount = async () => {
+    if (!window.confirm("Remove all product discounts and restore original prices?")) {
+      return;
+    }
+
+    try {
+      setDiscountProcessing(true);
+      const res = await api.post("/promotions/remove-discount");
+      toast.success(res.data.message);
+      await fetchPromotionStatus();
+    } catch (error) {
+      console.error("Error removing discount:", error);
+      toast.error(error.response?.data?.error || "Failed to remove discount");
+    } finally {
+      setDiscountProcessing(false);
     }
   };
 
@@ -148,7 +205,9 @@ export default function Features() {
       <div className="max-w-4xl mx-auto py-4 sm:py-8 px-4">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
-          <p className="mt-2 text-sm sm:text-base text-gray-600">Loading features...</p>
+          <p className="mt-2 text-sm sm:text-base text-gray-600">
+            Loading features...
+          </p>
         </div>
       </div>
     );
@@ -357,6 +416,114 @@ export default function Features() {
                 <strong>Note:</strong> Subscriptions are billed monthly via
                 Stripe. You can cancel at any time and your subscription will
                 remain active until the end of the current billing period.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Product Promotional Discounts */}
+        <div className="mt-6 sm:mt-8 bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="p-4 sm:p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                  Product Promotions
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  Apply percentage discounts to all products
+                </p>
+              </div>
+            </div>
+
+            {/* Current Status */}
+            {promotionStatus?.hasActiveDiscount && (
+              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                <p className="text-sm sm:text-base text-purple-800 font-semibold">
+                  ✨ Active Promotion
+                </p>
+                <p className="text-xs sm:text-sm text-purple-700 mt-1">
+                  {promotionStatus.productsWithDiscount} of{" "}
+                  {promotionStatus.totalProducts} products have discounted prices
+                </p>
+              </div>
+            )}
+
+            {!promotionStatus?.hasActiveDiscount && (
+              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <p className="text-sm sm:text-base text-gray-700">
+                  No active promotions. Enter a discount percentage below to apply a
+                  sale to all products.
+                </p>
+              </div>
+            )}
+
+            {/* Discount Input */}
+            <div className="mb-4 sm:mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Discount Percentage
+              </label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={discountPercentage}
+                    onChange={(e) => setDiscountPercentage(e.target.value)}
+                    placeholder="e.g., 20"
+                    disabled={discountProcessing}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+                    %
+                  </span>
+                </div>
+                <button
+                  onClick={handleApplyDiscount}
+                  disabled={discountProcessing || !discountPercentage}
+                  className="bg-purple-600 text-white px-4 sm:px-6 py-2.5 rounded-lg font-semibold hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  {discountProcessing ? "Applying..." : "Apply"}
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Enter a value between 0 and 100 to discount all product prices
+              </p>
+            </div>
+
+            {/* Remove Discount Button */}
+            {promotionStatus?.hasActiveDiscount && (
+              <button
+                onClick={handleRemoveDiscount}
+                disabled={discountProcessing}
+                className="w-full bg-gray-200 text-gray-700 py-2.5 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {discountProcessing ? "Removing..." : "Remove All Discounts"}
+              </button>
+            )}
+
+            {/* Info Box */}
+            <div className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600">
+              <p>
+                <strong>How it works:</strong> The discount is applied to all active
+                products. Original prices are preserved so you can easily restore
+                them later. Discounts are applied immediately to all product variants.
               </p>
             </div>
           </div>

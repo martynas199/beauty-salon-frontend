@@ -51,9 +51,13 @@ export default function Products() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [applyingDiscount, setApplyingDiscount] = useState(false);
+  const [customDiscountPercentage, setCustomDiscountPercentage] = useState("");
+  const [promotionStatus, setPromotionStatus] = useState(null);
+  const [selectedDiscountBrand, setSelectedDiscountBrand] = useState("");
 
   useEffect(() => {
     loadData();
+    fetchPromotionStatus();
   }, []);
 
   const loadData = async () => {
@@ -119,6 +123,66 @@ export default function Products() {
       await loadProducts();
     } catch (error) {
       console.error("Failed to remove discount:", error);
+      toast.error(error.response?.data?.error || "Failed to remove discount");
+    } finally {
+      setApplyingDiscount(false);
+    }
+  };
+
+  const fetchPromotionStatus = async () => {
+    try {
+      const res = await api.get("/promotions/status");
+      setPromotionStatus(res.data);
+    } catch (error) {
+      console.error("Error fetching promotion status:", error);
+    }
+  };
+
+  const handleApplyCustomDiscount = async () => {
+    const percentage = parseFloat(customDiscountPercentage);
+    
+    if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+      toast.error("Please enter a valid percentage between 0 and 100");
+      return;
+    }
+
+    const brandText = selectedDiscountBrand && selectedDiscountBrand !== "all" 
+      ? ` to ${selectedDiscountBrand} products` 
+      : " to all products";
+    
+    if (!confirm(`Apply ${percentage}% discount${brandText}?`)) {
+      return;
+    }
+
+    setApplyingDiscount(true);
+    try {
+      const res = await api.post("/promotions/apply-discount", { 
+        percentage,
+        brand: selectedDiscountBrand || "all"
+      });
+      toast.success(res.data.message);
+      setCustomDiscountPercentage("");
+      await Promise.all([loadProducts(), fetchPromotionStatus()]);
+    } catch (error) {
+      console.error("Error applying discount:", error);
+      toast.error(error.response?.data?.error || "Failed to apply discount");
+    } finally {
+      setApplyingDiscount(false);
+    }
+  };
+
+  const handleRemoveCustomDiscount = async () => {
+    if (!confirm("Remove all product discounts and restore original prices?")) {
+      return;
+    }
+
+    setApplyingDiscount(true);
+    try {
+      const res = await api.post("/promotions/remove-discount");
+      toast.success(res.data.message);
+      await Promise.all([loadProducts(), fetchPromotionStatus()]);
+    } catch (error) {
+      console.error("Error removing discount:", error);
       toast.error(error.response?.data?.error || "Failed to remove discount");
     } finally {
       setApplyingDiscount(false);
@@ -522,6 +586,99 @@ export default function Products() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Custom Promotional Discount */}
+      {!showForm && (
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4">
+          <div className="mb-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2">
+              <span>🏷️</span>
+              Custom Promotional Discount
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-600">
+              Apply any percentage discount to all products
+            </p>
+          </div>
+
+          {promotionStatus?.hasActiveDiscount && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-800 font-semibold">
+                ✨ Active Promotion
+              </p>
+              <p className="text-xs text-green-700 mt-1">
+                {promotionStatus.productsWithDiscount} of{" "}
+                {promotionStatus.totalProducts} products have discounted prices
+              </p>
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1">
+              <label className="block text-xs text-gray-700 mb-2 font-medium">
+                Select Brand (optional)
+              </label>
+              <select
+                value={selectedDiscountBrand}
+                onChange={(e) => setSelectedDiscountBrand(e.target.value)}
+                disabled={applyingDiscount}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 bg-white"
+              >
+                <option value="">All Brands</option>
+                {brands.map((brand) => (
+                  <option key={brand} value={brand}>
+                    {brand}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1 flex gap-2">
+              <div className="relative flex-1">
+                <label className="block text-xs text-gray-700 mb-2 font-medium">
+                  Discount Percentage
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={customDiscountPercentage}
+                  onChange={(e) => setCustomDiscountPercentage(e.target.value)}
+                  placeholder="e.g., 20"
+                  disabled={applyingDiscount}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-gray-900"
+                />
+                <span className="absolute right-3 top-1/2 translate-y-0 text-gray-500 pointer-events-none font-medium">
+                  %
+                </span>
+              </div>
+              <div className="flex items-end">
+                <button
+                  onClick={handleApplyCustomDiscount}
+                  disabled={applyingDiscount || !customDiscountPercentage}
+                  className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-gray-900 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg whitespace-nowrap h-[42px]"
+                >
+                  {applyingDiscount ? "Processing..." : "Apply"}
+                </button>
+              </div>
+            </div>
+            {promotionStatus?.hasActiveDiscount && (
+              <div className="flex items-end">
+                <button
+                  onClick={handleRemoveCustomDiscount}
+                  disabled={applyingDiscount}
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 whitespace-nowrap h-[42px]"
+                >
+                  Remove Discount
+                </button>
+              </div>
+            )}
+          </div>
+          
+          <p className="text-xs text-gray-600 mt-3">
+            Select a specific brand or leave empty to apply discount to all products. Enter a value between 0 and 100. Original prices are preserved. Use the "Remove Discount" button to restore original prices.
+          </p>
         </div>
       )}
 
