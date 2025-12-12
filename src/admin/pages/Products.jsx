@@ -140,25 +140,26 @@ export default function Products() {
 
   const handleApplyCustomDiscount = async () => {
     const percentage = parseFloat(customDiscountPercentage);
-    
+
     if (isNaN(percentage) || percentage < 0 || percentage > 100) {
       toast.error("Please enter a valid percentage between 0 and 100");
       return;
     }
 
-    const brandText = selectedDiscountBrand && selectedDiscountBrand !== "all" 
-      ? ` to ${selectedDiscountBrand} products` 
-      : " to all products";
-    
+    const brandText =
+      selectedDiscountBrand && selectedDiscountBrand !== "all"
+        ? ` to ${selectedDiscountBrand} products`
+        : " to all products";
+
     if (!confirm(`Apply ${percentage}% discount${brandText}?`)) {
       return;
     }
 
     setApplyingDiscount(true);
     try {
-      const res = await api.post("/promotions/apply-discount", { 
+      const res = await api.post("/promotions/apply-discount", {
         percentage,
-        brand: selectedDiscountBrand || "all"
+        brand: selectedDiscountBrand || "all",
       });
       toast.success(res.data.message);
       setCustomDiscountPercentage("");
@@ -675,9 +676,12 @@ export default function Products() {
               </div>
             )}
           </div>
-          
+
           <p className="text-xs text-gray-600 mt-3">
-            Select a specific brand or leave empty to apply discount to all products. Enter a value between 0 and 100. Original prices are preserved. Use the "Remove Discount" button to restore original prices.
+            Select a specific brand or leave empty to apply discount to all
+            products. Enter a value between 0 and 100. Original prices are
+            preserved. Use the "Remove Discount" button to restore original
+            prices.
           </p>
         </div>
       )}

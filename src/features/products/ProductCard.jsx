@@ -137,10 +137,10 @@ export default function ProductCard({ product, onClick }) {
           </svg>
         </button>
 
-        {/* Special offer Badge */}
+        {/* Christmas Offer Badge */}
         {hasDiscount && (
           <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded shadow-lg">
-            Special offer
+            <span>🎄</span> Christmas Offer
           </div>
         )}
       </div>
