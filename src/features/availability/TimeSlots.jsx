@@ -217,6 +217,7 @@ export default function TimeSlots() {
             salonTz="Europe/London"
             stepMin={15}
             beauticianWorkingHours={beautician.workingHours || []}
+            customSchedule={beautician.customSchedule || {}}
             onSelect={handleSlotSelect}
           />
         ) : (

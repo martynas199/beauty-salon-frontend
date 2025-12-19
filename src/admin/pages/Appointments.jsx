@@ -1960,21 +1960,7 @@ function CreateModal({
   const beauticianWorkingHours = selectedBeautician?.workingHours || [];
   const customSchedule = selectedBeautician?.customSchedule || {};
 
-  // Debug logging
-  useEffect(() => {
-    if (showTimePicker) {
-      console.log("[CreateModal] DateTimePicker opened with:", {
-        beauticianId: appointment.beauticianId,
-        beauticianName: selectedBeautician?.name,
-        serviceId: appointment.serviceId,
-        serviceName: selectedService?.name,
-        variantName: appointment.variantName,
-        workingHours: beauticianWorkingHours,
-        customSchedule: customSchedule,
-        selectedBeautician: selectedBeautician,
-      });
-    }
-  }, [showTimePicker]);
+
 
   // Handle slot selection from DateTimePicker
   const handleSlotSelect = (slot) => {
