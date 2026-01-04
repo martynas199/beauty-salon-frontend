@@ -68,8 +68,10 @@ export default function Appointments() {
   });
 
   // Remaining balance confirmation modal state
-  const [remainingBalanceModalOpen, setRemainingBalanceModalOpen] = useState(false);
-  const [remainingBalanceAppointment, setRemainingBalanceAppointment] = useState(null);
+  const [remainingBalanceModalOpen, setRemainingBalanceModalOpen] =
+    useState(false);
+  const [remainingBalanceAppointment, setRemainingBalanceAppointment] =
+    useState(null);
 
   // Filter state
   const [selectedBeauticianId, setSelectedBeauticianId] = useState("");
@@ -531,7 +533,7 @@ export default function Appointments() {
     try {
       setLoading(true);
       setRemainingBalanceModalOpen(false);
-      
+
       const response = await api.post(
         `/appointments/${remainingBalanceAppointment._id}/request-remaining-balance`
       );
@@ -2026,8 +2028,6 @@ function CreateModal({
   const beauticianWorkingHours = selectedBeautician?.workingHours || [];
   const customSchedule = selectedBeautician?.customSchedule || {};
 
-
-
   // Handle slot selection from DateTimePicker
   const handleSlotSelect = (slot) => {
     updateField("start", slot.startISO);
@@ -2449,21 +2449,36 @@ function DepositPercentModal({
   );
 }
 
-function RemainingBalanceModal({ open, onClose, appointment, onConfirm, submitting }) {
+function RemainingBalanceModal({
+  open,
+  onClose,
+  appointment,
+  onConfirm,
+  submitting,
+}) {
   if (!appointment) return null;
 
   // Calculate deposit paid: amountTotal includes deposit + booking fee (50p)
   // So actual deposit = amountTotal - 50p (in pence)
   const amountTotalPence = appointment.payment?.amountTotal || 0;
   const platformFee = 50; // 50 pence
-  const depositPaidPence = amountTotalPence > platformFee ? amountTotalPence - platformFee : amountTotalPence;
+  const depositPaidPence =
+    amountTotalPence > platformFee
+      ? amountTotalPence - platformFee
+      : amountTotalPence;
   const depositPaid = (depositPaidPence / 100).toFixed(2);
-  
+
   const servicePrice = Number(appointment.price || 0).toFixed(2);
-  const remainingBalance = (Number(servicePrice) - Number(depositPaid)).toFixed(2);
+  const remainingBalance = (Number(servicePrice) - Number(depositPaid)).toFixed(
+    2
+  );
 
   return (
-    <Modal open={open} onClose={onClose} title="Request Remaining Balance Payment">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Request Remaining Balance Payment"
+    >
       <div className="space-y-4">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
@@ -2486,19 +2501,24 @@ function RemainingBalanceModal({ open, onClose, appointment, onConfirm, submitti
               </p>
               <p className="text-xs text-blue-700">
                 An email with a payment link will be sent to{" "}
-                <span className="font-semibold">{appointment.client?.email}</span>
+                <span className="font-semibold">
+                  {appointment.client?.email}
+                </span>
               </p>
             </div>
           </div>
         </div>
 
         <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-          <h4 className="text-sm font-semibold text-gray-900 mb-3">Payment Breakdown</h4>
-          
+          <h4 className="text-sm font-semibold text-gray-900 mb-3">
+            Payment Breakdown
+          </h4>
+
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Service:</span>
             <span className="font-medium text-gray-900">
-              {appointment.serviceId?.name || "Service"} - {appointment.variantName}
+              {appointment.serviceId?.name || "Service"} -{" "}
+              {appointment.variantName}
             </span>
           </div>
 
@@ -2514,18 +2534,18 @@ function RemainingBalanceModal({ open, onClose, appointment, onConfirm, submitti
 
           <div className="border-t border-gray-200 pt-2 mt-2">
             <div className="flex justify-between">
-              <span className="text-sm font-semibold text-gray-900">Remaining Balance:</span>
-              <span className="text-lg font-bold text-amber-600">£{remainingBalance}</span>
+              <span className="text-sm font-semibold text-gray-900">
+                Remaining Balance:
+              </span>
+              <span className="text-lg font-bold text-amber-600">
+                £{remainingBalance}
+              </span>
             </div>
           </div>
         </div>
 
         <div className="flex items-center justify-end gap-2 pt-2 border-t">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={submitting}
-          >
+          <Button variant="outline" onClick={onClose} disabled={submitting}>
             Cancel
           </Button>
           <Button
