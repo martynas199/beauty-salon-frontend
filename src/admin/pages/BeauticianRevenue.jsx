@@ -132,20 +132,20 @@ export default function BeauticianRevenue() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="max-w-7xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Revenue Analytics
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-sm sm:text-base text-gray-600 mt-1">
             Track your earnings and payment breakdown
           </p>
         </div>
 
         {/* Month Selector */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
           <label
             htmlFor="month-select"
             className="text-sm font-medium text-gray-700"
@@ -156,7 +156,7 @@ export default function BeauticianRevenue() {
             id="month-select"
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white"
+            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white text-sm sm:text-base"
             disabled={fetchingData}
           >
             {availableMonths.map((month) => (
@@ -179,22 +179,22 @@ export default function BeauticianRevenue() {
       {!fetchingData && revenueData && (
         <>
           {/* Payment Method Breakdown - Main Section */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200">
+            <div className="mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                 Payment Method Breakdown
               </h2>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 How your clients paid for their appointments
               </p>
             </div>
 
             {/* Total Received Summary */}
-            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white mb-6">
-              <div className="flex items-center justify-between">
+            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-4 sm:p-6 text-white mb-4 sm:mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <svg
-                    className="w-12 h-12"
+                    className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -207,28 +207,28 @@ export default function BeauticianRevenue() {
                     />
                   </svg>
                   <div>
-                    <h3 className="text-lg font-medium opacity-90">
+                    <h3 className="text-base sm:text-lg font-medium opacity-90">
                       Total Received
                     </h3>
-                    <p className="text-sm opacity-90">
+                    <p className="text-xs sm:text-sm opacity-90">
                       {revenueData.summary.totalAppointments} completed
                       appointments
                     </p>
                   </div>
                 </div>
-                <p className="text-5xl font-bold">
+                <p className="text-3xl sm:text-5xl font-bold">
                   £{revenueData.summary.totalReceived.toFixed(2)}
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {/* Deposit Method */}
-              <div className="border-2 border-purple-200 rounded-lg p-6 bg-purple-50">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="border-2 border-purple-200 rounded-lg p-4 sm:p-6 bg-purple-50">
+                <div className="flex items-start gap-3 sm:gap-4 mb-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <svg
-                      className="w-6 h-6 text-white"
+                      className="w-5 h-5 sm:w-6 sm:h-6 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -241,30 +241,30 @@ export default function BeauticianRevenue() {
                       />
                     </svg>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
                       Partial Payment (Deposit)
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs sm:text-sm text-gray-600">
                       Client paid a deposit upfront, balance due later
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="bg-white rounded-lg p-4 border border-purple-200">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="bg-white rounded-lg p-3 sm:p-4 border border-purple-200">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-xs sm:text-sm text-gray-600">
                         Money Received:
                       </span>
-                      <span className="text-2xl font-bold text-purple-600">
+                      <span className="text-xl sm:text-2xl font-bold text-purple-600">
                         £
                         {revenueData.breakdown.depositPayments.amountReceived.toFixed(
                           2
                         )}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
+                    <div className="flex justify-between items-center text-xs sm:text-sm">
                       <span className="text-gray-600">Number of bookings:</span>
                       <span className="font-semibold text-gray-900">
                         {revenueData.breakdown.depositPayments.count}
@@ -273,7 +273,7 @@ export default function BeauticianRevenue() {
                   </div>
 
                   <div className="text-center py-2">
-                    <span className="text-3xl font-bold text-purple-600">
+                    <span className="text-2xl sm:text-3xl font-bold text-purple-600">
                       {revenueData.breakdown.depositPayments.percentage.toFixed(
                         1
                       )}
@@ -287,11 +287,11 @@ export default function BeauticianRevenue() {
               </div>
 
               {/* Full Payment Method */}
-              <div className="border-2 border-green-200 rounded-lg p-6 bg-green-50">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="border-2 border-green-200 rounded-lg p-4 sm:p-6 bg-green-50">
+                <div className="flex items-start gap-3 sm:gap-4 mb-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <svg
-                      className="w-6 h-6 text-white"
+                      className="w-5 h-5 sm:w-6 sm:h-6 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -304,30 +304,30 @@ export default function BeauticianRevenue() {
                       />
                     </svg>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
                       Full Payment
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs sm:text-sm text-gray-600">
                       Client paid complete amount (online or in salon)
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="bg-white rounded-lg p-4 border border-green-200">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="bg-white rounded-lg p-3 sm:p-4 border border-green-200">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-xs sm:text-sm text-gray-600">
                         Money Received:
                       </span>
-                      <span className="text-2xl font-bold text-green-600">
+                      <span className="text-xl sm:text-2xl font-bold text-green-600">
                         £
                         {revenueData.breakdown.fullPayments.amountReceived.toFixed(
                           2
                         )}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
+                    <div className="flex justify-between items-center text-xs sm:text-sm">
                       <span className="text-gray-600">Number of bookings:</span>
                       <span className="font-semibold text-gray-900">
                         {revenueData.breakdown.fullPayments.count}
@@ -336,7 +336,7 @@ export default function BeauticianRevenue() {
                   </div>
 
                   <div className="text-center py-2">
-                    <span className="text-3xl font-bold text-green-600">
+                    <span className="text-2xl sm:text-3xl font-bold text-green-600">
                       {revenueData.breakdown.fullPayments.percentage.toFixed(1)}
                       %
                     </span>
@@ -349,19 +349,19 @@ export default function BeauticianRevenue() {
             </div>
 
             {/* Visual Breakdown Bar */}
-            <div className="mt-8">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">
+            <div className="mt-6 sm:mt-8">
+              <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
                 Revenue Distribution (by payment method)
               </h3>
-              <div className="h-10 flex rounded-lg overflow-hidden shadow-sm border-2 border-gray-200">
+              <div className="h-8 sm:h-10 flex rounded-lg overflow-hidden shadow-sm border-2 border-gray-200">
                 {revenueData.breakdown.depositPayments.percentage > 0 && (
                   <div
-                    className="bg-purple-500 flex items-center justify-center text-white text-sm font-semibold transition-all duration-500"
+                    className="bg-purple-500 flex items-center justify-center text-white text-xs sm:text-sm font-semibold transition-all duration-500"
                     style={{
                       width: `${revenueData.breakdown.depositPayments.percentage}%`,
                     }}
                   >
-                    {revenueData.breakdown.depositPayments.percentage > 15 &&
+                    {revenueData.breakdown.depositPayments.percentage > 20 &&
                       `Deposits: ${revenueData.breakdown.depositPayments.percentage.toFixed(
                         0
                       )}%`}
@@ -369,12 +369,12 @@ export default function BeauticianRevenue() {
                 )}
                 {revenueData.breakdown.fullPayments.percentage > 0 && (
                   <div
-                    className="bg-green-500 flex items-center justify-center text-white text-sm font-semibold transition-all duration-500"
+                    className="bg-green-500 flex items-center justify-center text-white text-xs sm:text-sm font-semibold transition-all duration-500"
                     style={{
                       width: `${revenueData.breakdown.fullPayments.percentage}%`,
                     }}
                   >
-                    {revenueData.breakdown.fullPayments.percentage > 15 &&
+                    {revenueData.breakdown.fullPayments.percentage > 20 &&
                       `Full: ${revenueData.breakdown.fullPayments.percentage.toFixed(
                         0
                       )}%`}
@@ -386,7 +386,7 @@ export default function BeauticianRevenue() {
 
           {/* Stripe Connection Status */}
           <div
-            className={`rounded-xl p-6 border-2 ${
+            className={`rounded-xl p-4 sm:p-6 border-2 ${
               revenueData.beautician.stripeConnected
                 ? "bg-green-50 border-green-200"
                 : "bg-yellow-50 border-yellow-200"
@@ -394,14 +394,14 @@ export default function BeauticianRevenue() {
           >
             <div className="flex items-center gap-3">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                   revenueData.beautician.stripeConnected
                     ? "bg-green-500"
                     : "bg-yellow-500"
                 }`}
               >
                 <svg
-                  className="w-6 h-6 text-white"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -423,9 +423,9 @@ export default function BeauticianRevenue() {
                   )}
                 </svg>
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <h3
-                  className={`font-semibold ${
+                  className={`text-sm sm:text-base font-semibold ${
                     revenueData.beautician.stripeConnected
                       ? "text-green-900"
                       : "text-yellow-900"
@@ -434,7 +434,7 @@ export default function BeauticianRevenue() {
                   Stripe Connect Status
                 </h3>
                 <p
-                  className={`text-sm ${
+                  className={`text-xs sm:text-sm ${
                     revenueData.beautician.stripeConnected
                       ? "text-green-700"
                       : "text-yellow-700"
