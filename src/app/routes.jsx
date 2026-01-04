@@ -54,6 +54,9 @@ const WorkingHoursCalendar = lazy(() =>
 );
 const Settings = lazy(() => import("../admin/pages/Settings"));
 const Revenue = lazy(() => import("../admin/pages/Revenue"));
+const BeauticianRevenue = lazy(() =>
+  import("../admin/pages/BeauticianRevenue")
+);
 const ProfitAnalytics = lazy(() => import("../admin/pages/ProfitAnalytics"));
 const Profile = lazy(() => import("../admin/pages/Profile"));
 const CancellationPolicy = lazy(() =>
@@ -538,6 +541,14 @@ export default function AppRoutes() {
             element={
               <Suspense fallback={<LoadingSpinner center size="lg" />}>
                 <Revenue />
+              </Suspense>
+            }
+          />
+          <Route
+            path="beautician-revenue"
+            element={
+              <Suspense fallback={<LoadingSpinner center size="lg" />}>
+                <BeauticianRevenue />
               </Suspense>
             }
           />

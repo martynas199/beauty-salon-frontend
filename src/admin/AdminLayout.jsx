@@ -343,6 +343,13 @@ const items = [
     superAdminOnly: true,
   },
   {
+    to: "/admin/beautician-revenue",
+    labelKey: "myRevenue",
+    label: "My Revenue",
+    iconName: "trending",
+    requiresBeautician: true,
+  },
+  {
     to: "/admin/profit-analytics",
     labelKey: "profitAnalytics",
     label: "Profit Analytics",
@@ -474,6 +481,11 @@ export default function AdminLayout() {
       // Always show dividers and external links
       if (item.divider || item.external) return true;
 
+      // If item requires beautician, only show if admin has beauticianId
+      if (item.requiresBeautician && !admin?.beauticianId) {
+        return false;
+      }
+
       // If item requires super_admin, only show to super_admin users
       if (item.superAdminOnly) {
         return isSuperAdmin;
@@ -482,7 +494,7 @@ export default function AdminLayout() {
       // Show all other items to everyone
       return true;
     });
-  }, [isSuperAdmin]);
+  }, [isSuperAdmin, admin?.beauticianId]);
 
   // Debug logging for menu filtering
   useEffect(() => {
