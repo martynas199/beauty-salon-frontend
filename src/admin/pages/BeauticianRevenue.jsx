@@ -384,6 +384,52 @@ export default function BeauticianRevenue() {
             </div>
           </div>
 
+          {/* Total Services Booked */}
+          {revenueData.totals && (
+            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200">
+              <div className="mb-4">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                  Total Services Booked
+                </h2>
+                <p className="text-sm sm:text-base text-gray-600">
+                  Complete value of all services in this period
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <svg
+                      className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                      />
+                    </svg>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-medium opacity-90">
+                        All Services Value
+                      </h3>
+                      <p className="text-xs sm:text-sm opacity-90">
+                        {revenueData.totals.totalAppointments} total
+                        appointments
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-3xl sm:text-5xl font-bold">
+                    £{revenueData.totals.allServicesBooked.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Stripe Connection Status */}
           <div
             className={`rounded-xl p-4 sm:p-6 border-2 ${
