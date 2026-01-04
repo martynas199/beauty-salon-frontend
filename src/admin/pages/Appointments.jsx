@@ -67,6 +67,10 @@ export default function Appointments() {
     hasNoFeeSubscription: false,
   });
 
+  // Remaining balance confirmation modal state
+  const [remainingBalanceModalOpen, setRemainingBalanceModalOpen] = useState(false);
+  const [remainingBalanceAppointment, setRemainingBalanceAppointment] = useState(null);
+
   // Filter state
   const [selectedBeauticianId, setSelectedBeauticianId] = useState("");
   const [dateFilter, setDateFilter] = useState("all"); // all, day, week, month, custom
@@ -510,6 +514,37 @@ export default function Appointments() {
       console.error("Error sending deposit email:", error);
       toast.error(
         error.response?.data?.error || "Failed to send deposit email"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function requestRemainingBalance(appointment) {
+    setRemainingBalanceAppointment(appointment);
+    setRemainingBalanceModalOpen(true);
+  }
+
+  async function confirmRequestRemainingBalance() {
+    if (!remainingBalanceAppointment) return;
+
+    try {
+      setLoading(true);
+      setRemainingBalanceModalOpen(false);
+      
+      const response = await api.post(
+        `/appointments/${remainingBalanceAppointment._id}/request-remaining-balance`
+      );
+
+      toast.success(response.data.message || "Remaining balance email sent!");
+
+      // Refresh appointments
+      fetchAppointments(pagination.page);
+      setRemainingBalanceAppointment(null);
+    } catch (error) {
+      console.error("Error requesting remaining balance:", error);
+      toast.error(
+        error.response?.data?.error || "Failed to send remaining balance email"
       );
     } finally {
       setLoading(false);
@@ -1285,6 +1320,16 @@ export default function Appointments() {
                             💳 Send Payment Link
                           </button>
                         )}
+                      {r.payment?.mode === "deposit" &&
+                        r.payment?.status === "succeeded" && (
+                          <button
+                            className="border rounded px-3 py-1.5 text-sm text-amber-600 border-amber-200 hover:bg-amber-50"
+                            onClick={() => requestRemainingBalance(r)}
+                            title="Send remaining balance payment request to client"
+                          >
+                            💰 Request Balance
+                          </button>
+                        )}
                       {String(r.status || "").startsWith("cancelled") && (
                         <button
                           className="border rounded px-3 py-1.5 text-sm text-red-700 border-red-300 hover:bg-red-50"
@@ -1496,6 +1541,16 @@ export default function Appointments() {
                       💳 Send Payment Link
                     </button>
                   )}
+                {r.payment?.mode === "deposit" &&
+                  r.payment?.status === "succeeded" && (
+                    <button
+                      className="w-full border-2 rounded-xl px-4 py-3 text-sm sm:text-base text-amber-600 border-amber-200 hover:bg-amber-50 font-medium transition-colors active:scale-[0.98]"
+                      onClick={() => requestRemainingBalance(r)}
+                      title="Send remaining balance payment request to client"
+                    >
+                      💰 Request Remaining Balance
+                    </button>
+                  )}
                 <div className="grid grid-cols-2 gap-2.5">
                   <button
                     className="border-2 rounded-xl px-4 py-3 text-sm sm:text-base text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors active:scale-[0.98]"
@@ -1654,6 +1709,17 @@ export default function Appointments() {
         }
         submitting={submitting || loading}
         hasNoFeeSubscription={depositModalData.hasNoFeeSubscription}
+      />
+
+      <RemainingBalanceModal
+        open={remainingBalanceModalOpen}
+        onClose={() => {
+          setRemainingBalanceModalOpen(false);
+          setRemainingBalanceAppointment(null);
+        }}
+        appointment={remainingBalanceAppointment}
+        onConfirm={confirmRequestRemainingBalance}
+        submitting={loading}
       />
     </div>
   );
@@ -2377,6 +2443,100 @@ function DepositPercentModal({
           >
             {submitting ? "Processing..." : "Confirm & Send"}
           </button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function RemainingBalanceModal({ open, onClose, appointment, onConfirm, submitting }) {
+  if (!appointment) return null;
+
+  // Calculate deposit paid: amountTotal includes deposit + booking fee (50p)
+  // So actual deposit = amountTotal - 50p (in pence)
+  const amountTotalPence = appointment.payment?.amountTotal || 0;
+  const platformFee = 50; // 50 pence
+  const depositPaidPence = amountTotalPence > platformFee ? amountTotalPence - platformFee : amountTotalPence;
+  const depositPaid = (depositPaidPence / 100).toFixed(2);
+  
+  const servicePrice = Number(appointment.price || 0).toFixed(2);
+  const remainingBalance = (Number(servicePrice) - Number(depositPaid)).toFixed(2);
+
+  return (
+    <Modal open={open} onClose={onClose} title="Request Remaining Balance Payment">
+      <div className="space-y-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <svg
+              className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-blue-900 mb-1">
+                Send payment request to client?
+              </p>
+              <p className="text-xs text-blue-700">
+                An email with a payment link will be sent to{" "}
+                <span className="font-semibold">{appointment.client?.email}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+          <h4 className="text-sm font-semibold text-gray-900 mb-3">Payment Breakdown</h4>
+          
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Service:</span>
+            <span className="font-medium text-gray-900">
+              {appointment.serviceId?.name || "Service"} - {appointment.variantName}
+            </span>
+          </div>
+
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Total Price:</span>
+            <span className="font-medium text-gray-900">£{servicePrice}</span>
+          </div>
+
+          <div className="flex justify-between text-sm text-green-700">
+            <span>Deposit Paid:</span>
+            <span className="font-semibold">£{depositPaid}</span>
+          </div>
+
+          <div className="border-t border-gray-200 pt-2 mt-2">
+            <div className="flex justify-between">
+              <span className="text-sm font-semibold text-gray-900">Remaining Balance:</span>
+              <span className="text-lg font-bold text-amber-600">£{remainingBalance}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 pt-2 border-t">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="brand"
+            onClick={onConfirm}
+            disabled={submitting}
+            loading={submitting}
+            className="bg-amber-600 hover:bg-amber-700"
+          >
+            Send Payment Request
+          </Button>
         </div>
       </div>
     </Modal>

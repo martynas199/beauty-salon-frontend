@@ -1,11 +1,11 @@
 {
   "folders": [
-	{
-		"path": "../beauty-salon-backend"
-	},
-	{
-		"path": "."
-	}
-],
+    {
+      "path": "../beauty-salon-backend"
+    },
+    {
+      "path": "."
+    }
+  ],
   "settings": {}
 }
