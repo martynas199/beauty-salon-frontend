@@ -50,10 +50,8 @@ export default function Features() {
   const admin = useSelector(selectAdmin);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [processingSms, setProcessingSms] = useState(false);
   const [featureStatus, setFeatureStatus] = useState(null);
-  const [discountPercentage, setDiscountPercentage] = useState("");
-  const [discountProcessing, setDiscountProcessing] = useState(false);
-  const [promotionStatus, setPromotionStatus] = useState(null);
 
   const beauticianId = admin?.beauticianId;
 
@@ -63,7 +61,6 @@ export default function Features() {
     } else {
       setLoading(false);
     }
-    fetchPromotionStatus();
   }, [beauticianId]);
 
   const fetchFeatureStatus = async () => {
@@ -77,59 +74,6 @@ export default function Features() {
       toast.error("Failed to load feature status");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchPromotionStatus = async () => {
-    try {
-      const res = await api.get("/promotions/status");
-      setPromotionStatus(res.data);
-    } catch (error) {
-      console.error("Error fetching promotion status:", error);
-    }
-  };
-
-  const handleApplyDiscount = async () => {
-    const percentage = parseFloat(discountPercentage);
-    
-    if (isNaN(percentage) || percentage < 0 || percentage > 100) {
-      toast.error("Please enter a valid percentage between 0 and 100");
-      return;
-    }
-
-    if (!window.confirm(`Apply ${percentage}% discount to all products?`)) {
-      return;
-    }
-
-    try {
-      setDiscountProcessing(true);
-      const res = await api.post("/promotions/apply-discount", { percentage });
-      toast.success(res.data.message);
-      setDiscountPercentage("");
-      await fetchPromotionStatus();
-    } catch (error) {
-      console.error("Error applying discount:", error);
-      toast.error(error.response?.data?.error || "Failed to apply discount");
-    } finally {
-      setDiscountProcessing(false);
-    }
-  };
-
-  const handleRemoveDiscount = async () => {
-    if (!window.confirm("Remove all product discounts and restore original prices?")) {
-      return;
-    }
-
-    try {
-      setDiscountProcessing(true);
-      const res = await api.post("/promotions/remove-discount");
-      toast.success(res.data.message);
-      await fetchPromotionStatus();
-    } catch (error) {
-      console.error("Error removing discount:", error);
-      toast.error(error.response?.data?.error || "Failed to remove discount");
-    } finally {
-      setDiscountProcessing(false);
     }
   };
 
@@ -178,6 +122,51 @@ export default function Features() {
     }
   };
 
+  const handleSmsSubscribe = async () => {
+    if (!beauticianId) return;
+    try {
+      setProcessingSms(true);
+      const res = await api.post(`/features/${beauticianId}/subscribe-sms`);
+      if (res.data.checkoutUrl) {
+        // Redirect to Stripe Checkout
+        window.location.href = res.data.checkoutUrl;
+      }
+    } catch (error) {
+      console.error("Error creating SMS subscription:", error);
+      toast.error(
+        error.response?.data?.error || "Failed to start SMS subscription"
+      );
+      setProcessingSms(false);
+    }
+  };
+
+  const handleCancelSms = async () => {
+    if (!beauticianId) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to cancel your SMS subscription? It will remain active until the end of the current billing period."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setProcessingSms(true);
+      await api.post(`/features/${beauticianId}/cancel-sms`);
+      toast.success(
+        "SMS subscription cancelled. It will remain active until the end of your billing period."
+      );
+      fetchFeatureStatus();
+    } catch (error) {
+      console.error("Error cancelling SMS subscription:", error);
+      toast.error(
+        error.response?.data?.error || "Failed to cancel SMS subscription"
+      );
+    } finally {
+      setProcessingSms(false);
+    }
+  };
+
   if (!beauticianId) {
     return (
       <div className="max-w-4xl mx-auto py-4 sm:py-8 px-4">
@@ -222,6 +211,15 @@ export default function Features() {
   const periodEnd = featureStatus?.noFeeBookings?.currentPeriodEnd;
   const hasExpired = periodEnd && new Date(periodEnd) <= new Date();
   const isFullyCanceled = isCanceled && hasExpired;
+
+  // SMS subscription status
+  const smsActive =
+    featureStatus?.smsConfirmations?.enabled &&
+    featureStatus?.smsConfirmations?.status === "active";
+  const smsCanceled = featureStatus?.smsConfirmations?.status === "canceled";
+  const smsPeriodEnd = featureStatus?.smsConfirmations?.currentPeriodEnd;
+  const smsHasExpired = smsPeriodEnd && new Date(smsPeriodEnd) <= new Date();
+  const smsFullyCanceled = smsCanceled && smsHasExpired;
 
   return (
     <div className="max-w-4xl mx-auto py-4 sm:py-8 px-4">
@@ -421,109 +419,157 @@ export default function Features() {
           </div>
         </div>
 
-        {/* Product Promotional Discounts */}
-        <div className="mt-6 sm:mt-8 bg-white rounded-lg shadow-md overflow-hidden">
+        {/* SMS Confirmations Feature Card */}
+        <div className="mt-6 sm:mt-8 bg-white rounded-lg shadow-lg overflow-hidden border-2 border-brand-200">
+          <div className="bg-brand-500 p-4 sm:p-6 text-gray-900">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2">
+              <CrownIcon className="w-6 h-6 sm:w-8 sm:h-8" />
+              <h2 className="text-xl sm:text-2xl font-bold">
+                SMS Confirmations & Reminders
+              </h2>
+            </div>
+            <p className="text-sm sm:text-base text-gray-800">
+              Send automatic SMS confirmations to clients when they book
+            </p>
+          </div>
+
           <div className="p-4 sm:p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
-                  Product Promotions
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-600">
-                  Apply percentage discounts to all products
+            {/* Current Status */}
+            {smsActive && (
+              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 border border-green-300 rounded-lg">
+                <div className="flex items-center gap-2 text-green-900 font-semibold text-xs sm:text-sm mb-1">
+                  <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span>Active Subscription</span>
+                </div>
+                <p className="text-xs sm:text-sm text-green-800">
+                  Your clients will receive SMS confirmations when they book!
                 </p>
+                {smsPeriodEnd && (
+                  <p className="text-xs text-green-700 mt-1">
+                    Next billing:{" "}
+                    {new Date(smsPeriodEnd).toLocaleDateString("en-GB")}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {smsCanceled && !smsHasExpired && (
+              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-amber-50 border border-amber-300 rounded-lg">
+                <div className="flex items-center gap-2 text-amber-900 font-semibold text-xs sm:text-sm mb-1">
+                  <span>Subscription Ending</span>
+                </div>
+                <p className="text-xs sm:text-sm text-amber-800">
+                  Your SMS subscription is canceled but active until{" "}
+                  {new Date(smsPeriodEnd).toLocaleDateString("en-GB")}
+                </p>
+              </div>
+            )}
+
+            {smsFullyCanceled && (
+              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 border border-gray-300 rounded-lg">
+                <div className="flex items-center gap-2 text-gray-900 font-semibold text-xs sm:text-sm mb-1">
+                  <TimesIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span>Subscription Expired</span>
+                </div>
+                <p className="text-xs sm:text-sm text-gray-700">
+                  Your SMS subscription has ended. Resubscribe to continue
+                  sending SMS confirmations.
+                </p>
+              </div>
+            )}
+
+            {/* Benefits List */}
+            <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+                <span className="text-xs sm:text-sm text-gray-700">
+                  Instant SMS confirmations when clients book appointments
+                </span>
+              </div>
+              <div className="flex items-start gap-2 sm:gap-3">
+                <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+                <span className="text-xs sm:text-sm text-gray-700">
+                  Reduce no-shows with automated SMS reminders
+                </span>
+              </div>
+              <div className="flex items-start gap-2 sm:gap-3">
+                <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+                <span className="text-xs sm:text-sm text-gray-700">
+                  Professional client communication via SMS
+                </span>
+              </div>
+              <div className="flex items-start gap-2 sm:gap-3">
+                <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+                <span className="text-xs sm:text-sm text-gray-700">
+                  Works automatically - no setup required after subscription
+                </span>
               </div>
             </div>
 
-            {/* Current Status */}
-            {promotionStatus?.hasActiveDiscount && (
-              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <p className="text-sm sm:text-base text-purple-800 font-semibold">
-                  ✨ Active Promotion
-                </p>
-                <p className="text-xs sm:text-sm text-purple-700 mt-1">
-                  {promotionStatus.productsWithDiscount} of{" "}
-                  {promotionStatus.totalProducts} products have discounted prices
-                </p>
-              </div>
-            )}
-
-            {!promotionStatus?.hasActiveDiscount && (
-              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                <p className="text-sm sm:text-base text-gray-700">
-                  No active promotions. Enter a discount percentage below to apply a
-                  sale to all products.
-                </p>
-              </div>
-            )}
-
-            {/* Discount Input */}
+            {/* Pricing */}
             <div className="mb-4 sm:mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Discount Percentage
-              </label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={discountPercentage}
-                    onChange={(e) => setDiscountPercentage(e.target.value)}
-                    placeholder="e.g., 20"
-                    disabled={discountProcessing}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-                    %
+              <div className="text-center">
+                <div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">
+                  £2.99
+                  <span className="text-base sm:text-lg text-gray-600 font-normal">
+                    /month
                   </span>
                 </div>
-                <button
-                  onClick={handleApplyDiscount}
-                  disabled={discountProcessing || !discountPercentage}
-                  className="bg-purple-600 text-white px-4 sm:px-6 py-2.5 rounded-lg font-semibold hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                >
-                  {discountProcessing ? "Applying..." : "Apply"}
-                </button>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  Cancel anytime, no long-term commitment
+                </p>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Enter a value between 0 and 100 to discount all product prices
-              </p>
             </div>
 
-            {/* Remove Discount Button */}
-            {promotionStatus?.hasActiveDiscount && (
-              <button
-                onClick={handleRemoveDiscount}
-                disabled={discountProcessing}
-                className="w-full bg-gray-200 text-gray-700 py-2.5 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {discountProcessing ? "Removing..." : "Remove All Discounts"}
-              </button>
-            )}
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              {!smsActive && !smsCanceled && (
+                <button
+                  onClick={handleSmsSubscribe}
+                  disabled={processingSms}
+                  className="w-full sm:flex-1 bg-brand-500 text-gray-900 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold hover:bg-brand-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {processingSms ? "Processing..." : "Subscribe Now"}
+                </button>
+              )}
 
-            {/* Info Box */}
+              {smsFullyCanceled && (
+                <button
+                  onClick={handleSmsSubscribe}
+                  disabled={processingSms}
+                  className="w-full sm:flex-1 bg-brand-500 text-gray-900 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold hover:bg-brand-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {processingSms ? "Processing..." : "Resubscribe"}
+                </button>
+              )}
+
+              {smsActive && (
+                <button
+                  onClick={handleCancelSms}
+                  disabled={processingSms}
+                  className="w-full sm:flex-1 bg-gray-200 text-gray-700 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold hover:bg-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {processingSms ? "Processing..." : "Cancel Subscription"}
+                </button>
+              )}
+
+              {smsCanceled && !smsHasExpired && (
+                <button
+                  onClick={handleSmsSubscribe}
+                  disabled={processingSms}
+                  className="w-full sm:flex-1 bg-brand-500 text-gray-900 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold hover:bg-brand-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {processingSms ? "Processing..." : "Reactivate Subscription"}
+                </button>
+              )}
+            </div>
+
+            {/* Additional Info */}
             <div className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600">
               <p>
-                <strong>How it works:</strong> The discount is applied to all active
-                products. Original prices are preserved so you can easily restore
-                them later. Discounts are applied immediately to all product variants.
+                <strong>Note:</strong> SMS confirmations are sent automatically
+                when clients book appointments. Cancel anytime with no
+                commitment.
               </p>
             </div>
           </div>
