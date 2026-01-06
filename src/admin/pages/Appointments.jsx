@@ -794,6 +794,43 @@ export default function Appointments() {
       return;
     }
 
+    // If pay_in_salon mode, create confirmed appointment to be paid at salon
+    if (newAppointment.paymentStatus === "pay_in_salon") {
+      setSubmitting(true);
+      try {
+        const requestData = {
+          client: {
+            name: newAppointment.clientName,
+            email: newAppointment.clientEmail,
+            phone: newAppointment.clientPhone,
+            notes: newAppointment.clientNotes,
+          },
+          beauticianId: newAppointment.beauticianId,
+          serviceId: newAppointment.serviceId,
+          variantName: newAppointment.variantName,
+          startISO: newAppointment.start,
+          mode: "pay_in_salon",
+        };
+
+        const response = await api.post("/appointments", requestData);
+
+        if (response.data.ok) {
+          await fetchAppointments(pagination.page);
+          setCreateModalOpen(false);
+          toast.success(
+            "Appointment confirmed! Payment to be collected at salon."
+          );
+        }
+      } catch (e) {
+        toast.error(
+          e.response?.data?.error || e.message || "Failed to create appointment"
+        );
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     // If we reach here, invalid payment status
     toast.error(
       "Invalid payment status. Please select a valid payment option."
@@ -2300,6 +2337,7 @@ function CreateModal({
                 <>
                   <option value="confirmed">Confirm Booking (No Fee)</option>
                   <option value="deposit">Deposit (Send Payment Link)</option>
+                  <option value="pay_in_salon">To be paid in salon</option>
                 </>
               ) : (
                 <>
@@ -2307,6 +2345,7 @@ function CreateModal({
                     Unpaid (Booking Fee Required)
                   </option>
                   <option value="deposit">Deposit (Send Payment Link)</option>
+                  <option value="pay_in_salon">To be paid in salon</option>
                 </>
               )}
             </select>
