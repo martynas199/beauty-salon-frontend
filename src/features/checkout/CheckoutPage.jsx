@@ -133,7 +133,13 @@ export default function CheckoutPage() {
         navigate("/confirmation");
       } else {
         const res = await CheckoutAPI.createSession(bookingData);
-        if (res?.url) window.location.href = res.url;
+        // Handle auto-confirmed bookings (no-fee subscription + in-salon payment)
+        if (res?.confirmed && res?.appointmentId) {
+          dispatch(setAppointmentId(res.appointmentId));
+          navigate("/confirmation");
+        } else if (res?.url) {
+          window.location.href = res.url;
+        }
       }
     } catch (e) {
       toast.error(e.message || "Booking failed. Please try again.");
@@ -294,7 +300,7 @@ export default function CheckoutPage() {
                   variant="brand"
                   className="w-full"
                 >
-                  {booking.inSalonPayment ? "Pay Booking Fee" : "Pay now"}
+                  {booking.inSalonPayment ? "Reserve Booking" : "Pay now"}
                 </Button>
                 {!booking.inSalonPayment && (
                   <Button
