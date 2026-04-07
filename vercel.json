@@ -1,7 +1,7 @@
 {
   "framework": "vite",
-  "installCommand": "npm install --include=dev --force",
-  "buildCommand": "node ./node_modules/vite/bin/vite.js build",
+  "installCommand": "rm -rf node_modules && npm install --include=dev --force",
+  "buildCommand": "npm install --no-save --force vite@5.4.21 && node ./node_modules/vite/bin/vite.js build",
   "rewrites": [
     {
       "source": "/api/(.*)",
