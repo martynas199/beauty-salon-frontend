@@ -202,24 +202,38 @@ export default function Features() {
     );
   }
 
+  const noFeeCancelAtPeriodEnd =
+    featureStatus?.noFeeBookings?.cancelAtPeriodEnd === true;
   const isActive =
     featureStatus?.noFeeBookings?.enabled &&
-    featureStatus?.noFeeBookings?.status === "active";
-  const isCanceled = featureStatus?.noFeeBookings?.status === "canceled";
+    featureStatus?.noFeeBookings?.status === "active" &&
+    !noFeeCancelAtPeriodEnd;
+  const isCanceled =
+    featureStatus?.noFeeBookings?.status === "canceled" ||
+    noFeeCancelAtPeriodEnd;
 
   // Check if period end has already passed (immediate cancellation)
   const periodEnd = featureStatus?.noFeeBookings?.currentPeriodEnd;
   const hasExpired = periodEnd && new Date(periodEnd) <= new Date();
-  const isFullyCanceled = isCanceled && hasExpired;
+  const isFullyCanceled =
+    featureStatus?.noFeeBookings?.status === "canceled" &&
+    (periodEnd ? hasExpired : true);
 
   // SMS subscription status
+  const smsCancelAtPeriodEnd =
+    featureStatus?.smsConfirmations?.cancelAtPeriodEnd === true;
   const smsActive =
     featureStatus?.smsConfirmations?.enabled &&
-    featureStatus?.smsConfirmations?.status === "active";
-  const smsCanceled = featureStatus?.smsConfirmations?.status === "canceled";
+    featureStatus?.smsConfirmations?.status === "active" &&
+    !smsCancelAtPeriodEnd;
+  const smsCanceled =
+    featureStatus?.smsConfirmations?.status === "canceled" ||
+    smsCancelAtPeriodEnd;
   const smsPeriodEnd = featureStatus?.smsConfirmations?.currentPeriodEnd;
   const smsHasExpired = smsPeriodEnd && new Date(smsPeriodEnd) <= new Date();
-  const smsFullyCanceled = smsCanceled && smsHasExpired;
+  const smsFullyCanceled =
+    featureStatus?.smsConfirmations?.status === "canceled" &&
+    (smsPeriodEnd ? smsHasExpired : true);
 
   return (
     <div className="max-w-4xl mx-auto py-4 sm:py-8 px-4">
@@ -275,14 +289,14 @@ export default function Features() {
               </div>
             )}
 
-            {isCanceled && !hasExpired && (
+            {isCanceled && !isFullyCanceled && (
               <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-orange-50 border border-orange-200 rounded-lg">
                 <div className="flex items-center gap-2 text-orange-800 font-semibold mb-2 text-sm sm:text-base">
                   <TimesIcon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                   <span>Subscription Cancelling</span>
                 </div>
                 <p className="text-xs sm:text-sm text-orange-700">
-                  Your platform access will end on{" "}
+                  {noFeeCancelAtPeriodEnd ? "Your platform access will end on " : "Your platform subscription is being canceled. "}
                   {featureStatus?.noFeeBookings?.currentPeriodEnd &&
                     new Date(
                       featureStatus.noFeeBookings.currentPeriodEnd
@@ -449,14 +463,16 @@ export default function Features() {
               </div>
             )}
 
-            {smsCanceled && !smsHasExpired && (
+            {smsCanceled && !smsFullyCanceled && (
               <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-amber-50 border border-amber-300 rounded-lg">
                 <div className="flex items-center gap-2 text-amber-900 font-semibold text-xs sm:text-sm mb-1">
                   <span>Subscription Ending</span>
                 </div>
                 <p className="text-xs sm:text-sm text-amber-800">
                   Your SMS subscription is canceled but active until{" "}
-                  {new Date(smsPeriodEnd).toLocaleDateString("en-GB")}
+                  {smsPeriodEnd
+                    ? new Date(smsPeriodEnd).toLocaleDateString("en-GB")
+                    : "the end of the current billing period"}
                 </p>
               </div>
             )}
@@ -549,7 +565,7 @@ export default function Features() {
                 </button>
               )}
 
-              {smsCanceled && !smsHasExpired && (
+              {smsCanceled && !smsFullyCanceled && (
                 <button
                   onClick={handleSmsSubscribe}
                   disabled={processingSms}
