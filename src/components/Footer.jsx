@@ -1,8 +1,49 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.svg";
+import { SalonAPI } from "../features/salon/salon.api";
+
+function normalizeLocationAddress(location) {
+  const address = location?.address || {};
+  const line1 = address.street || "";
+  const line2 = [address.city, address.postcode].filter(Boolean).join(", ");
+  const line3 = [address.country].filter(Boolean).join(", ");
+  return [line1, line2, line3].filter(Boolean);
+}
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [salonData, setSalonData] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    SalonAPI.get()
+      .then((data) => {
+        if (!cancelled) setSalonData(data);
+      })
+      .catch(() => {
+        if (!cancelled) setSalonData(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const isMultiLocation =
+    !!salonData?.multiLocationEnabled &&
+    Array.isArray(salonData?.locations) &&
+    salonData.locations.length > 0;
+
+  const primaryDirectionsQuery = useMemo(() => {
+    if (isMultiLocation) {
+      const firstLocation = salonData.locations[0];
+      const parts = normalizeLocationAddress(firstLocation);
+      if (parts.length > 0) return parts.join(", ");
+    }
+    return salonData?.address || "12 Blackfriars Rd Wisbech PE13 1AT";
+  }, [isMultiLocation, salonData]);
+
+  const displayPhone = salonData?.phone || "+44 7928 775746";
 
   return (
     <footer className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-300 overflow-hidden">
@@ -80,16 +121,49 @@ export default function Footer() {
             </h3>
             <div className="space-y-4">
               <div>
-                <div className="font-semibold text-white text-lg mb-1">
-                  Noble Elegance Beauty Salon
-                </div>
-                <div className="text-gray-400">12 Blackfriars Rd</div>
-                <div className="text-gray-400">Wisbech, PE13 1AT</div>
-                <div className="text-gray-400">Cambridgeshire, UK</div>
+                {isMultiLocation ? (
+                  <div className="space-y-3">
+                    {salonData.locations.map((location, index) => {
+                      const lines = normalizeLocationAddress(location);
+                      return (
+                        <div key={`${location._id || location.name}-${index}`}>
+                          <div className="font-semibold text-white text-base mb-1">
+                            {location.name || `Location ${index + 1}`}
+                          </div>
+                          {lines.length > 0 ? (
+                            lines.map((line, lineIndex) => (
+                              <div
+                                key={`${location._id || location.name}-${lineIndex}`}
+                                className="text-gray-400"
+                              >
+                                {line}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-gray-400">Address not set</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <>
+                    <div className="font-semibold text-white text-lg mb-1">
+                      {salonData?.name || "Noble Elegance Beauty Salon"}
+                    </div>
+                    {(salonData?.address || "12 Blackfriars Rd")
+                      .split(",")
+                      .map((line, i) => (
+                        <div key={i} className="text-gray-400">
+                          {line.trim()}
+                        </div>
+                      ))}
+                  </>
+                )}
               </div>
 
               <a
-                href="tel:+447928775746"
+                href={`tel:${displayPhone}`}
                 className="flex items-center gap-3 text-brand-400 hover:text-brand-300 transition-colors group"
               >
                 <svg
@@ -105,7 +179,7 @@ export default function Footer() {
                     d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                   />
                 </svg>
-                <span className="font-medium">+44 7928 775746</span>
+                <span className="font-medium">{displayPhone}</span>
               </a>
 
               <div className="pt-2 border-t border-white/10">
@@ -129,7 +203,9 @@ export default function Footer() {
               </div>
 
               <a
-                href="https://www.google.com/maps/search/?api=1&query=12+Blackfriars+Rd+Wisbech+PE13+1AT"
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                  primaryDirectionsQuery,
+                )}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-brand-400 hover:text-brand-300 font-medium transition-colors group"

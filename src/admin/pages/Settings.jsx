@@ -4,6 +4,7 @@ import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import FormField from "../../components/forms/FormField";
 import toast from "react-hot-toast";
+import Locations from "./Locations";
 
 export default function Settings() {
   const [formData, setFormData] = useState({
@@ -14,11 +15,13 @@ export default function Settings() {
     salonEmail: "",
     heroImage: null,
     christmasThemeEnabled: true,
+    multiLocationEnabled: false,
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingMultiLocation, setSavingMultiLocation] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
   // Working hours state
@@ -48,6 +51,7 @@ export default function Settings() {
           settings.christmasThemeEnabled !== undefined
             ? settings.christmasThemeEnabled
             : true,
+        multiLocationEnabled: !!settings.multiLocationEnabled,
       });
       if (settings.heroImage?.url) {
         setImagePreview(settings.heroImage.url);
@@ -232,6 +236,30 @@ export default function Settings() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleMultiLocationToggle = async (enabled) => {
+    // Optimistic UI update
+    setFormData((prev) => ({ ...prev, multiLocationEnabled: enabled }));
+    setSavingMultiLocation(true);
+
+    try {
+      await api.patch("/settings", { multiLocationEnabled: enabled });
+      toast.success(
+        enabled
+          ? "Multi-location booking enabled"
+          : "Multi-location booking disabled",
+      );
+    } catch (error) {
+      // Rollback on failure
+      setFormData((prev) => ({ ...prev, multiLocationEnabled: !enabled }));
+      toast.error(
+        error?.response?.data?.error ||
+          "Failed to update multi-location setting",
+      );
+    } finally {
+      setSavingMultiLocation(false);
+    }
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -278,6 +306,7 @@ export default function Settings() {
         salonEmail: formData.salonEmail,
         heroImage: heroImageData,
         christmasThemeEnabled: formData.christmasThemeEnabled,
+        multiLocationEnabled: formData.multiLocationEnabled,
       });
 
       setMessage({
@@ -357,47 +386,117 @@ export default function Settings() {
                 </p>
               </div>
 
-              {/* Address */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Address
-                </label>
-                <input
-                  type="text"
-                  value={formData.salonAddress}
-                  onChange={(e) => handleChange("salonAddress", e.target.value)}
-                  placeholder="e.g., 123 Main Street, London, SW1A 1AA"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                />
+              {/* Multi-Location Toggle */}
+              <div className="rounded-lg border border-gray-200 p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-base font-semibold mb-1 flex items-center gap-2">
+                      <span>📍</span>
+                      <span>Multi-Location Booking</span>
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Enable location-specific schedules and booking flow.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-gray-700">
+                      {formData.multiLocationEnabled ? "ON" : "OFF"}
+                    </span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.multiLocationEnabled}
+                        onChange={(e) =>
+                          handleMultiLocationToggle(e.target.checked)
+                        }
+                        disabled={savingMultiLocation}
+                        className="sr-only peer"
+                      />
+                      <div className="w-14 h-8 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-brand-600"></div>
+                    </label>
+                  </div>
+                </div>
+                <p className="mt-3 text-xs text-gray-500">
+                  This setting is saved immediately.
+                </p>
               </div>
 
+              {/* Locations Management */}
+              {formData.multiLocationEnabled && (
+                <div className="rounded-lg border border-gray-200 p-4">
+                  <div className="mb-4">
+                    <h3 className="text-base font-semibold mb-1 flex items-center gap-2">
+                      <span>🏢</span>
+                      <span>Locations</span>
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Add and manage salon locations used for location-specific
+                      schedules and bookings.
+                    </p>
+                  </div>
+                  <Locations embedded />
+                </div>
+              )}
+
+              {/* Address (single-location mode only) */}
+              {!formData.multiLocationEnabled ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.salonAddress}
+                    onChange={(e) =>
+                      handleChange("salonAddress", e.target.value)
+                    }
+                    placeholder="e.g., 123 Main Street, London, SW1A 1AA"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                  />
+                </div>
+              ) : (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+                  <p className="text-sm text-blue-800">
+                    Address, phone number, and email are managed in the{" "}
+                    <strong>Locations</strong> section above while
+                    multi-location booking is enabled.
+                  </p>
+                </div>
+              )}
+
               {/* Phone & Email */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.salonPhone}
-                    onChange={(e) => handleChange("salonPhone", e.target.value)}
-                    placeholder="e.g., +44 20 1234 5678"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                  />
+              {!formData.multiLocationEnabled && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      value={formData.salonPhone}
+                      onChange={(e) =>
+                        handleChange("salonPhone", e.target.value)
+                      }
+                      placeholder="e.g., +44 20 1234 5678"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.salonEmail}
+                      onChange={(e) =>
+                        handleChange("salonEmail", e.target.value)
+                      }
+                      placeholder="e.g., info@salon.com"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.salonEmail}
-                    onChange={(e) => handleChange("salonEmail", e.target.value)}
-                    placeholder="e.g., info@salon.com"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                  />
-                </div>
-              </div>
+              )}
             </div>
           </div>
 

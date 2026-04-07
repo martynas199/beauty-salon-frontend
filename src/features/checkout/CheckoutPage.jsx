@@ -118,6 +118,7 @@ export default function CheckoutPage() {
       const bookingData = {
         beauticianId: booking.any ? undefined : booking.beauticianId,
         any: booking.any,
+        locationId: booking.locationId,
         serviceId: booking.serviceId,
         variantName: booking.variantName,
         startISO: booking.startISO,

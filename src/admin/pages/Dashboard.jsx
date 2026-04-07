@@ -112,12 +112,23 @@ export default function Dashboard() {
     // Format for calendar
     return filtered
       .map((appointment) => {
-        if (!appointment || !appointment.start || !appointment.end) {
+        if (!appointment || !appointment.start) {
           return null;
         }
 
         const startDate = new Date(appointment.start);
-        const endDate = new Date(appointment.end);
+        if (Number.isNaN(startDate.getTime())) {
+          return null;
+        }
+
+        const parsedEnd = appointment.end ? new Date(appointment.end) : null;
+        // Keep malformed legacy appointments visible in calendar.
+        const endDate =
+          parsedEnd &&
+          !Number.isNaN(parsedEnd.getTime()) &&
+          parsedEnd.getTime() > startDate.getTime()
+            ? parsedEnd
+            : new Date(startDate.getTime() + 60 * 60000);
 
         let backgroundColor = "#3b82f6";
         // Treat both "confirmed" and "completed" as completed (green) since confirmed appointments count as revenue

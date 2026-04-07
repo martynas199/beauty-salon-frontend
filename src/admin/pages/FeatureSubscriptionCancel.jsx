@@ -38,7 +38,7 @@ export default function FeatureSubscriptionCancel() {
         </motion.div>
 
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          Subscription Cancelled
+          Subscription Not Activated
         </h1>
 
         <p className="text-lg text-gray-700 mb-6">
@@ -47,8 +47,8 @@ export default function FeatureSubscriptionCancel() {
 
         <div className="bg-gray-50 rounded-lg p-4 mb-6">
           <p className="text-sm text-gray-600">
-            You can still subscribe to <strong>No Fee Bookings</strong> anytime
-            from your Features page.
+            An active platform subscription is required for beautician access. You can
+            subscribe anytime from your Features page.
           </p>
         </div>
 
@@ -56,9 +56,11 @@ export default function FeatureSubscriptionCancel() {
           onClick={() => navigate("/admin/features")}
           className="w-full bg-brand-500 text-gray-900 py-3 px-6 rounded-lg font-semibold hover:bg-brand-600 transition-all"
         >
-          Back to Features
+          Back to Subscription Page
         </button>
       </motion.div>
     </div>
   );
 }
+
+

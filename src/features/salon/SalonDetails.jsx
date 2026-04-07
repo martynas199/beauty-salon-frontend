@@ -17,6 +17,14 @@ const DAY_LABELS = {
   sun: "Sunday",
 };
 
+function formatLocationLines(location) {
+  const address = location?.address || {};
+  const line1 = address.street || "";
+  const line2 = [address.city, address.postcode].filter(Boolean).join(", ");
+  const line3 = address.country || "";
+  return [line1, line2, line3].filter(Boolean);
+}
+
 export default function SalonDetails() {
   const [data, setData] = useState(null);
   useEffect(() => {
@@ -24,14 +32,33 @@ export default function SalonDetails() {
       .then(setData)
       .catch(() => setData(null));
   }, []);
+  const multiLocationEnabled =
+    !!data?.multiLocationEnabled &&
+    Array.isArray(data?.locations) &&
+    data.locations.length > 0;
+
+  const primaryAddress = useMemo(() => {
+    if (multiLocationEnabled) {
+      const lines = formatLocationLines(data.locations[0]);
+      if (lines.length > 0) return lines.join(", ");
+    }
+    return data?.address || "12 Blackfriars Rd, Wisbech, PE13 1AT";
+  }, [data, multiLocationEnabled]);
+
   const mapUrl = useMemo(
     () =>
-      data?.address
-        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-            data.address
-          )}`
-        : null,
-    [data]
+      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        primaryAddress
+      )}`,
+    [primaryAddress]
+  );
+
+  const mapEmbedUrl = useMemo(
+    () =>
+      `https://www.google.com/maps?q=${encodeURIComponent(
+        primaryAddress
+      )}&output=embed`,
+    [primaryAddress]
   );
 
   // Generate schemas
@@ -115,7 +142,7 @@ export default function SalonDetails() {
         {/* Google Maps Embed */}
         <div className="bg-white rounded-2xl border overflow-hidden">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2429.7043776384707!2d0.15791831590615466!3d52.666700379858!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47d80e63b8f8c8a9%3A0x7c0d8f0c8f0c8f0c!2s12%20Blackfriars%20Rd%2C%20Wisbech%20PE13%201AT%2C%20UK!5e0!3m2!1sen!2suk!4v1700000000000!5m2!1sen!2suk"
+            src={mapEmbedUrl}
             width="100%"
             height="400"
             style={{ border: 0 }}
@@ -130,58 +157,154 @@ export default function SalonDetails() {
           {/* Contact */}
           <Card className="p-5">
             <div className="font-semibold mb-3">Contact Information</div>
-            <div className="mb-2">
-              <div className="text-sm text-gray-600">Address</div>
-              <div className="font-medium">12 Blackfriars Rd</div>
-              <div className="font-medium">Wisbech, PE13 1AT</div>
-              <div className="font-medium">Cambridgeshire, United Kingdom</div>
-            </div>
-            <div className="mb-2">
-              <div className="text-sm text-gray-600">Phone</div>
-              <a
-                className="text-blue-600 underline font-medium"
-                href="tel:+447928775746"
-              >
-                +44 7928 775746
-              </a>
-            </div>
-            {data?.email && (
-              <div className="mb-2">
-                <div className="text-sm text-gray-600">Email</div>
-                <a
-                  className="text-blue-600 underline"
-                  href={`mailto:${data.email}`}
-                >
-                  {data.email}
-                </a>
+            {multiLocationEnabled ? (
+              <div className="space-y-4">
+                {data.locations.map((location, index) => {
+                  const lines = formatLocationLines(location);
+                  const addressForMap = lines.join(", ");
+                  return (
+                    <div
+                      key={`${location._id || location.name}-${index}`}
+                      className="border border-gray-200 rounded-lg p-3"
+                    >
+                      <div className="font-semibold text-gray-900">
+                        {location.name || `Location ${index + 1}`}
+                      </div>
+                      <div className="mt-1">
+                        <div className="text-sm text-gray-600">Address</div>
+                        {lines.length > 0 ? (
+                          lines.map((line, lineIndex) => (
+                            <div
+                              key={`${location._id || location.name}-line-${lineIndex}`}
+                              className="font-medium"
+                            >
+                              {line}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-sm text-gray-500">
+                            Address not set
+                          </div>
+                        )}
+                      </div>
+                      {location?.contact?.phone && (
+                        <div className="mt-2">
+                          <div className="text-sm text-gray-600">Phone</div>
+                          <a
+                            className="text-blue-600 underline font-medium"
+                            href={`tel:${location.contact.phone}`}
+                          >
+                            {location.contact.phone}
+                          </a>
+                        </div>
+                      )}
+                      {location?.contact?.email && (
+                        <div className="mt-2">
+                          <div className="text-sm text-gray-600">Email</div>
+                          <a
+                            className="text-blue-600 underline"
+                            href={`mailto:${location.contact.email}`}
+                          >
+                            {location.contact.email}
+                          </a>
+                        </div>
+                      )}
+                      {addressForMap && (
+                        <a
+                          className="inline-flex items-center gap-2 mt-3 text-brand-600 hover:text-brand-700 font-medium underline"
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                            addressForMap,
+                          )}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                          Get Directions
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
+            ) : (
+              <>
+                <div className="mb-2">
+                  <div className="text-sm text-gray-600">Address</div>
+                  {(data?.address || primaryAddress)
+                    .split(",")
+                    .map((line, idx) => (
+                      <div key={idx} className="font-medium">
+                        {line.trim()}
+                      </div>
+                    ))}
+                </div>
+                {data?.phone && (
+                  <div className="mb-2">
+                    <div className="text-sm text-gray-600">Phone</div>
+                    <a
+                      className="text-blue-600 underline font-medium"
+                      href={`tel:${data.phone}`}
+                    >
+                      {data.phone}
+                    </a>
+                  </div>
+                )}
+                {data?.email && (
+                  <div className="mb-2">
+                    <div className="text-sm text-gray-600">Email</div>
+                    <a
+                      className="text-blue-600 underline"
+                      href={`mailto:${data.email}`}
+                    >
+                      {data.email}
+                    </a>
+                  </div>
+                )}
+                <a
+                  className="inline-flex items-center gap-2 mt-3 text-brand-600 hover:text-brand-700 font-medium underline"
+                  href={mapUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                  Get Directions
+                </a>
+              </>
             )}
-            <a
-              className="inline-flex items-center gap-2 mt-3 text-brand-600 hover:text-brand-700 font-medium underline"
-              href="https://www.google.com/maps/search/?api=1&query=12+Blackfriars+Rd+Wisbech+PE13+1AT"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              Get Directions
-            </a>
           </Card>
 
           {/* Opening hours */}

@@ -12,16 +12,19 @@ const CACHE_TTL = 60000; // 60 seconds
  * @param {string} beauticianId - Beautician ID
  * @param {number} year - Year (e.g., 2025)
  * @param {number} month - Month (1-12)
+ * @param {string} locationId - Optional location filter
  * @returns {object} { fullyBooked: string[], isLoading: boolean, error: string|null, refetch: function }
  */
-export function useAvailableDates(beauticianId, year, month) {
+export function useAvailableDates(beauticianId, year, month, locationId) {
   const [fullyBooked, setFullyBooked] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const abortControllerRef = useRef(null);
   const debounceTimerRef = useRef(null);
 
-  const cacheKey = `${beauticianId}:${year}-${String(month).padStart(2, "0")}`;
+  const cacheKey = `${beauticianId}:${year}-${String(month).padStart(2, "0")}:${
+    locationId || "all"
+  }`;
 
   const fetchFullyBooked = useCallback(async () => {
     if (!beauticianId || !year || !month) {
@@ -54,6 +57,7 @@ export function useAvailableDates(beauticianId, year, month) {
           beauticianId,
           year,
           month,
+          ...(locationId ? { locationId } : {}),
         },
         signal: abortControllerRef.current.signal,
       });
@@ -85,7 +89,7 @@ export function useAvailableDates(beauticianId, year, month) {
       setIsLoading(false);
       abortControllerRef.current = null;
     }
-  }, [beauticianId, year, month, cacheKey]);
+  }, [beauticianId, year, month, locationId, cacheKey]);
 
   // Debounced fetch on month change
   useEffect(() => {

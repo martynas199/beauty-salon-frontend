@@ -12,7 +12,7 @@ import PageTransition from "../../components/ui/PageTransition";
 import toast from "react-hot-toast";
 
 export default function TimeSlots() {
-  const { serviceId, variantName, beauticianId, any } = useSelector(
+  const { serviceId, variantName, beauticianId, any, locationId } = useSelector(
     (s) => s.booking
   );
   const [beautician, setBeautician] = useState(null);
@@ -82,10 +82,11 @@ export default function TimeSlots() {
 
         // Store beautician ID AND inSalonPayment flag in Redux state for checkout
         dispatch(
-          setBeauticianInState({ 
-            beauticianId: beauticianData._id, 
+          setBeauticianInState({
+            beauticianId: beauticianData._id,
             any: false,
-            inSalonPayment: beauticianData.inSalonPayment || false
+            inSalonPayment: beauticianData.inSalonPayment || false,
+            locationId,
           })
         );
 
@@ -151,7 +152,7 @@ export default function TimeSlots() {
       isCancelled = true;
       abortController.abort();
     };
-  }, [serviceId, beauticianId]);
+  }, [serviceId, beauticianId, locationId]);
 
   const handleSlotSelect = (slot) => {
     // Store the selected slot's start time
@@ -216,6 +217,7 @@ export default function TimeSlots() {
             variantName={variantName}
             salonTz="Europe/London"
             stepMin={15}
+            locationId={locationId}
             beauticianWorkingHours={beautician.workingHours || []}
             customSchedule={beautician.customSchedule || {}}
             onSelect={handleSlotSelect}

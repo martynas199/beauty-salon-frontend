@@ -28,6 +28,7 @@ export default function DateTimePicker({
   beauticianId,
   serviceId,
   variantName,
+  locationId,
   salonTz = "Europe/London",
   stepMin = 15,
   onSelect,
@@ -56,7 +57,8 @@ export default function DateTimePicker({
   } = useAvailableDates(
     beauticianId,
     currentMonth.getFullYear(),
-    currentMonth.getMonth() + 1
+    currentMonth.getMonth() + 1,
+    locationId
   );
 
   // Build set of working days (0=Sunday, 6=Saturday)
@@ -142,6 +144,7 @@ export default function DateTimePicker({
             serviceId,
             variantName,
             date: dateStr,
+            ...(locationId ? { locationId } : {}),
           },
         });
 
@@ -209,7 +212,7 @@ export default function DateTimePicker({
     };
 
     fetchSlots();
-  }, [selectedDate, beauticianId, serviceId, variantName, salonTz]);
+  }, [selectedDate, beauticianId, serviceId, variantName, salonTz, locationId]);
 
   const handleDateSelect = (date) => {
     if (!date || isDateDisabled(date)) return;

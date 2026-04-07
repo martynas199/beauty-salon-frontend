@@ -10,6 +10,7 @@ import PageTransition, {
 import Card from "../../components/ui/Card";
 import ServiceCard from "../landing/ServiceCard";
 import ServiceVariantSelector from "../../components/ServiceVariantSelector";
+import LocationSelector from "../locations/LocationSelector";
 import SEOHead from "../../components/seo/SEOHead";
 import { generateBreadcrumbSchema } from "../../utils/schemaGenerator";
 
@@ -21,32 +22,51 @@ export default function BeauticianSelectionPage() {
   const [servicesLoading, setServicesLoading] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [showVariantSelector, setShowVariantSelector] = useState(false);
+  const [showLocationSelector, setShowLocationSelector] = useState(false);
+  const [pendingServiceData, setPendingServiceData] = useState(null);
   const [isBioExpanded, setIsBioExpanded] = useState(false);
+  const [locations, setLocations] = useState([]);
+  const [multiLocationEnabled, setMultiLocationEnabled] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Fetch all beauticians
-    api
-      .get("/beauticians")
-      .then((res) => {
-        const activeBeauticians = res.data.filter((b) => b.active);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch beauticians, locations, and salon feature flags
+        const [beauticiansRes, locationsRes, salonRes] = await Promise.all([
+          api.get("/beauticians"),
+          api.get("/locations"),
+          api.get("/salon").catch(() => ({ data: { multiLocationEnabled: false } })),
+        ]);
+
+        let activeBeauticians = beauticiansRes.data.filter((b) => b.active);
+
         setBeauticians(activeBeauticians);
+        setLocations(locationsRes.data || []);
+        setMultiLocationEnabled(!!salonRes?.data?.multiLocationEnabled);
 
         // Check if there's a selected beautician in URL params
         const selectedId = searchParams.get("selected");
         if (selectedId) {
           const beautician = activeBeauticians.find(
-            (b) => b._id === selectedId
+            (b) => b._id === selectedId,
           );
           if (beautician) {
             handleBeauticianSelect(beautician);
           }
         }
-      })
-      .catch((err) => console.error("Failed to fetch beauticians:", err))
-      .finally(() => setLoading(false));
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [searchParams]);
 
   const handleBeauticianSelect = async (beautician) => {
@@ -91,7 +111,7 @@ export default function BeauticianSelectionPage() {
           Array.isArray(service.additionalBeauticianIds)
         ) {
           const hasMatch = service.additionalBeauticianIds.some(
-            (id) => getId(id) === beautician._id
+            (id) => getId(id) === beautician._id,
           );
           if (hasMatch) return true;
         }
@@ -99,7 +119,7 @@ export default function BeauticianSelectionPage() {
         // Check legacy beauticians array
         if (service.beauticianIds && Array.isArray(service.beauticianIds)) {
           const hasMatch = service.beauticianIds.some(
-            (id) => getId(id) === beautician._id
+            (id) => getId(id) === beautician._id,
           );
           if (hasMatch) return true;
         }
@@ -136,30 +156,70 @@ export default function BeauticianSelectionPage() {
   };
 
   const handleVariantConfirm = (selectedVariant, service) => {
-    // Set booking data with selected variant
-    // Use promo price if available, otherwise use regular price
+    // Calculate final price (use promo price if available, otherwise regular price)
     const finalPrice = selectedVariant.promoPrice || selectedVariant.price;
-    dispatch(
-      setService({
-        serviceId: service._id,
-        variantName: selectedVariant.name,
-        price: finalPrice,
-        durationMin: selectedVariant.durationMin,
-        bufferBeforeMin: selectedVariant.bufferBeforeMin,
-        bufferAfterMin: selectedVariant.bufferAfterMin,
-      })
+
+    const serviceData = {
+      serviceId: service._id,
+      variantName: selectedVariant.name,
+      price: finalPrice,
+      durationMin: selectedVariant.durationMin,
+      bufferBeforeMin: selectedVariant.bufferBeforeMin,
+      bufferAfterMin: selectedVariant.bufferAfterMin,
+    };
+
+    setShowVariantSelector(false);
+    if (!multiLocationEnabled) {
+      dispatch(setService(serviceData));
+      dispatch(
+        setBeautician({
+          beauticianId: selectedBeautician._id,
+          any: false,
+          inSalonPayment: selectedBeautician.inSalonPayment || false,
+          locationId: undefined,
+        }),
+      );
+      navigate("/times");
+      return;
+    }
+
+    // Multi-location flow: ask user to choose location
+    setPendingServiceData(serviceData);
+    setShowLocationSelector(true);
+  };
+
+  const handleLocationSelect = (location) => {
+    console.log("🎯 [BeauticianSelection] Location selected:", location);
+    setShowLocationSelector(false);
+    setPendingServiceData(null);
+
+    // Set service data
+    if (pendingServiceData) {
+      dispatch(setService(pendingServiceData));
+    }
+
+    const beauticianData = {
+      beauticianId: selectedBeautician._id,
+      any: false,
+      inSalonPayment: selectedBeautician.inSalonPayment || false,
+      locationId: location._id,
+    };
+
+    console.log(
+      "🎯 [BeauticianSelection] Dispatching setBeautician with data:",
+      beauticianData,
     );
 
-    dispatch(
-      setBeautician({
-        beauticianId: selectedBeautician._id,
-        any: false,
-        inSalonPayment: selectedBeautician.inSalonPayment || false,
-      })
-    );
+    // Set beautician with location
+    dispatch(setBeautician(beauticianData));
 
     // Navigate to time selection
     navigate("/times");
+  };
+
+  const handleLocationCancel = () => {
+    setShowLocationSelector(false);
+    setPendingServiceData(null);
   };
 
   const handleVariantCancel = () => {
@@ -171,6 +231,8 @@ export default function BeauticianSelectionPage() {
     setSelectedBeautician(null);
     setServices([]);
     setShowVariantSelector(false);
+    setShowLocationSelector(false);
+    setPendingServiceData(null);
     setSelectedService(null);
     setIsBioExpanded(false);
     // Clear the URL parameter when going back
@@ -192,7 +254,7 @@ export default function BeauticianSelectionPage() {
   ]);
 
   return (
-    <PageTransition className="min-h-screen bg-gray-50 py-8 overflow-x-hidden">
+    <PageTransition className="min-h-screen py-8 overflow-x-hidden">
       {/* SEO Meta Tags */}
       <SEOHead
         title="Book Appointment Wisbech | Expert Beauticians - Noble Elegance"
@@ -207,11 +269,8 @@ export default function BeauticianSelectionPage() {
           <>
             <div className="mb-8">
               <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2 tracking-wide">
-                Book Your Beauty Appointment in Wisbech
+                Choose a beautician
               </h1>
-              <p className="text-gray-600 font-light">
-                Choose your preferred beauty treatment
-              </p>
             </div>
 
             <StaggerContainer className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -255,6 +314,50 @@ export default function BeauticianSelectionPage() {
                       )}
                       {/* Strong gradient overlay for text readability */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+
+                      {/* Location badges at top */}
+                      {beautician.locationIds &&
+                        beautician.locationIds.length > 0 && (
+                          <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5">
+                            {beautician.locationIds.slice(0, 3).map((locId) => {
+                              const location = locations.find(
+                                (l) => l._id === locId,
+                              );
+                              return location ? (
+                                <span
+                                  key={locId}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/90 backdrop-blur-sm text-xs font-medium text-gray-800 rounded-full"
+                                >
+                                  <svg
+                                    className="w-3 h-3"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                    />
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                    />
+                                  </svg>
+                                  {location.name}
+                                </span>
+                              ) : null;
+                            })}
+                            {beautician.locationIds.length > 3 && (
+                              <span className="inline-flex items-center px-2 py-0.5 bg-white/90 backdrop-blur-sm text-xs font-medium text-gray-800 rounded-full">
+                                +{beautician.locationIds.length - 3}
+                              </span>
+                            )}
+                          </div>
+                        )}
 
                       {/* Name at bottom */}
                       <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -448,6 +551,14 @@ export default function BeauticianSelectionPage() {
           onCancel={handleVariantCancel}
         />
       )}
+
+      {/* Location Selection Modal */}
+      <LocationSelector
+        isOpen={showLocationSelector}
+        onSelect={handleLocationSelect}
+        onCancel={handleLocationCancel}
+        beauticianId={selectedBeautician?._id}
+      />
     </PageTransition>
   );
 }

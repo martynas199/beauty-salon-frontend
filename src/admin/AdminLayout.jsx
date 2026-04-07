@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import logo from "../assets/logo.svg";
 import { useLanguage } from "../contexts/LanguageContext";
 import { t } from "../locales/adminTranslations";
+import NoFeeBookingsOverlayModal from "./components/NoFeeBookingsOverlayModal";
 
 // Icon components for cleaner, more professional look
 const Icon = ({ name, className = "w-5 h-5" }) => {
@@ -468,6 +469,7 @@ export default function AdminLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [salonName, setSalonName] = useState("Beauty Salon");
+  const [showNoFeeOverlay, setShowNoFeeOverlay] = useState(false);
 
   // Memoize role check for performance
   const isSuperAdmin = useMemo(
@@ -522,6 +524,70 @@ export default function AdminLayout() {
       });
   }, []);
 
+  useEffect(() => {
+    const beauticianId = admin?.beauticianId;
+    if (!beauticianId) {
+      setShowNoFeeOverlay(false);
+      return;
+    }
+
+    if (pathname.startsWith("/admin/features")) {
+      setShowNoFeeOverlay(false);
+      return;
+    }
+
+    let isCancelled = false;
+    const dismissKey = `no-fee-overlay-dismissed:${beauticianId}`;
+    const dismissedForSession = sessionStorage.getItem(dismissKey) === "1";
+
+    const checkNoFeeStatus = async () => {
+      if (dismissedForSession) {
+        setShowNoFeeOverlay(false);
+        return;
+      }
+
+      try {
+        const response = await api.get(`/features/${beauticianId}`);
+        if (isCancelled) return;
+
+        const noFeeStatus = response.data?.noFeeBookings;
+        const isSubscribed =
+          noFeeStatus?.enabled === true && noFeeStatus?.status === "active";
+
+        setShowNoFeeOverlay(!isSubscribed);
+      } catch (error) {
+        if (!isCancelled) {
+          console.error(
+            "[NoFeeOverlay] Failed to load feature status:",
+            error?.message || error,
+          );
+          setShowNoFeeOverlay(false);
+        }
+      }
+    };
+
+    checkNoFeeStatus();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [admin?.beauticianId, pathname]);
+
+  const handleDismissNoFeeOverlay = () => {
+    if (admin?.beauticianId) {
+      sessionStorage.setItem(
+        `no-fee-overlay-dismissed:${admin.beauticianId}`,
+        "1",
+      );
+    }
+    setShowNoFeeOverlay(false);
+  };
+
+  const handleOpenPremiumFeatures = () => {
+    setShowNoFeeOverlay(false);
+    navigate("/admin/features");
+  };
+
   const logoutMutation = useAdminLogout();
 
   const handleLogout = async () => {
@@ -553,6 +619,12 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <NoFeeBookingsOverlayModal
+        open={showNoFeeOverlay}
+        onClose={handleDismissNoFeeOverlay}
+        onGoToFeatures={handleOpenPremiumFeatures}
+      />
+
       {/* Mobile Header */}
       <header className="lg:hidden bg-gradient-to-r from-brand-600 to-brand-700 text-white shadow-lg px-4 py-4 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-3">

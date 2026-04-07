@@ -5,6 +5,7 @@ const initial = {
   beauticianId: undefined,
   any: false,
   inSalonPayment: false,
+  locationId: undefined,
   date: undefined,
   startISO: undefined,
   client: undefined,
@@ -35,6 +36,9 @@ const slice = createSlice({
         any: !!payload.any,
         inSalonPayment: !!payload.inSalonPayment,
       });
+      if (Object.prototype.hasOwnProperty.call(payload, "locationId")) {
+        s.locationId = payload.locationId;
+      }
     },
     setDate(s, { payload }) {
       s.date = payload;

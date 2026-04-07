@@ -54,19 +54,20 @@ export default function FeatureSubscriptionSuccess() {
         </h1>
 
         <p className="text-lg text-gray-700 mb-6">
-          Your <strong>No Fee Bookings</strong> feature is now active. Your
-          clients can book without paying the £1.00 booking fee!
+          Your <strong>platform subscription</strong> is now active. Your
+          account can continue using the platform, and clients can book without
+          paying the GBP 1.00 booking fee.
         </p>
 
         <div className="bg-brand-50 rounded-lg p-4 mb-6 border border-brand-200">
           <p className="text-sm text-gray-600">
-            You'll be charged £9.99 per month. You can cancel anytime from your
-            Features page.
+            You'll be charged GBP 9.99 per month. Subscription settings are
+            managed from your Features page.
           </p>
         </div>
 
         <p className="text-gray-500 text-sm">
-          Redirecting to Features page in 3 seconds...
+          Redirecting to Platform Subscription page in 3 seconds...
         </p>
 
         <button
@@ -79,3 +80,4 @@ export default function FeatureSubscriptionSuccess() {
     </div>
   );
 }
+

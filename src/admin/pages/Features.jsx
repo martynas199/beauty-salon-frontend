@@ -230,22 +230,22 @@ export default function Features() {
       >
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Premium Features
+            Platform Subscription
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
-            Enhance your business with premium features
+            This subscription is required for beauticians to use the platform
           </p>
         </div>
 
-        {/* No Fee Bookings Feature Card */}
+        {/* Platform Access Subscription Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-brand-200">
           <div className="bg-brand-500 p-4 sm:p-6 text-gray-900">
             <div className="flex items-center gap-2 sm:gap-3 mb-2">
               <CrownIcon className="w-6 h-6 sm:w-8 sm:h-8" />
-              <h2 className="text-xl sm:text-2xl font-bold">No Fee Bookings</h2>
+              <h2 className="text-xl sm:text-2xl font-bold">Platform Access Subscription</h2>
             </div>
             <p className="text-sm sm:text-base text-gray-800">
-              Remove the £1.00 booking fee for all your clients
+              Required to use the platform. Includes No Fee Bookings for your clients.
             </p>
           </div>
 
@@ -258,7 +258,7 @@ export default function Features() {
                   <span>Active Subscription</span>
                 </div>
                 <p className="text-xs sm:text-sm text-brand-800">
-                  Your clients can book without paying the £1.00 booking fee!
+                  Platform access is active. Clients can book without paying the GBP 1.00 booking fee.
                 </p>
                 {featureStatus?.noFeeBookings?.currentPeriodEnd && (
                   <p className="text-xs sm:text-sm text-brand-700 mt-2">
@@ -282,7 +282,7 @@ export default function Features() {
                   <span>Subscription Cancelling</span>
                 </div>
                 <p className="text-xs sm:text-sm text-orange-700">
-                  Your subscription will end on{" "}
+                  Your platform access will end on{" "}
                   {featureStatus?.noFeeBookings?.currentPeriodEnd &&
                     new Date(
                       featureStatus.noFeeBookings.currentPeriodEnd
@@ -302,7 +302,7 @@ export default function Features() {
                   <span>Subscription Canceled</span>
                 </div>
                 <p className="text-xs sm:text-sm text-gray-600">
-                  Your subscription has ended. You can resubscribe at any time.
+                  Your platform subscription has ended. Resubscribe to keep using the platform.
                 </p>
               </div>
             )}
@@ -310,8 +310,7 @@ export default function Features() {
             {!isActive && !isCanceled && (
               <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 border border-gray-200 rounded-lg">
                 <p className="text-sm sm:text-base text-gray-700">
-                  Currently, your clients pay a £1.00 booking fee when making
-                  appointments.
+                  This subscription is required for platform access and keeps client bookings free from the GBP 1.00 booking fee.
                 </p>
               </div>
             )}
@@ -325,26 +324,25 @@ export default function Features() {
                 <li className="flex items-start gap-2">
                   <CheckIcon className="text-brand-600 mt-0.5 sm:mt-1 w-4 h-4 flex-shrink-0" />
                   <span className="text-xs sm:text-sm text-gray-700">
-                    <strong>No £1.00 booking fee</strong> for your clients
+                    <strong>Required platform access</strong> for beautician accounts
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckIcon className="text-brand-600 mt-0.5 sm:mt-1 w-4 h-4 flex-shrink-0" />
                   <span className="text-xs sm:text-sm text-gray-700">
-                    <strong>Increase bookings</strong> by removing barriers
+                    <strong>No GBP 1.00 booking fee</strong> for your clients
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckIcon className="text-brand-600 mt-0.5 sm:mt-1 w-4 h-4 flex-shrink-0" />
                   <span className="text-xs sm:text-sm text-gray-700">
-                    <strong>Better client experience</strong> with seamless
-                    booking
+                    <strong>Uninterrupted bookings</strong> for your business
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckIcon className="text-brand-600 mt-0.5 sm:mt-1 w-4 h-4 flex-shrink-0" />
                   <span className="text-xs sm:text-sm text-gray-700">
-                    <strong>Professional image</strong> for your business
+                    <strong>Better client experience</strong> with fewer checkout barriers
                   </span>
                 </li>
               </ul>
@@ -354,13 +352,13 @@ export default function Features() {
             <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-brand-50 rounded-lg border border-brand-300">
               <div className="text-center">
                 <div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">
-                  £9.99
+                  GBP 9.99
                   <span className="text-base sm:text-lg text-gray-600 font-normal">
                     /month
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-gray-600">
-                  Cancel anytime, no long-term commitment
+                  Required plan for active platform access
                 </p>
               </div>
             </div>
@@ -373,7 +371,7 @@ export default function Features() {
                   disabled={processing}
                   className="w-full sm:flex-1 bg-brand-500 text-gray-900 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold hover:bg-brand-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {processing ? "Processing..." : "Subscribe Now"}
+                  {processing ? "Processing..." : "Activate Subscription"}
                 </button>
               )}
 
@@ -383,7 +381,7 @@ export default function Features() {
                   disabled={processing}
                   className="w-full sm:flex-1 bg-brand-500 text-gray-900 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold hover:bg-brand-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {processing ? "Processing..." : "Resubscribe"}
+                  {processing ? "Processing..." : "Subscribe Again"}
                 </button>
               )}
 
@@ -397,7 +395,7 @@ export default function Features() {
                 </button>
               )}
 
-              {isCanceled && (
+              {isCanceled && !isFullyCanceled && (
                 <button
                   onClick={handleSubscribe}
                   disabled={processing}
@@ -411,9 +409,7 @@ export default function Features() {
             {/* Additional Info */}
             <div className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600">
               <p>
-                <strong>Note:</strong> Subscriptions are billed monthly via
-                Stripe. You can cancel at any time and your subscription will
-                remain active until the end of the current billing period.
+                <strong>Note:</strong> This plan is billed monthly via Stripe and is required for beauticians to use the platform. The No Fee Bookings logic remains unchanged.
               </p>
             </div>
           </div>
@@ -589,3 +585,5 @@ export default function Features() {
     </div>
   );
 }
+
+
