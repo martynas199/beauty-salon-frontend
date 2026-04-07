@@ -11,6 +11,13 @@ import { StaggerContainer, StaggerItem } from "./ui/PageTransition";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
+const normalizeId = (value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object") return String(value._id || value.id || "");
+  return String(value);
+};
+
 /**
  * DateTimePicker - Production-ready date and time slot picker
  *
@@ -42,6 +49,7 @@ export default function DateTimePicker({
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [slotsError, setSlotsError] = useState(null);
   const [mobileCalendarOpen, setMobileCalendarOpen] = useState(false);
+  const normalizedLocationId = normalizeId(locationId);
 
   // Get today in salon timezone
   const today = useMemo(() => {
@@ -58,13 +66,37 @@ export default function DateTimePicker({
     beauticianId,
     currentMonth.getFullYear(),
     currentMonth.getMonth() + 1,
-    locationId
+    normalizedLocationId || undefined
   );
 
   // Build set of working days (0=Sunday, 6=Saturday)
+  const scopedWorkingHours = useMemo(() => {
+    if (!normalizedLocationId) return beauticianWorkingHours || [];
+
+    return (beauticianWorkingHours || []).filter(
+      (wh) => normalizeId(wh.locationId) === normalizedLocationId,
+    );
+  }, [beauticianWorkingHours, normalizedLocationId]);
+
   const workingDaysSet = useMemo(() => {
-    return new Set(beauticianWorkingHours.map((wh) => wh.dayOfWeek));
-  }, [beauticianWorkingHours]);
+    return new Set((scopedWorkingHours || []).map((wh) => wh.dayOfWeek));
+  }, [scopedWorkingHours]);
+
+  const getScopedCustomHoursForDate = useCallback(
+    (dateStr) => {
+      const dateEntries = customSchedule?.[dateStr];
+      if (!Array.isArray(dateEntries)) return null;
+
+      if (!normalizedLocationId) {
+        return dateEntries;
+      }
+
+      return dateEntries.filter(
+        (entry) => normalizeId(entry.locationId) === normalizedLocationId,
+      );
+    },
+    [customSchedule, normalizedLocationId],
+  );
 
   // Determine if a date should be disabled
   const isDateDisabled = useCallback(
@@ -74,16 +106,20 @@ export default function DateTimePicker({
 
       const dateStr = dayjs(date).format("YYYY-MM-DD");
       const dayOfWeek = date.getDay();
+      const dateCustomEntries = customSchedule?.[dateStr];
+      const scopedCustomHours = getScopedCustomHoursForDate(dateStr);
 
       // Past dates
       if (date < today) return true;
 
       // Check if date has custom schedule override
-      if (customSchedule[dateStr]) {
-        const customHours = customSchedule[dateStr];
-        // If custom schedule exists but is empty array, day is not working
-        if (customHours.length === 0) return true;
-        // If custom schedule has hours, day is working
+      if (Array.isArray(dateCustomEntries) && dateCustomEntries.length === 0) {
+        return true;
+      }
+
+      // Custom schedule for this specific location overrides weekly schedule
+      if (Array.isArray(scopedCustomHours) && scopedCustomHours.length > 0) {
+        if (fullyBooked.includes(dateStr)) return true;
         return false;
       }
 
@@ -95,7 +131,13 @@ export default function DateTimePicker({
 
       return false;
     },
-    [today, workingDaysSet, fullyBooked, customSchedule]
+    [
+      today,
+      workingDaysSet,
+      fullyBooked,
+      customSchedule,
+      getScopedCustomHoursForDate,
+    ],
   );
 
   // Get disabled reason for tooltip
@@ -106,22 +148,34 @@ export default function DateTimePicker({
 
       const dateStr = dayjs(date).format("YYYY-MM-DD");
       const dayOfWeek = date.getDay();
+      const dateCustomEntries = customSchedule?.[dateStr];
+      const scopedCustomHours = getScopedCustomHoursForDate(dateStr);
 
       if (date < today) return "Past date";
 
-      // Check custom schedule first
-      if (customSchedule[dateStr]) {
-        const customHours = customSchedule[dateStr];
-        if (customHours.length === 0) return "Not working (custom schedule)";
-        // Has custom hours, so not disabled by schedule
-      } else if (!workingDaysSet.has(dayOfWeek)) {
+      if (Array.isArray(dateCustomEntries) && dateCustomEntries.length === 0) {
+        return "Not working (custom schedule)";
+      }
+
+      if (Array.isArray(scopedCustomHours) && scopedCustomHours.length > 0) {
+        if (fullyBooked.includes(dateStr)) return "Fully booked";
+        return "";
+      }
+
+      if (!workingDaysSet.has(dayOfWeek)) {
         return "Not working";
       }
 
       if (fullyBooked.includes(dateStr)) return "Fully booked";
       return "";
     },
-    [today, workingDaysSet, fullyBooked, customSchedule]
+    [
+      today,
+      workingDaysSet,
+      fullyBooked,
+      customSchedule,
+      getScopedCustomHoursForDate,
+    ],
   );
 
   // Fetch slots when date selected
@@ -144,7 +198,9 @@ export default function DateTimePicker({
             serviceId,
             variantName,
             date: dateStr,
-            ...(locationId ? { locationId } : {}),
+            ...(normalizedLocationId
+              ? { locationId: normalizedLocationId }
+              : {}),
           },
         });
 
@@ -212,7 +268,14 @@ export default function DateTimePicker({
     };
 
     fetchSlots();
-  }, [selectedDate, beauticianId, serviceId, variantName, salonTz, locationId]);
+  }, [
+    selectedDate,
+    beauticianId,
+    serviceId,
+    variantName,
+    salonTz,
+    normalizedLocationId,
+  ]);
 
   const handleDateSelect = (date) => {
     if (!date || isDateDisabled(date)) return;

@@ -169,29 +169,30 @@ export default function WorkingHoursCalendar() {
       return;
     }
 
-    const allowedLocationIds = new Set(
-      (selectedBeautician.locationIds || []).map((id) => normalizeId(id)),
-    );
+    const allowedLocationIds = (selectedBeautician.locationIds || [])
+      .map((id) => normalizeId(id))
+      .filter(Boolean);
 
-    if (selectedLocationId && !allowedLocationIds.has(selectedLocationId)) {
+    if (allowedLocationIds.length === 0) {
       setSelectedLocationId("");
+      return;
+    }
+
+    if (!selectedLocationId || !allowedLocationIds.includes(selectedLocationId)) {
+      setSelectedLocationId(allowedLocationIds[0]);
     }
   }, [multiLocationEnabled, selectedBeautician, selectedLocationId]);
 
   const matchesSelectedLocation = (locationIdValue) => {
     if (!multiLocationEnabled) return true;
-    const normalized = normalizeId(locationIdValue);
-    if (!selectedLocationId) {
-      return !normalized;
-    }
-    return normalized === selectedLocationId;
+    if (!selectedLocationId) return false;
+    return normalizeId(locationIdValue) === selectedLocationId;
   };
 
   const filterHoursBySelectedLocation = (hours = []) => {
-    if (!multiLocationEnabled || !selectedLocationId) return hours;
-    return hours.filter(
-      (h) => !normalizeId(h.locationId) || matchesSelectedLocation(h.locationId),
-    );
+    if (!multiLocationEnabled) return hours;
+    if (!selectedLocationId) return [];
+    return hours.filter((h) => matchesSelectedLocation(h.locationId));
   };
 
   const locationOptions = locations.filter((loc) =>
@@ -199,6 +200,22 @@ export default function WorkingHoursCalendar() {
       .map((id) => normalizeId(id))
       .includes(normalizeId(loc._id)),
   );
+  const selectedLocation = locationOptions.find(
+    (loc) => normalizeId(loc._id) === selectedLocationId,
+  );
+
+  const requireLocationSelection = () => {
+    if (!multiLocationEnabled) return true;
+    if (locationOptions.length === 0) {
+      toast.error("Assign at least one location to this beautician first.");
+      return false;
+    }
+    if (!selectedLocationId) {
+      toast.error("Select a location first.");
+      return false;
+    }
+    return true;
+  };
 
   const getLocationNameById = (locationId) => {
     const normalized = normalizeId(locationId);
@@ -310,6 +327,54 @@ export default function WorkingHoursCalendar() {
     );
   };
 
+  const findInvalidRangeSlot = (slots = []) => {
+    for (const slot of slots) {
+      const startMin = hhmmToMinutes(slot.start);
+      const endMin = hhmmToMinutes(slot.end);
+      if (
+        !Number.isFinite(startMin) ||
+        !Number.isFinite(endMin) ||
+        startMin >= endMin
+      ) {
+        return slot;
+      }
+    }
+    return null;
+  };
+
+  const findSameLocationOverlap = (slots = []) => {
+    const normalized = (slots || [])
+      .map((slot) => ({
+        ...slot,
+        startMin: hhmmToMinutes(slot.start),
+        endMin: hhmmToMinutes(slot.end),
+      }))
+      .filter(
+        (slot) =>
+          Number.isFinite(slot.startMin) &&
+          Number.isFinite(slot.endMin) &&
+          slot.startMin < slot.endMin,
+      )
+      .sort((a, b) => a.startMin - b.startMin);
+
+    for (let i = 1; i < normalized.length; i += 1) {
+      const prev = normalized[i - 1];
+      const current = normalized[i];
+      if (current.startMin < prev.endMin) {
+        return { prev, current };
+      }
+    }
+
+    return null;
+  };
+
+  const showOverlapWarning = (overlap) => {
+    toast.error(
+      `Schedule conflict: ${minutesToHHMM(overlap.prev.startMin)}-${minutesToHHMM(overlap.prev.endMin)} overlaps ${minutesToHHMM(overlap.current.startMin)}-${minutesToHHMM(overlap.current.endMin)}. Please choose non-overlapping times.`,
+      { duration: 7000 },
+    );
+  };
+
   // Get working hours for a specific date
   const getWorkingHoursForDate = (date) => {
     const dateStr = dayjs(date).format("YYYY-MM-DD");
@@ -342,6 +407,7 @@ export default function WorkingHoursCalendar() {
   // Handle day click
   const handleDayClick = (date) => {
     if (!date || !selectedBeautician) return;
+    if (!requireLocationSelection()) return;
 
     setSelectedDate(date);
     const dateStr = dayjs(date).format("YYYY-MM-DD");
@@ -385,6 +451,7 @@ export default function WorkingHoursCalendar() {
   // Save working hours for the specific selected date
   const saveWorkingHours = async () => {
     if (!selectedDate || !selectedBeautician) return;
+    if (!requireLocationSelection()) return;
 
     const dateStr = dayjs(selectedDate).format("YYYY-MM-DD");
 
@@ -392,18 +459,12 @@ export default function WorkingHoursCalendar() {
       // Get existing hours for this date
       const existingHours = customSchedule[dateStr] || [];
 
-      // Remove existing hours for the current location (if any)
-      let otherLocationHours = existingHours;
-      if (multiLocationEnabled && selectedLocationId) {
-        otherLocationHours = existingHours.filter(
-          (h) => !matchesSelectedLocation(h.locationId),
-        );
-      } else {
-        // If no location selected, remove all hours without locationId
-        otherLocationHours = existingHours.filter(
-          (h) => !matchesSelectedLocation(h.locationId),
-        );
-      }
+      // Remove existing hours for the current location scope
+      const otherLocationHours = multiLocationEnabled
+        ? existingHours.filter(
+            (h) => normalizeId(h.locationId) !== selectedLocationId,
+          )
+        : [];
 
       // Add new hours for the current location
       const newHoursForLocation = dayHours
@@ -411,12 +472,24 @@ export default function WorkingHoursCalendar() {
         .map((h) => ({
           start: h.start,
           end: h.end,
-          ...(multiLocationEnabled && selectedLocationId
-            ? { locationId: selectedLocationId }
-            : {}),
+          ...(multiLocationEnabled ? { locationId: selectedLocationId } : {}),
         }));
 
-      if (multiLocationEnabled && selectedLocationId) {
+      const invalidRangeSlot = findInvalidRangeSlot(newHoursForLocation);
+      if (invalidRangeSlot) {
+        toast.error(
+          `Invalid time range: ${invalidRangeSlot.start}-${invalidRangeSlot.end}. Start must be before end.`,
+        );
+        return;
+      }
+
+      const overlap = findSameLocationOverlap(newHoursForLocation);
+      if (overlap) {
+        showOverlapWarning(overlap);
+        return;
+      }
+
+      if (multiLocationEnabled) {
         const travelConflict = findTravelTimeConflict({
           newHours: newHoursForLocation,
           existingHours: otherLocationHours,
@@ -463,17 +536,18 @@ export default function WorkingHoursCalendar() {
   // Clear working hours for the selected date
   const clearWorkingHours = async () => {
     if (!selectedDate || !selectedBeautician) return;
+    if (!requireLocationSelection()) return;
 
     const dateStr = dayjs(selectedDate).format("YYYY-MM-DD");
 
     try {
       const newCustomSchedule = { ...customSchedule };
 
-      if (multiLocationEnabled && selectedLocationId) {
+      if (multiLocationEnabled) {
         // Only clear hours for the selected location
         const existingHours = newCustomSchedule[dateStr] || [];
         const remainingHours = existingHours.filter(
-          (h) => !matchesSelectedLocation(h.locationId),
+          (h) => normalizeId(h.locationId) !== selectedLocationId,
         );
 
         if (remainingHours.length > 0) {
@@ -508,6 +582,7 @@ export default function WorkingHoursCalendar() {
   // Open weekly schedule edit modal
   const openWeeklyEditModal = (dayOfWeek) => {
     if (!selectedBeautician) return;
+    if (!requireLocationSelection()) return;
 
     setEditingDayOfWeek(dayOfWeek);
 
@@ -516,7 +591,8 @@ export default function WorkingHoursCalendar() {
       selectedBeautician.workingHours?.filter(
         (wh) =>
           wh.dayOfWeek === dayOfWeek &&
-          (!multiLocationEnabled || matchesSelectedLocation(wh.locationId)),
+          (!multiLocationEnabled ||
+            normalizeId(wh.locationId) === selectedLocationId),
       ) || [];
 
     if (existingHours.length > 0) {
@@ -548,15 +624,16 @@ export default function WorkingHoursCalendar() {
   // Save weekly schedule
   const saveWeeklySchedule = async () => {
     if (editingDayOfWeek === null || !selectedBeautician) return;
+    if (!requireLocationSelection()) return;
 
     try {
       // Remove existing hours for this day and location combination
       const otherHours = (selectedBeautician.workingHours || []).filter(
-        (wh) =>
-          !(
-            wh.dayOfWeek === editingDayOfWeek &&
-            (!multiLocationEnabled || matchesSelectedLocation(wh.locationId))
-          ),
+        (wh) => {
+          if (wh.dayOfWeek !== editingDayOfWeek) return true;
+          if (!multiLocationEnabled) return false;
+          return normalizeId(wh.locationId) !== selectedLocationId;
+        },
       );
 
       // Add new hours for this day with location
@@ -566,13 +643,24 @@ export default function WorkingHoursCalendar() {
           dayOfWeek: editingDayOfWeek,
           start: h.start,
           end: h.end,
-          locationId:
-            multiLocationEnabled && selectedLocationId
-              ? selectedLocationId
-              : undefined,
+          locationId: multiLocationEnabled ? selectedLocationId : undefined,
         }));
 
-      if (multiLocationEnabled && selectedLocationId) {
+      const invalidRangeSlot = findInvalidRangeSlot(newHours);
+      if (invalidRangeSlot) {
+        toast.error(
+          `Invalid time range: ${invalidRangeSlot.start}-${invalidRangeSlot.end}. Start must be before end.`,
+        );
+        return;
+      }
+
+      const overlap = findSameLocationOverlap(newHours);
+      if (overlap) {
+        showOverlapWarning(overlap);
+        return;
+      }
+
+      if (multiLocationEnabled) {
         const sameDayOtherLocationHours = otherHours.filter(
           (wh) => wh.dayOfWeek === editingDayOfWeek,
         );
@@ -613,17 +701,18 @@ export default function WorkingHoursCalendar() {
   // Clear weekly schedule for a day
   const clearWeeklySchedule = async () => {
     if (editingDayOfWeek === null || !selectedBeautician) return;
+    if (!requireLocationSelection()) return;
 
     try {
       // Remove all hours for this day and selected location scope
       const updatedWorkingHours = (
         selectedBeautician.workingHours || []
       ).filter(
-        (wh) =>
-          !(
-            wh.dayOfWeek === editingDayOfWeek &&
-            (!multiLocationEnabled || matchesSelectedLocation(wh.locationId))
-          ),
+        (wh) => {
+          if (wh.dayOfWeek !== editingDayOfWeek) return true;
+          if (!multiLocationEnabled) return false;
+          return normalizeId(wh.locationId) !== selectedLocationId;
+        },
       );
 
       await api.patch(`/beauticians/${selectedBeautician._id}`, {
@@ -652,12 +741,9 @@ export default function WorkingHoursCalendar() {
       const dateStr = dayjs(date).format("YYYY-MM-DD");
       if (!customSchedule[dateStr]) return false;
 
-      // Filter by location if selected
-      if (multiLocationEnabled && selectedLocationId) {
-        const customHours = customSchedule[dateStr].filter((h) =>
-          filterHoursBySelectedLocation([h]).length > 0,
-        );
-        return customHours.length > 0;
+      if (multiLocationEnabled) {
+        if (!selectedLocationId) return false;
+        return filterHoursBySelectedLocation(customSchedule[dateStr]).length > 0;
       }
 
       return true;
@@ -707,21 +793,24 @@ export default function WorkingHoursCalendar() {
                   className="border border-gray-300 rounded-lg w-full px-4 py-2.5 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                   value={selectedLocationId}
                   onChange={(e) => setSelectedLocationId(e.target.value)}
+                  disabled={locationOptions.length === 0}
                 >
-                  <option value="">All Locations</option>
-                  {locationOptions.map((loc) => (
-                    <option key={loc._id} value={loc._id}>
-                      {loc.name}
-                    </option>
-                  ))}
+                  {locationOptions.length === 0 ? (
+                    <option value="">No locations assigned</option>
+                  ) : (
+                    locationOptions.map((loc) => (
+                      <option key={loc._id} value={loc._id}>
+                        {loc.name}
+                      </option>
+                    ))
+                  )}
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
-                  {selectedLocationId
-                    ? `Viewing/editing hours for ${
-                        locationOptions.find((l) => l._id === selectedLocationId)
-                          ?.name || "selected location"
-                      } only`
-                    : "Viewing all locations. Select a location to set location-specific hours."}
+                  {locationOptions.length === 0
+                    ? "Assign this beautician to at least one location to manage location-specific schedule."
+                    : `Viewing/editing hours for ${
+                        selectedLocation?.name || "selected location"
+                      } only.`}
                 </p>
               </FormField>
             )}
@@ -735,25 +824,17 @@ export default function WorkingHoursCalendar() {
             <h2 className="text-xl font-semibold mb-2">
               {selectedBeautician.name}'s Schedule
               {multiLocationEnabled &&
-                selectedLocationId &&
-                locationOptions.find((l) => l._id === selectedLocationId) && (
+                selectedLocation && (
                   <span className="text-base font-normal text-brand-600 ml-2">
-                    @{" "}
-                    {
-                      locationOptions.find((l) => l._id === selectedLocationId)
-                        .name
-                    }
+                    @ {selectedLocation.name}
                   </span>
                 )}
             </h2>
             <p className="text-sm text-gray-600 mb-4">
-              {multiLocationEnabled && selectedLocationId
-                ? `Setting hours for ${
-                    locationOptions.find((l) => l._id === selectedLocationId)
-                      ?.name
-                  }. Weekly schedule and custom dates apply to this location only.`
-                : multiLocationEnabled
-                ? "Viewing all locations. Select a location to set location-specific hours for weekly schedule and custom dates."
+              {multiLocationEnabled
+                ? locationOptions.length === 0
+                  ? "This beautician has no assigned locations yet. Assign locations to set weekly and custom schedules."
+                  : `Setting hours for ${selectedLocation?.name || "selected location"}. Weekly schedule and custom dates apply to this location only.`
                 : "Click on a date to set custom working hours for that specific day."}
             </p>
 
@@ -952,23 +1033,16 @@ export default function WorkingHoursCalendar() {
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">
                 Default Weekly Schedule
-                {multiLocationEnabled && selectedLocationId && (
+                {multiLocationEnabled && selectedLocation && (
                   <span className="ml-2 text-sm font-normal text-gray-600">
-                    (for{" "}
-                    {
-                      locationOptions.find((l) => l._id === selectedLocationId)
-                        ?.name
-                    }
-                    )
+                    (for {selectedLocation.name})
                   </span>
                 )}
               </h3>
             </div>
             <p className="text-sm text-gray-600 mb-3">
-              {multiLocationEnabled && selectedLocationId
-                ? "These hours apply for the selected location unless overridden."
-                : multiLocationEnabled
-                ? "These hours apply to all days/locations unless overridden with custom hours."
+              {multiLocationEnabled
+                ? "These hours apply only to the selected location unless overridden with custom date hours."
                 : "These hours apply to all days unless overridden with custom hours."}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -986,8 +1060,8 @@ export default function WorkingHoursCalendar() {
                     (wh) => wh.dayOfWeek === dayOfWeek,
                   ) || [];
 
-                // Filter by location if selected
-                if (multiLocationEnabled && selectedLocationId) {
+                // Filter by selected location in multi-location mode
+                if (multiLocationEnabled) {
                   dayHours = filterHoursBySelectedLocation(dayHours);
                 }
 
@@ -1010,18 +1084,9 @@ export default function WorkingHoursCalendar() {
                             <span
                               key={idx}
                               className="text-[10px] sm:text-xs bg-green-50 text-green-700 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded border border-green-200 whitespace-nowrap"
-                              title={
-                                h.locationId
-                                  ? `Location-specific`
-                                  : "All locations"
-                              }
+                              title="Scheduled hours"
                             >
                               {h.start} - {h.end}
-                              {!h.locationId &&
-                                multiLocationEnabled &&
-                                !selectedLocationId && (
-                                <span className="ml-1 text-gray-400">*</span>
-                              )}
                             </span>
                           ))}
                         </div>
@@ -1048,15 +1113,11 @@ export default function WorkingHoursCalendar() {
                   .sort(([a], [b]) => a.localeCompare(b))
                   .map(([dateStr, hours]) => {
                     const visibleHours =
-                      multiLocationEnabled && selectedLocationId
+                      multiLocationEnabled
                         ? filterHoursBySelectedLocation(hours)
                         : hours;
 
-                    if (
-                      multiLocationEnabled &&
-                      selectedLocationId &&
-                      visibleHours.length === 0
-                    ) {
+                    if (multiLocationEnabled && visibleHours.length === 0) {
                       return null;
                     }
 
@@ -1110,11 +1171,9 @@ export default function WorkingHoursCalendar() {
               <strong>Custom Date Override:</strong> Setting hours here will
               apply to{" "}
               <strong>
-                {multiLocationEnabled && selectedLocationId
-                  ? locationOptions.find((l) => l._id === selectedLocationId)
-                      ?.name ||
-                    "the selected location"
-                  : "ALL locations"}
+                {multiLocationEnabled
+                  ? selectedLocation?.name || "the selected location"
+                  : "this beautician"}
               </strong>{" "}
               on{" "}
               <strong>
@@ -1232,14 +1291,11 @@ export default function WorkingHoursCalendar() {
           <div className="bg-blue-50 border border-blue-200 rounded p-3">
             <p className="text-sm text-blue-800">
               <strong>Weekly Schedule:</strong> These hours will apply to all{" "}
-              {multiLocationEnabled && selectedLocationId ? (
+              {multiLocationEnabled ? (
                 <>
                   appointments at{" "}
                   <strong>
-                    {
-                      locationOptions.find((l) => l._id === selectedLocationId)
-                        ?.name
-                    }
+                    {selectedLocation?.name || "the selected location"}
                   </strong>{" "}
                   on{" "}
                 </>

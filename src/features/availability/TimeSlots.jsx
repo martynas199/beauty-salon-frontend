@@ -11,11 +11,19 @@ import { api } from "../../lib/apiClient";
 import PageTransition from "../../components/ui/PageTransition";
 import toast from "react-hot-toast";
 
+const normalizeId = (value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object") return String(value._id || value.id || "");
+  return String(value);
+};
+
 export default function TimeSlots() {
   const { serviceId, variantName, beauticianId, any, locationId } = useSelector(
     (s) => s.booking
   );
   const [beautician, setBeautician] = useState(null);
+  const [effectiveLocationId, setEffectiveLocationId] = useState(undefined);
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -79,6 +87,28 @@ export default function TimeSlots() {
         if (isCancelled || !beauticianResponse) return;
 
         const beauticianData = beauticianResponse.data;
+        const allowedLocationIds = (beauticianData.locationIds || [])
+          .map((id) => normalizeId(id))
+          .filter(Boolean);
+        const normalizedRequestedLocationId = normalizeId(locationId);
+
+        const validLocationId =
+          normalizedRequestedLocationId &&
+          allowedLocationIds.includes(normalizedRequestedLocationId)
+            ? normalizedRequestedLocationId
+            : undefined;
+
+        if (normalizedRequestedLocationId && !validLocationId) {
+          console.warn(
+            "[TimeSlots] Ignoring invalid booking locationId for beautician",
+            {
+              requested: normalizedRequestedLocationId,
+              allowed: allowedLocationIds,
+            }
+          );
+        }
+
+        setEffectiveLocationId(validLocationId);
 
         // Store beautician ID AND inSalonPayment flag in Redux state for checkout
         dispatch(
@@ -86,7 +116,7 @@ export default function TimeSlots() {
             beauticianId: beauticianData._id,
             any: false,
             inSalonPayment: beauticianData.inSalonPayment || false,
-            locationId,
+            locationId: validLocationId,
           })
         );
 
@@ -217,7 +247,7 @@ export default function TimeSlots() {
             variantName={variantName}
             salonTz="Europe/London"
             stepMin={15}
-            locationId={locationId}
+            locationId={effectiveLocationId}
             beauticianWorkingHours={beautician.workingHours || []}
             customSchedule={beautician.customSchedule || {}}
             onSelect={handleSlotSelect}
