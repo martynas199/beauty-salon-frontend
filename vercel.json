@@ -1,6 +1,6 @@
 {
   "framework": "vite",
-  "installCommand": "npm install",
+  "installCommand": "npm install --include=dev --force",
   "buildCommand": "node ./node_modules/vite/bin/vite.js build",
   "rewrites": [
     {
