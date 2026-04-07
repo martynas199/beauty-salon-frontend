@@ -12,6 +12,13 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { t } from "../../locales/adminTranslations";
 import DateTimePicker from "../../components/DateTimePicker";
 
+const normalizeId = (value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object") return String(value._id || value.id || "");
+  return String(value);
+};
+
 export default function Appointments() {
   const { language } = useLanguage();
   const admin = useSelector(selectAdmin);
@@ -40,6 +47,8 @@ export default function Appointments() {
   const [editingAppointment, setEditingAppointment] = useState(null);
   const [services, setServices] = useState([]);
   const [beauticians, setBeauticians] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const [multiLocationEnabled, setMultiLocationEnabled] = useState(false);
 
   // Create modal state
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -49,6 +58,7 @@ export default function Appointments() {
     clientPhone: "",
     clientNotes: "",
     beauticianId: "",
+    locationId: "",
     serviceId: "",
     variantName: "",
     start: "",
@@ -160,6 +170,14 @@ export default function Appointments() {
       .get("/beauticians", { params: { limit: 1000 } })
       .then((r) => setBeauticians(r.data || []))
       .catch(() => {});
+    api
+      .get("/locations")
+      .then((r) => setLocations(r.data || []))
+      .catch(() => {});
+    api
+      .get("/salon")
+      .then((r) => setMultiLocationEnabled(!!r.data?.multiLocationEnabled))
+      .catch(() => setMultiLocationEnabled(false));
   }, []);
 
   const handleSort = (key) => {
@@ -624,6 +642,7 @@ export default function Appointments() {
       clientPhone: "",
       clientNotes: "",
       beauticianId: isSuperAdmin ? "" : admin?.beauticianId || "",
+      locationId: "",
       serviceId: "",
       variantName: "",
       start: "",
@@ -650,6 +669,9 @@ export default function Appointments() {
         serviceId: newAppointment.serviceId,
         variantName: newAppointment.variantName,
         startISO: newAppointment.start,
+        ...(newAppointment.locationId
+          ? { locationId: newAppointment.locationId }
+          : {}),
         mode: "deposit",
         depositPercent: percent,
       };
@@ -691,6 +713,35 @@ export default function Appointments() {
       toast.error("Beautician, service, and variant are required");
       return;
     }
+
+    const selectedBeautician = beauticians.find(
+      (b) => b._id === newAppointment.beauticianId
+    );
+    const selectedBeauticianLocationIds = (
+      selectedBeautician?.locationIds || []
+    )
+      .map((id) => normalizeId(id))
+      .filter(Boolean);
+
+    if (multiLocationEnabled) {
+      if (selectedBeauticianLocationIds.length === 0) {
+        toast.error("Selected beautician has no locations assigned");
+        return;
+      }
+      if (!newAppointment.locationId) {
+        toast.error("Location is required");
+        return;
+      }
+      if (
+        !selectedBeauticianLocationIds.includes(
+          normalizeId(newAppointment.locationId)
+        )
+      ) {
+        toast.error("Please select a valid location for this beautician");
+        return;
+      }
+    }
+
     if (!newAppointment.start) {
       toast.error("Start time is required");
       return;
@@ -736,6 +787,9 @@ export default function Appointments() {
           serviceId: newAppointment.serviceId,
           variantName: newAppointment.variantName,
           startISO: newAppointment.start,
+          ...(newAppointment.locationId
+            ? { locationId: newAppointment.locationId }
+            : {}),
           mode: "booking_fee", // Still use booking_fee mode, backend will skip fee if subscription active
         };
 
@@ -772,6 +826,9 @@ export default function Appointments() {
           serviceId: newAppointment.serviceId,
           variantName: newAppointment.variantName,
           startISO: newAppointment.start,
+          ...(newAppointment.locationId
+            ? { locationId: newAppointment.locationId }
+            : {}),
           mode: "booking_fee",
         };
 
@@ -809,6 +866,9 @@ export default function Appointments() {
           serviceId: newAppointment.serviceId,
           variantName: newAppointment.variantName,
           startISO: newAppointment.start,
+          ...(newAppointment.locationId
+            ? { locationId: newAppointment.locationId }
+            : {}),
           mode: "pay_in_salon",
         };
 
@@ -853,6 +913,9 @@ export default function Appointments() {
         serviceId: newAppointment.serviceId,
         variantName: newAppointment.variantName,
         startISO: newAppointment.start,
+        ...(newAppointment.locationId
+          ? { locationId: newAppointment.locationId }
+          : {}),
         mode: "deposit",
         depositPercent: percent,
       };
@@ -1728,6 +1791,8 @@ export default function Appointments() {
         setAppointment={setNewAppointment}
         services={services}
         beauticians={beauticians}
+        locations={locations}
+        multiLocationEnabled={multiLocationEnabled}
         onSave={saveNewAppointment}
         submitting={submitting}
         isSuperAdmin={isSuperAdmin}
@@ -1998,6 +2063,8 @@ function CreateModal({
   setAppointment,
   services,
   beauticians,
+  locations,
+  multiLocationEnabled,
   onSave,
   submitting,
   isSuperAdmin,
@@ -2026,6 +2093,69 @@ function CreateModal({
   const selectedBeautician = beauticians.find(
     (b) => b._id === appointment.beauticianId
   );
+  const beauticianLocationIds = useMemo(
+    () =>
+      (selectedBeautician?.locationIds || [])
+        .map((id) => normalizeId(id))
+        .filter(Boolean),
+    [selectedBeautician]
+  );
+  const locationOptions = useMemo(() => {
+    const allowedLocationIds = new Set(beauticianLocationIds);
+    return (locations || []).filter((loc) =>
+      allowedLocationIds.has(normalizeId(loc._id))
+    );
+  }, [beauticianLocationIds, locations]);
+  const selectedLocationId = normalizeId(appointment.locationId);
+  const hasSelectedLocation = locationOptions.some(
+    (loc) => normalizeId(loc._id) === selectedLocationId
+  );
+  const canSelectTime =
+    !!appointment.beauticianId &&
+    !!appointment.serviceId &&
+    !!appointment.variantName &&
+    (!multiLocationEnabled || hasSelectedLocation);
+
+  useEffect(() => {
+    if (!multiLocationEnabled || !appointment.beauticianId) {
+      if (appointment.locationId) {
+        setAppointment((prev) => ({ ...prev, locationId: "" }));
+      }
+      return;
+    }
+
+    if (locationOptions.length === 1) {
+      const onlyLocationId = normalizeId(locationOptions[0]?._id);
+      if (onlyLocationId && selectedLocationId !== onlyLocationId) {
+        setAppointment((prev) => ({
+          ...prev,
+          locationId: onlyLocationId,
+          start: "",
+          end: "",
+        }));
+      }
+      return;
+    }
+
+    if (
+      selectedLocationId &&
+      !locationOptions.some((loc) => normalizeId(loc._id) === selectedLocationId)
+    ) {
+      setAppointment((prev) => ({
+        ...prev,
+        locationId: "",
+        start: "",
+        end: "",
+      }));
+    }
+  }, [
+    appointment.beauticianId,
+    appointment.locationId,
+    locationOptions,
+    multiLocationEnabled,
+    selectedLocationId,
+    setAppointment,
+  ]);
 
   // Check if selected beautician has active no-fee subscription
   const hasNoFeeSubscription =
@@ -2078,35 +2208,67 @@ function CreateModal({
     const variant = variants.find((v) => v.name === variantName);
     if (variant) {
       updateField("price", variant.price || 0);
+      updateField("start", "");
+      updateField("end", "");
       // Show time picker after variant is selected
-      setShowTimePicker(true);
+      if (!multiLocationEnabled || hasSelectedLocation) {
+        setShowTimePicker(true);
+      }
     }
   };
 
   // Handle beautician change - reset service selection
   const handleBeauticianChange = (beauticianId) => {
-    updateField("beauticianId", beauticianId);
-    // Reset service and variant if the selected service is not available for new beautician
-    if (appointment.serviceId) {
-      const service = services.find((s) => s._id === appointment.serviceId);
-      if (service) {
-        const beauticianIds = service.beauticianIds || [];
-        const primaryId =
-          typeof service.primaryBeauticianId === "object"
-            ? service.primaryBeauticianId?._id
-            : service.primaryBeauticianId;
+    setAppointment((prev) => {
+      const next = {
+        ...prev,
+        beauticianId,
+        locationId: "",
+        start: "",
+        end: "",
+      };
 
-        if (
-          !beauticianIds.includes(beauticianId) &&
-          primaryId !== beauticianId
-        ) {
-          updateField("serviceId", "");
-          updateField("variantName", "");
-          updateField("price", 0);
-        }
+      if (!prev.serviceId) return next;
+
+      const service = services.find((s) => s._id === prev.serviceId);
+      if (!service) return next;
+
+      const beauticianIds = service.beauticianIds || [];
+      const additionalIds = (service.additionalBeauticianIds || []).map((id) =>
+        normalizeId(id)
+      );
+      const primaryId = normalizeId(service.primaryBeauticianId);
+      const normalizedBeauticianId = normalizeId(beauticianId);
+
+      const isMatch =
+        beauticianIds.includes(beauticianId) ||
+        additionalIds.includes(normalizedBeauticianId) ||
+        primaryId === normalizedBeauticianId;
+
+      if (!isMatch) {
+        next.serviceId = "";
+        next.variantName = "";
+        next.price = 0;
       }
-    }
+
+      return next;
+    });
   };
+
+  const handleLocationChange = (locationId) => {
+    setAppointment((prev) => ({
+      ...prev,
+      locationId,
+      start: "",
+      end: "",
+    }));
+  };
+
+  useEffect(() => {
+    if (!canSelectTime && showTimePicker) {
+      setShowTimePicker(false);
+    }
+  }, [canSelectTime, showTimePicker]);
 
   return (
     <Modal open={open} onClose={onClose} title="Create Appointment">
@@ -2179,6 +2341,36 @@ function CreateModal({
               </p>
             )}
           </FormField>
+          {multiLocationEnabled && appointment.beauticianId && (
+            <FormField label="Location *" htmlFor="location-select-create">
+              <select
+                id="location-select-create"
+                className="border rounded w-full px-3 py-2"
+                value={appointment.locationId || ""}
+                onChange={(e) => handleLocationChange(e.target.value)}
+                required
+              >
+                <option value="">
+                  {locationOptions.length === 0
+                    ? "No location available"
+                    : "Select Location"}
+                </option>
+                {locationOptions.map((location) => (
+                  <option
+                    key={normalizeId(location._id)}
+                    value={normalizeId(location._id)}
+                  >
+                    {location.name}
+                  </option>
+                ))}
+              </select>
+              {locationOptions.length === 0 && (
+                <p className="text-xs text-red-500 mt-1">
+                  This beautician has no assigned active locations.
+                </p>
+              )}
+            </FormField>
+          )}
           <FormField label="Service *" htmlFor="service-select-create">
             <select
               id="service-select-create"
@@ -2188,6 +2380,8 @@ function CreateModal({
                 updateField("serviceId", e.target.value);
                 updateField("variantName", "");
                 updateField("price", 0);
+                updateField("start", "");
+                updateField("end", "");
               }}
               disabled={!appointment.beauticianId}
               required
@@ -2232,11 +2426,17 @@ function CreateModal({
             appointment.serviceId &&
             appointment.variantName && (
               <div className="space-y-3">
+                {multiLocationEnabled && !hasSelectedLocation && (
+                  <div className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                    Select a location to view available time slots.
+                  </div>
+                )}
+
                 <FormField
                   label="Select Date & Time *"
                   htmlFor="datetime-picker"
                 >
-                  {appointment.start ? (
+                  {canSelectTime && appointment.start ? (
                     <div className="space-y-2">
                       <div className="border rounded p-3 bg-gray-50">
                         <p className="text-sm font-medium text-gray-900">
@@ -2261,7 +2461,7 @@ function CreateModal({
                         Change Time
                       </button>
                     </div>
-                  ) : (
+                  ) : canSelectTime ? (
                     <button
                       type="button"
                       className="w-full px-4 py-2 border border-brand-500 text-brand-600 rounded hover:bg-brand-50"
@@ -2269,11 +2469,15 @@ function CreateModal({
                     >
                       Select Available Time Slot
                     </button>
+                  ) : (
+                    <div className="w-full px-4 py-2 border border-dashed border-gray-300 text-gray-500 rounded bg-gray-50 text-sm">
+                      Select a location first
+                    </div>
                   )}
                 </FormField>
 
                 {/* DateTimePicker Modal */}
-                {showTimePicker && (
+                {showTimePicker && canSelectTime && (
                   <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     {/* Backdrop */}
                     <div
@@ -2311,6 +2515,7 @@ function CreateModal({
                           beauticianId={appointment.beauticianId}
                           serviceId={appointment.serviceId}
                           variantName={appointment.variantName}
+                          locationId={appointment.locationId || undefined}
                           salonTz="Europe/London"
                           stepMin={15}
                           beauticianWorkingHours={beauticianWorkingHours}
