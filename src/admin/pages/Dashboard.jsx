@@ -171,6 +171,26 @@ export default function Dashboard() {
       .join(" ");
   };
 
+  const selectedLocation = useMemo(() => {
+    const rawLocation = selectedEvent?.resource?.locationId;
+    if (!rawLocation || typeof rawLocation !== "object") {
+      return { name: "", addressLine: "" };
+    }
+
+    const name = rawLocation.name || "";
+    const address = rawLocation.address || {};
+    const addressLine = [
+      address.street,
+      address.city,
+      address.postcode,
+      address.country,
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    return { name, addressLine };
+  }, [selectedEvent]);
+
   const handleCloseModal = () => {
     setSelectedEvent(null);
   };
@@ -962,6 +982,47 @@ export default function Dashboard() {
                       {selectedEvent.resource.beauticianId.name}
                     </p>
                   </div>
+                )}
+              </div>
+
+              {/* Location */}
+              <div className="bg-rose-50 rounded-lg p-4">
+                <h4 className="text-sm font-semibold text-rose-900 mb-2 flex items-center gap-2">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                  Location
+                </h4>
+                {selectedLocation.name || selectedLocation.addressLine ? (
+                  <div className="space-y-1">
+                    {selectedLocation.name && (
+                      <p className="text-gray-900 font-medium">
+                        {selectedLocation.name}
+                      </p>
+                    )}
+                    {selectedLocation.addressLine && (
+                      <p className="text-sm text-gray-700">
+                        {selectedLocation.addressLine}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">Not specified</p>
                 )}
               </div>
 

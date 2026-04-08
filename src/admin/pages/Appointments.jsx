@@ -19,6 +19,11 @@ const normalizeId = (value) => {
   return String(value);
 };
 
+const formatLocationAddress = (address = {}) =>
+  [address.street, address.city, address.postcode, address.country]
+    .filter(Boolean)
+    .join(", ");
+
 export default function Appointments() {
   const { language } = useLanguage();
   const admin = useSelector(selectAdmin);
@@ -89,6 +94,13 @@ export default function Appointments() {
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const locationsById = useMemo(() => {
+    const map = new Map();
+    (locations || []).forEach((location) => {
+      map.set(normalizeId(location._id), location);
+    });
+    return map;
+  }, [locations]);
 
   const fetchAppointments = async (page = 1) => {
     try {
@@ -180,6 +192,21 @@ export default function Appointments() {
       .catch(() => setMultiLocationEnabled(false));
   }, []);
 
+  const formatAppointmentStart = (value, options = {}) => {
+    if (!value) return "-";
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return String(value);
+
+    try {
+      return new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Europe/London",
+        ...options,
+      }).format(parsed);
+    } catch {
+      return parsed.toISOString();
+    }
+  };
+
   const handleSort = (key) => {
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
@@ -229,6 +256,16 @@ export default function Appointments() {
   // Memoize filtered and sorted appointments to prevent unnecessary recalculations
   const sortedRows = useMemo(() => {
     let filteredRows = rows;
+    const getAppointmentLocation = (appointment) => {
+      const rawLocation = appointment?.locationId;
+      if (!rawLocation) return null;
+
+      if (typeof rawLocation === "object" && (rawLocation.name || rawLocation.address)) {
+        return rawLocation;
+      }
+
+      return locationsById.get(normalizeId(rawLocation)) || null;
+    };
 
     // Apply beautician filter
     if (selectedBeauticianId) {
@@ -256,13 +293,17 @@ export default function Appointments() {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filteredRows = filteredRows.filter((r) => {
+        const location = getAppointmentLocation(r);
+        const locationAddress = formatLocationAddress(location?.address || {});
         return (
           r.client?.name?.toLowerCase().includes(query) ||
           r.client?.email?.toLowerCase().includes(query) ||
           r.client?.phone?.toLowerCase().includes(query) ||
           r.beautician?.name?.toLowerCase().includes(query) ||
           r.service?.name?.toLowerCase().includes(query) ||
-          r.variantName?.toLowerCase().includes(query)
+          r.variantName?.toLowerCase().includes(query) ||
+          location?.name?.toLowerCase().includes(query) ||
+          locationAddress.toLowerCase().includes(query)
         );
       });
     }
@@ -283,6 +324,10 @@ export default function Appointments() {
         case "service":
           aVal = `${a.service?.name || a.serviceId} - ${a.variantName}`;
           bVal = `${b.service?.name || b.serviceId} - ${b.variantName}`;
+          break;
+        case "location":
+          aVal = getAppointmentLocation(a)?.name || "";
+          bVal = getAppointmentLocation(b)?.name || "";
           break;
         case "start":
           aVal = new Date(a.start).getTime();
@@ -311,6 +356,7 @@ export default function Appointments() {
     customStartDate,
     customEndDate,
     searchQuery,
+    locationsById,
     sortConfig.key,
     sortConfig.direction,
   ]);
@@ -572,28 +618,40 @@ export default function Appointments() {
   }
 
   function openEditModal(appointment) {
+    const beauticianId = normalizeId(
+      appointment.beauticianId || appointment.beautician
+    );
+    const serviceId = normalizeId(appointment.serviceId || appointment.service);
+    const locationId = normalizeId(
+      appointment.locationId || appointment.location
+    );
+    const client = appointment.client || {};
+
     setEditingAppointment({
       _id: appointment._id,
-      clientName: appointment.client?.name || "",
-      clientEmail: appointment.client?.email || "",
-      clientPhone: appointment.client?.phone || "",
-      clientNotes: appointment.client?.notes || "",
-      beauticianId: appointment.beauticianId || "",
-      serviceId: appointment.serviceId || "",
-      variantName: appointment.variantName || "",
-      start: appointment.start
-        ? new Date(appointment.start).toISOString().slice(0, 16)
-        : "",
-      end: appointment.end
-        ? new Date(appointment.end).toISOString().slice(0, 16)
-        : "",
-      price: appointment.price || 0,
+      clientName: client.name || appointment.clientName || appointment.name || "",
+      clientEmail:
+        client.email || appointment.clientEmail || appointment.email || "",
+      clientPhone:
+        client.phone || appointment.clientPhone || appointment.phone || "",
+      clientNotes: client.notes || appointment.clientNotes || "",
+      beauticianId,
+      locationId,
+      serviceId,
+      variantName: appointment.variantName || appointment.variant?.name || "",
+      start: appointment.start || appointment.startISO || "",
+      end: appointment.end || appointment.endISO || "",
+      price: appointment.price ?? 0,
     });
     setEditModalOpen(true);
   }
 
   async function saveEdit() {
     if (!editingAppointment) return;
+    if (!editingAppointment.start || !editingAppointment.end) {
+      toast.error("Please select an available time slot");
+      return;
+    }
     setSubmitting(true);
 
     try {
@@ -606,6 +664,9 @@ export default function Appointments() {
             notes: editingAppointment.clientNotes,
           },
           beauticianId: editingAppointment.beauticianId,
+          ...(editingAppointment.locationId
+            ? { locationId: editingAppointment.locationId }
+            : {}),
           serviceId: editingAppointment.serviceId,
           variantName: editingAppointment.variantName,
           start: editingAppointment.start,
@@ -614,13 +675,12 @@ export default function Appointments() {
         })
         .then((r) => r.data);
 
-      if (res.success && res.appointment) {
-        setRows((old) =>
-          old.map((x) =>
-            x._id === editingAppointment._id ? res.appointment : x
-          )
-        );
+      if (!res?.success || !res?.appointment) {
+        throw new Error("Unexpected response while updating appointment");
       }
+
+      // Re-fetch to keep table/cards/details perfectly in sync with backend shape
+      await fetchAppointments(pagination.page || 1);
 
       setEditModalOpen(false);
       setEditingAppointment(null);
@@ -1211,7 +1271,9 @@ export default function Appointments() {
                       "Client",
                       "Beautician",
                       "Service",
+                      "Location",
                       "Date/Time",
+                      "Price",
                       "Status",
                       "Actions",
                     ].map((header, i) => (
@@ -1224,7 +1286,7 @@ export default function Appointments() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {Array.from({ length: 8 }).map((_, i) => (
                     <tr key={i}>
-                      {Array.from({ length: 6 }).map((_, j) => (
+                      {Array.from({ length: 8 }).map((_, j) => (
                         <td key={j} className="px-6 py-4">
                           <SkeletonBox className="w-full h-4" />
                         </td>
@@ -1251,7 +1313,7 @@ export default function Appointments() {
       {/* Desktop Table View */}
       {!loading && (
         <div className="hidden lg:block overflow-auto border rounded-lg bg-white shadow-sm">
-          <table className="min-w-[800px] w-full text-sm">
+          <table className="min-w-[980px] w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
                 <SortableHeader
@@ -1269,6 +1331,12 @@ export default function Appointments() {
                 <SortableHeader
                   label="Service"
                   sortKey="service"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Location"
+                  sortKey="location"
                   sortConfig={sortConfig}
                   onSort={handleSort}
                 />
@@ -1294,8 +1362,20 @@ export default function Appointments() {
               </tr>
             </thead>
             <tbody>
-              {sortedRows.map((r) => (
-                <tr key={r._id} className="border-t hover:bg-gray-50">
+              {sortedRows.map((r) => {
+                const rawLocation = r.locationId;
+                const location =
+                  typeof rawLocation === "object" &&
+                  (rawLocation?.name || rawLocation?.address)
+                    ? rawLocation
+                    : locationsById.get(normalizeId(rawLocation));
+                const locationName = location?.name || "";
+                const locationAddress = formatLocationAddress(
+                  location?.address || {}
+                );
+
+                return (
+                  <tr key={r._id} className="border-t hover:bg-gray-50">
                   <td className="p-3">{r.client?.name}</td>
                   <td className="p-3">
                     {r.beautician?.name || r.beauticianId}
@@ -1304,12 +1384,29 @@ export default function Appointments() {
                     {r.service?.name || r.serviceId} - {r.variantName}
                   </td>
                   <td className="p-3">
-                    {new Date(r.start).toLocaleString("en-GB", {
+                    {locationName ? (
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {locationName}
+                        </div>
+                        {locationAddress && (
+                          <div className="text-xs text-gray-600 mt-0.5">
+                            {locationAddress}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </td>
+                  <td className="p-3">
+                    {formatAppointmentStart(r.start, {
                       year: "numeric",
                       month: "2-digit",
                       day: "2-digit",
                       hour: "2-digit",
                       minute: "2-digit",
+                      hour12: false,
                     })}
                   </td>
                   <td className="p-3 font-semibold text-green-700">
@@ -1443,8 +1540,9 @@ export default function Appointments() {
                       )}
                     </div>
                   </td>
-                </tr>
-              ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -1453,11 +1551,21 @@ export default function Appointments() {
       {/* Mobile Card View */}
       {!loading && (
         <div className="lg:hidden space-y-3 sm:space-y-4">
-          {sortedRows.map((r) => (
-            <div
-              key={r._id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 hover:shadow-md transition-shadow"
-            >
+          {sortedRows.map((r) => {
+            const rawLocation = r.locationId;
+            const location =
+              typeof rawLocation === "object" &&
+              (rawLocation?.name || rawLocation?.address)
+                ? rawLocation
+                : locationsById.get(normalizeId(rawLocation));
+            const locationName = location?.name || "";
+            const locationAddress = formatLocationAddress(location?.address || {});
+
+            return (
+              <div
+                key={r._id}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 hover:shadow-md transition-shadow"
+              >
               {/* Header with name and status */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1 min-w-0">
@@ -1551,18 +1659,62 @@ export default function Appointments() {
                       Date & Time
                     </div>
                     <div className="font-medium text-sm sm:text-base text-gray-900">
-                      {new Date(r.start).toLocaleString("en-GB", {
+                      {formatAppointmentStart(r.start, {
                         year: "numeric",
                         month: "short",
                         day: "numeric",
                       })}
                     </div>
                     <div className="text-xs sm:text-sm text-gray-600">
-                      {new Date(r.start).toLocaleString("en-GB", {
+                      {formatAppointmentStart(r.start, {
                         hour: "2-digit",
                         minute: "2-digit",
+                        hour12: false,
                       })}
                     </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-rose-50 flex items-center justify-center">
+                    <svg
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-rose-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-gray-500 mb-0.5">Location</div>
+                    {locationName ? (
+                      <>
+                        <div className="font-medium text-sm sm:text-base text-gray-900 break-words">
+                          {locationName}
+                        </div>
+                        {locationAddress && (
+                          <div className="text-xs sm:text-sm text-gray-600 break-words">
+                            {locationAddress}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="font-medium text-sm sm:text-base text-gray-400">
+                        -
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -1684,8 +1836,9 @@ export default function Appointments() {
                   </button>
                 )}
               </div>
-            </div>
-          ))}
+              </div>
+            );
+          })}
 
           {sortedRows.length === 0 && (
             <div className="text-center py-16 sm:py-20">
@@ -1777,6 +1930,8 @@ export default function Appointments() {
         setAppointment={setEditingAppointment}
         services={services}
         beauticians={beauticians}
+        locations={locations}
+        multiLocationEnabled={multiLocationEnabled}
         onSave={saveEdit}
         submitting={submitting}
       />
@@ -1891,17 +2046,215 @@ function EditModal({
   setAppointment,
   services,
   beauticians,
+  locations,
+  multiLocationEnabled,
   onSave,
   submitting,
 }) {
-  if (!appointment) return null;
+  const [showTimePicker, setShowTimePicker] = useState(false);
+
+  // Prevent body scroll when DateTimePicker modal is open
+  useEffect(() => {
+    if (showTimePicker) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [showTimePicker]);
 
   const updateField = (field, value) => {
     setAppointment((prev) => ({ ...prev, [field]: value }));
   };
+  const selectedBeautician = beauticians.find(
+    (b) => b._id === appointment?.beauticianId
+  );
+  const beauticianLocationIds = (selectedBeautician?.locationIds || [])
+    .map((id) => normalizeId(id))
+    .filter(Boolean);
+  const locationOptions = (locations || []).filter((loc) =>
+    beauticianLocationIds.includes(normalizeId(loc._id))
+  );
+  const selectedLocationId = normalizeId(appointment?.locationId);
+  const hasSelectedLocation = locationOptions.some(
+    (loc) => normalizeId(loc._id) === selectedLocationId
+  );
+  const effectiveLocationId = hasSelectedLocation
+    ? selectedLocationId
+    : locationOptions.length === 1
+    ? normalizeId(locationOptions[0]._id)
+    : "";
 
-  const selectedService = services.find((s) => s._id === appointment.serviceId);
+  const availableServices = services.filter((service) => {
+    if (!appointment?.beauticianId) return true;
+
+    const serviceBeauticianIds = (service.beauticianIds || []).map((id) =>
+      normalizeId(id)
+    );
+    const additionalIds = (service.additionalBeauticianIds || []).map((id) =>
+      normalizeId(id)
+    );
+    const primaryId = normalizeId(service.primaryBeauticianId);
+    const selectedBeauticianId = normalizeId(appointment?.beauticianId);
+
+    return (
+      serviceBeauticianIds.includes(selectedBeauticianId) ||
+      additionalIds.includes(selectedBeauticianId) ||
+      primaryId === selectedBeauticianId
+    );
+  });
+
+  const selectedService = availableServices.find(
+    (s) => normalizeId(s._id) === normalizeId(appointment?.serviceId)
+  );
   const variants = selectedService?.variants || [];
+
+  const canSelectTime =
+    !!appointment?.beauticianId &&
+    !!appointment?.serviceId &&
+    !!appointment?.variantName &&
+    (!multiLocationEnabled || !!effectiveLocationId);
+
+  const beauticianWorkingHours = selectedBeautician?.workingHours || [];
+  const customSchedule = selectedBeautician?.customSchedule || {};
+
+  const handleSlotSelect = (slot) => {
+    updateField("start", slot.startISO);
+    updateField("end", slot.endISO);
+    setShowTimePicker(false);
+  };
+
+  const formatSelectedTime = (value) => {
+    if (!value) return "-";
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return "-";
+    try {
+      return new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Europe/London",
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(parsed);
+    } catch {
+      return parsed.toLocaleString("en-GB", {
+        timeZone: "Europe/London",
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    }
+  };
+
+  const handleVariantChange = (variantName) => {
+    updateField("variantName", variantName);
+    const variant = variants.find((v) => v.name === variantName);
+    if (variant) {
+      updateField("price", variant.price || 0);
+    }
+    updateField("start", "");
+    updateField("end", "");
+
+    if (!multiLocationEnabled || !!effectiveLocationId) {
+      setShowTimePicker(true);
+    }
+  };
+
+  const handleBeauticianChange = (beauticianId) => {
+    const nextBeautician = beauticians.find((b) => b._id === beauticianId);
+    const nextBeauticianLocationIds = (nextBeautician?.locationIds || [])
+      .map((id) => normalizeId(id))
+      .filter(Boolean);
+    const nextLocationOptions = (locations || []).filter((loc) =>
+      nextBeauticianLocationIds.includes(normalizeId(loc._id))
+    );
+    const nextLocationId =
+      multiLocationEnabled && nextLocationOptions.length === 1
+        ? normalizeId(nextLocationOptions[0]._id)
+        : "";
+
+    setAppointment((prev) => {
+      const next = {
+        ...prev,
+        beauticianId,
+        locationId: nextLocationId,
+        start: "",
+        end: "",
+      };
+
+      if (!prev.serviceId) return next;
+
+      const service = services.find((s) => s._id === prev.serviceId);
+      if (!service) return next;
+
+      const beauticianIds = service.beauticianIds || [];
+      const additionalIds = (service.additionalBeauticianIds || []).map((id) =>
+        normalizeId(id)
+      );
+      const primaryId = normalizeId(service.primaryBeauticianId);
+      const normalizedBeauticianId = normalizeId(beauticianId);
+
+      const isMatch =
+        beauticianIds.includes(beauticianId) ||
+        additionalIds.includes(normalizedBeauticianId) ||
+        primaryId === normalizedBeauticianId;
+
+      if (!isMatch) {
+        next.serviceId = "";
+        next.variantName = "";
+        next.price = 0;
+      }
+
+      return next;
+    });
+  };
+
+  const handleLocationChange = (locationId) => {
+    setAppointment((prev) => ({
+      ...prev,
+      locationId,
+      start: "",
+      end: "",
+    }));
+  };
+
+  useEffect(() => {
+    if (!canSelectTime && showTimePicker) {
+      setShowTimePicker(false);
+    }
+  }, [canSelectTime, showTimePicker]);
+
+  useEffect(() => {
+    if (!multiLocationEnabled || !appointment?.beauticianId) return;
+    if (locationOptions.length !== 1) return;
+
+    const onlyLocationId = normalizeId(locationOptions[0]?._id);
+    if (!onlyLocationId || selectedLocationId === onlyLocationId) return;
+
+    setAppointment((prev) => ({
+      ...prev,
+      locationId: onlyLocationId,
+      start: "",
+      end: "",
+    }));
+  }, [
+    appointment?.beauticianId,
+    locationOptions,
+    multiLocationEnabled,
+    selectedLocationId,
+    setAppointment,
+  ]);
+
+  if (!appointment) return null;
 
   return (
     <Modal open={open} onClose={onClose} title="Edit Appointment">
@@ -1955,7 +2308,7 @@ function EditModal({
               id="beautician-select"
               className="border rounded w-full px-3 py-2"
               value={appointment.beauticianId}
-              onChange={(e) => updateField("beauticianId", e.target.value)}
+              onChange={(e) => handleBeauticianChange(e.target.value)}
             >
               <option value="">Select Beautician</option>
               {beauticians.map((b) => (
@@ -1965,6 +2318,35 @@ function EditModal({
               ))}
             </select>
           </FormField>
+          {multiLocationEnabled && appointment.beauticianId && (
+            <FormField label="Location" htmlFor="location-select-edit">
+              <select
+                id="location-select-edit"
+                className="border rounded w-full px-3 py-2"
+                value={effectiveLocationId}
+                onChange={(e) => handleLocationChange(e.target.value)}
+              >
+                <option value="">
+                  {locationOptions.length === 0
+                    ? "No location available"
+                    : "Select Location"}
+                </option>
+                {locationOptions.map((location) => (
+                  <option
+                    key={normalizeId(location._id)}
+                    value={normalizeId(location._id)}
+                  >
+                    {location.name}
+                  </option>
+                ))}
+              </select>
+              {locationOptions.length === 0 && (
+                <p className="text-xs text-red-500 mt-1">
+                  This beautician has no assigned active locations.
+                </p>
+              )}
+            </FormField>
+          )}
           <FormField label="Service" htmlFor="service-select">
             <select
               id="service-select"
@@ -1973,10 +2355,18 @@ function EditModal({
               onChange={(e) => {
                 updateField("serviceId", e.target.value);
                 updateField("variantName", "");
+                updateField("price", 0);
+                updateField("start", "");
+                updateField("end", "");
               }}
+              disabled={!appointment.beauticianId}
             >
-              <option value="">Select Service</option>
-              {services.map((s) => (
+              <option value="">
+                {!appointment.beauticianId
+                  ? "Select beautician first"
+                  : "Select Service"}
+              </option>
+              {availableServices.map((s) => (
                 <option key={s._id} value={s._id}>
                   {s.name}
                 </option>
@@ -1988,7 +2378,7 @@ function EditModal({
               id="variant-select"
               className="border rounded w-full px-3 py-2"
               value={appointment.variantName}
-              onChange={(e) => updateField("variantName", e.target.value)}
+              onChange={(e) => handleVariantChange(e.target.value)}
               disabled={!appointment.serviceId}
             >
               <option value="">Select Variant</option>
@@ -1999,33 +2389,104 @@ function EditModal({
               ))}
             </select>
           </FormField>
-          <div className="w-full max-w-full overflow-hidden">
-            <div
-              className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-full"
-              style={{ minWidth: 0 }}
-            >
-              <FormField label="Start Time" htmlFor="start-time">
-                <input
-                  type="datetime-local"
-                  id="start-time"
-                  className="appearance-none box-border w-full max-w-full border rounded px-2 py-1.5 text-[16px] focus:ring-2 focus:ring-brand-500 focus:border-brand-500 overflow-hidden"
-                  style={{ minWidth: 0, maxWidth: "100%" }}
-                  value={appointment.start}
-                  onChange={(e) => updateField("start", e.target.value)}
-                />
-              </FormField>
-              <FormField label="End Time" htmlFor="end-time">
-                <input
-                  type="datetime-local"
-                  id="end-time"
-                  className="appearance-none box-border w-full max-w-full border rounded px-2 py-1.5 text-[16px] focus:ring-2 focus:ring-brand-500 focus:border-brand-500 overflow-hidden"
-                  style={{ minWidth: 0, maxWidth: "100%" }}
-                  value={appointment.end}
-                  onChange={(e) => updateField("end", e.target.value)}
-                />
-              </FormField>
-            </div>
-          </div>
+
+          {appointment.beauticianId &&
+            appointment.serviceId &&
+            appointment.variantName && (
+              <div className="space-y-3">
+                {multiLocationEnabled && !effectiveLocationId && (
+                  <div className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                    Select a location to view available time slots.
+                  </div>
+                )}
+
+                <FormField
+                  label="Select Date & Time"
+                  htmlFor="datetime-picker-edit"
+                >
+                  {canSelectTime && appointment.start ? (
+                    <div className="space-y-2">
+                      <div className="border rounded p-3 bg-gray-50">
+                        <p className="text-sm font-medium text-gray-900">
+                          Selected Time:
+                        </p>
+                        <p className="text-lg font-semibold text-brand-600">
+                          {formatSelectedTime(appointment.start)}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50"
+                        onClick={() => setShowTimePicker(true)}
+                      >
+                        Change Time
+                      </button>
+                    </div>
+                  ) : canSelectTime ? (
+                    <button
+                      type="button"
+                      className="w-full px-4 py-2 border border-brand-500 text-brand-600 rounded hover:bg-brand-50"
+                      onClick={() => setShowTimePicker(true)}
+                    >
+                      Select Available Time Slot
+                    </button>
+                  ) : (
+                    <div className="w-full px-4 py-2 border border-dashed border-gray-300 text-gray-500 rounded bg-gray-50 text-sm">
+                      Select a location first
+                    </div>
+                  )}
+                </FormField>
+
+                {showTimePicker && canSelectTime && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div
+                      className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                      onClick={() => setShowTimePicker(false)}
+                    />
+
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
+                      <div className="p-4 border-b flex items-center justify-between">
+                        <h2 className="text-lg font-semibold">
+                          Select Date & Time
+                        </h2>
+                        <button
+                          type="button"
+                          onClick={() => setShowTimePicker(false)}
+                          className="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                          <svg
+                            className="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="p-6 overflow-y-auto">
+                        <DateTimePicker
+                          beauticianId={appointment.beauticianId}
+                          serviceId={appointment.serviceId}
+                          variantName={appointment.variantName}
+                          locationId={effectiveLocationId || undefined}
+                          salonTz="Europe/London"
+                          stepMin={15}
+                          beauticianWorkingHours={beauticianWorkingHours}
+                          customSchedule={customSchedule}
+                          onSelect={handleSlotSelect}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           <FormField label="Price (£)" htmlFor="price">
             <input
               type="number"
@@ -2444,12 +2905,14 @@ function CreateModal({
                         </p>
                         <p className="text-lg font-semibold text-brand-600">
                           {new Date(appointment.start).toLocaleString("en-GB", {
+                            timeZone: "Europe/London",
                             weekday: "short",
                             year: "numeric",
                             month: "short",
                             day: "numeric",
                             hour: "2-digit",
                             minute: "2-digit",
+                            hour12: false,
                           })}
                         </p>
                       </div>
