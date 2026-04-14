@@ -302,7 +302,7 @@ export default function LandingPage() {
               </>
             )}
             <h1 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 text-center mt-12 mb-4 tracking-wide">
-              Premier Aesthetic & Beauty Salon in Wisbech
+              Premier Aesthetic & Beauty Salon in Wisbech and Peterborough
             </h1>
           </div>
           <p className="text-center text-gray-600 text-lg max-w-4xl mx-auto mb-8 font-light">
