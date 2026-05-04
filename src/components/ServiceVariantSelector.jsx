@@ -1,5 +1,22 @@
 import { useState } from "react";
 import Card from "./ui/Card";
+import faceWaxIcon from "../assets/icons/waxing/face.svg";
+import upperBodyWaxIcon from "../assets/icons/waxing/upper-body.svg";
+import legsWaxIcon from "../assets/icons/waxing/legs.svg";
+import intimateWaxIcon from "../assets/icons/waxing/intimate.svg";
+import bundlesWaxIcon from "../assets/icons/waxing/bundles.svg";
+import {
+  groupBodyWaxingVariants,
+  isBodyWaxingService,
+} from "../utils/bodyWaxingVariantGroups";
+
+const WAXING_GROUP_ICONS = {
+  face: faceWaxIcon,
+  upper_body: upperBodyWaxIcon,
+  legs: legsWaxIcon,
+  intimate: intimateWaxIcon,
+  bundles: bundlesWaxIcon,
+};
 
 export default function ServiceVariantSelector({
   service,
@@ -31,6 +48,127 @@ export default function ServiceVariantSelector({
 
   const imageUrl = service.image?.url || service.imageUrl;
   const imageAlt = service.image?.alt || service.name;
+  const isBodyWaxing = isBodyWaxingService(service);
+  const groupedBodyWaxingVariants = isBodyWaxing
+    ? groupBodyWaxingVariants(service.variants || [])
+    : [];
+
+  const renderVariantCard = (variant, cardKey) => (
+    <Card
+      key={cardKey}
+      hoverable
+      className={`cursor-pointer border-2 transition-all duration-200 ${
+        selectedVariant?.name === variant.name
+          ? "border-brand-500 bg-brand-50"
+          : "border-gray-200 hover:border-brand-300"
+      }`}
+      onClick={() => handleVariantSelect(variant)}
+    >
+      <div className="p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            {variant.name && (
+              <h4 className="font-semibold text-base text-gray-900 mb-1 truncate">
+                {variant.name}
+              </h4>
+            )}
+
+            <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
+              {variant.durationMin && (
+                <div className="flex items-center gap-1">
+                  <svg
+                    className="w-4 h-4 text-brand-600"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 7v5l3 2"
+                    />
+                  </svg>
+                  <span>{variant.durationMin} minutes</span>
+                </div>
+              )}
+
+              {variant.bufferBeforeMin > 0 && (
+                <div className="text-xs text-gray-500">
+                  +{variant.bufferBeforeMin}min prep
+                </div>
+              )}
+
+              {variant.bufferAfterMin > 0 && (
+                <div className="text-xs text-gray-500">
+                  +{variant.bufferAfterMin}min cleanup
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {variant.price && (
+              <div className="text-right">
+                {variant.promoPrice ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 border border-red-300 rounded-full text-[10px] text-red-700 font-bold whitespace-nowrap">
+                        <svg
+                          className="w-3 h-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        SPECIAL OFFER
+                      </span>
+                    </div>
+                    <div className="text-base font-medium text-gray-400 line-through">
+                      {"\u00A3"}
+                      {Number(variant.price).toFixed(2)}
+                    </div>
+                    <div className="text-2xl font-bold text-red-600">
+                      {"\u00A3"}
+                      {Number(variant.promoPrice).toFixed(2)}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-2xl font-bold text-brand-700">
+                    {"\u00A3"}
+                    {Number(variant.price).toFixed(2)}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div
+              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                selectedVariant?.name === variant.name
+                  ? "border-brand-500 bg-brand-500"
+                  : "border-gray-300"
+              }`}
+            >
+              {selectedVariant?.name === variant.name && (
+                <svg
+                  className="w-3 h-3 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
 
   return (
     <div
@@ -184,121 +322,45 @@ export default function ServiceVariantSelector({
           </h3>
 
           {service.variants && service.variants.length > 0 ? (
-            <div className="space-y-2 sm:space-y-3">
-              {service.variants.map((variant, index) => (
-                <Card
-                  key={variant.name || index}
-                  hoverable
-                  className={`cursor-pointer border-2 transition-all duration-200 ${
-                    selectedVariant?.name === variant.name
-                      ? "border-brand-500 bg-brand-50"
-                      : "border-gray-200 hover:border-brand-300"
-                  }`}
-                  onClick={() => handleVariantSelect(variant)}
-                >
-                  <div className="p-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        {variant.name && (
-                          <h4 className="font-semibold text-base text-gray-900 mb-1 truncate">
-                            {variant.name}
-                          </h4>
-                        )}
+            isBodyWaxing ? (
+              <div className="space-y-4 sm:space-y-5">
+                {groupedBodyWaxingVariants.map((group) => {
+                  const iconSrc = group.iconKey
+                    ? WAXING_GROUP_ICONS[group.iconKey]
+                    : null;
 
-                        <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
-                          {variant.durationMin && (
-                            <div className="flex items-center gap-1">
-                              <svg
-                                className="w-4 h-4 text-brand-600"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle cx="12" cy="12" r="10" />
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 7v5l3 2"
-                                />
-                              </svg>
-                              <span>{variant.durationMin} minutes</span>
-                            </div>
-                          )}
-
-                          {variant.bufferBeforeMin > 0 && (
-                            <div className="text-xs text-gray-500">
-                              +{variant.bufferBeforeMin}min prep
-                            </div>
-                          )}
-
-                          {variant.bufferAfterMin > 0 && (
-                            <div className="text-xs text-gray-500">
-                              +{variant.bufferAfterMin}min cleanup
-                            </div>
-                          )}
-                        </div>
+                  return (
+                    <section key={group.key} className="space-y-2 sm:space-y-3">
+                      <div className="flex items-center gap-2">
+                        {iconSrc ? (
+                          <img
+                            src={iconSrc}
+                            alt=""
+                            aria-hidden="true"
+                            className="w-6 h-6"
+                          />
+                        ) : null}
+                        <h4 className="text-sm sm:text-base font-semibold text-gray-900 uppercase tracking-wide">
+                          {group.title}
+                        </h4>
                       </div>
 
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        {variant.price && (
-                          <div className="text-right">
-                            {variant.promoPrice ? (
-                              <>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 border border-red-300 rounded-full text-[10px] text-red-700 font-bold whitespace-nowrap">
-                                    <svg
-                                      className="w-3 h-3"
-                                      fill="currentColor"
-                                      viewBox="0 0 20 20"
-                                    >
-                                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                    </svg>
-                                    SPECIAL OFFER
-                                  </span>
-                                </div>
-                                <div className="text-base font-medium text-gray-400 line-through">
-                                  £{Number(variant.price).toFixed(2)}
-                                </div>
-                                <div className="text-2xl font-bold text-red-600">
-                                  £{Number(variant.promoPrice).toFixed(2)}
-                                </div>
-                              </>
-                            ) : (
-                              <div className="text-2xl font-bold text-brand-700">
-                                £{Number(variant.price).toFixed(2)}
-                              </div>
-                            )}
-                          </div>
+                      <div className="space-y-2 sm:space-y-3">
+                        {group.variants.map((variant, index) =>
+                          renderVariantCard(variant, `${group.key}-${index}`),
                         )}
-
-                        <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            selectedVariant?.name === variant.name
-                              ? "border-brand-500 bg-brand-500"
-                              : "border-gray-300"
-                          }`}
-                        >
-                          {selectedVariant?.name === variant.name && (
-                            <svg
-                              className="w-3 h-3 text-white"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          )}
-                        </div>
                       </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                    </section>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="space-y-2 sm:space-y-3">
+                {service.variants.map((variant, index) =>
+                  renderVariantCard(variant, variant.name || index),
+                )}
+              </div>
+            )
           ) : (
             <div className="text-center py-8">
               <p className="text-gray-600 mb-4">
@@ -331,7 +393,8 @@ export default function ServiceVariantSelector({
                     )}
                     {service.price && (
                       <div className="text-xl font-bold text-brand-700">
-                        £{Number(service.price).toFixed(2)}
+                        {"\u00A3"}
+                        {Number(service.price).toFixed(2)}
                       </div>
                     )}
                   </div>
