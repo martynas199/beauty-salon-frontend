@@ -1,6 +1,8 @@
 ﻿import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { TimeOffAPI } from "../../features/timeoff/timeoff.api";
 import { api } from "../../lib/apiClient";
+import { selectAdmin } from "../../features/auth/authSlice";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -10,32 +12,58 @@ import { t } from "../../locales/adminTranslations";
 
 export default function TimeOff() {
   const { language } = useLanguage();
+  const admin = useSelector(selectAdmin);
+  const isSuperAdmin = admin?.role === "super_admin";
+  const ownBeauticianId = isSuperAdmin ? "" : admin?.beauticianId || "";
+  const getEmptyFormData = () => ({
+    beauticianId: ownBeauticianId,
+    start: "",
+    end: "",
+    reason: "",
+  });
   const [timeOffList, setTimeOffList] = useState([]);
   const [beauticians, setBeauticians] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [formData, setFormData] = useState({
-    beauticianId: "",
-    start: "",
-    end: "",
-    reason: "",
-  });
+  const [formData, setFormData] = useState(getEmptyFormData);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [admin?.role, admin?.beauticianId]);
+
+  useEffect(() => {
+    if (!isSuperAdmin && admin?.beauticianId) {
+      setFormData((prev) => ({
+        ...prev,
+        beauticianId: String(admin.beauticianId),
+      }));
+    }
+  }, [admin?.beauticianId, isSuperAdmin]);
 
   async function loadData() {
     try {
       setLoading(true);
-      const [timeOffData, staffResponse] = await Promise.all([
-        TimeOffAPI.getAll(),
-        api.get("/beauticians", { params: { limit: 1000 } }),
-      ]);
+      const timeOffData = await TimeOffAPI.getAll();
+      let activeBeauticians = [];
+
+      if (isSuperAdmin) {
+        const staffResponse = await api.get("/beauticians", {
+          params: { limit: 1000 },
+        });
+        activeBeauticians = staffResponse.data.filter((b) => b.active);
+      } else if (admin?.beauticianId) {
+        const staffResponse = await api.get(
+          `/beauticians/${admin.beauticianId}`,
+        );
+        activeBeauticians = staffResponse.data?.active
+          ? [staffResponse.data]
+          : [];
+      }
+
       setTimeOffList(timeOffData);
-      setBeauticians(staffResponse.data.filter((b) => b.active));
+      setBeauticians(activeBeauticians);
     } catch (error) {
       console.error("Error loading data:", error);
       alert("Failed to load time-off data");
@@ -46,8 +74,11 @@ export default function TimeOff() {
 
   function validateForm() {
     const newErrors = {};
+    const targetBeauticianId = isSuperAdmin
+      ? formData.beauticianId
+      : admin?.beauticianId;
 
-    if (!formData.beauticianId) {
+    if (!targetBeauticianId) {
       newErrors.beauticianId = "Please select a beautician";
     }
 
@@ -81,15 +112,18 @@ export default function TimeOff() {
 
     try {
       setSubmitting(true);
+      const targetBeauticianId = isSuperAdmin
+        ? formData.beauticianId
+        : admin?.beauticianId;
       const newTimeOff = await TimeOffAPI.create({
-        beauticianId: formData.beauticianId,
+        beauticianId: targetBeauticianId,
         start: formData.start,
         end: formData.end,
         reason: formData.reason,
       });
 
       setTimeOffList([...timeOffList, newTimeOff]);
-      setFormData({ beauticianId: "", start: "", end: "", reason: "" });
+      setFormData(getEmptyFormData());
       setShowAddForm(false);
       setErrors({});
     } catch (error) {
@@ -197,22 +231,39 @@ export default function TimeOff() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Staff Member <span className="text-red-500">*</span>
                 </label>
-                <select
-                  value={formData.beauticianId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, beauticianId: e.target.value })
-                  }
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${
-                    errors.beauticianId ? "border-red-500" : "border-gray-300"
-                  }`}
-                >
-                  <option value="">Select staff member</option>
-                  {beauticians.map((beautician) => (
-                    <option key={beautician._id} value={beautician._id}>
-                      {beautician.name}
-                    </option>
-                  ))}
-                </select>
+                {isSuperAdmin ? (
+                  <select
+                    value={formData.beauticianId}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        beauticianId: e.target.value,
+                      })
+                    }
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${
+                      errors.beauticianId
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    <option value="">Select staff member</option>
+                    {beauticians.map((beautician) => (
+                      <option key={beautician._id} value={beautician._id}>
+                        {beautician.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div
+                    className={`w-full px-3 py-2 border rounded-lg bg-gray-50 text-gray-700 ${
+                      errors.beauticianId
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {beauticians[0]?.name || "Your profile"}
+                  </div>
+                )}
                 {errors.beauticianId && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.beauticianId}
@@ -297,12 +348,7 @@ export default function TimeOff() {
                 variant="outline"
                 onClick={() => {
                   setShowAddForm(false);
-                  setFormData({
-                    beauticianId: "",
-                    start: "",
-                    end: "",
-                    reason: "",
-                  });
+                  setFormData(getEmptyFormData());
                   setErrors({});
                 }}
               >

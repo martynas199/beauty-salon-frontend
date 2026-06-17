@@ -548,7 +548,7 @@ export default function ServiceForm({
             </Button>
           </div>
 
-          <div className="max-h-96 overflow-y-auto space-y-3">
+          <div className="space-y-3">
             {formData.variants.map((variant, index) => (
               <div
                 key={index}

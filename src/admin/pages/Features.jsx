@@ -51,23 +51,65 @@ export default function Features() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [processingSms, setProcessingSms] = useState(false);
+  const [processingEcommerce, setProcessingEcommerce] = useState(false);
   const [featureStatus, setFeatureStatus] = useState(null);
+  const [featureBeauticianId, setFeatureBeauticianId] = useState("");
 
-  const beauticianId = admin?.beauticianId;
+  const isSuperAdmin = admin?.role === "super_admin";
+  const adminBeauticianId = admin?.beauticianId?._id || admin?.beauticianId;
+  const beauticianId = featureBeauticianId || adminBeauticianId;
 
   useEffect(() => {
-    if (beauticianId) {
-      fetchFeatureStatus();
-    } else {
-      setLoading(false);
-    }
-  }, [beauticianId]);
+    let isCancelled = false;
 
-  const fetchFeatureStatus = async () => {
+    const loadFeatureTarget = async () => {
+      if (isSuperAdmin) {
+        try {
+          setLoading(true);
+          const response = await api.get("/features/ecommerce-target");
+          if (isCancelled) return;
+
+          setFeatureBeauticianId(response.data.beauticianId);
+          setFeatureStatus(response.data);
+        } catch (error) {
+          if (!isCancelled) {
+            console.error("Error fetching E-Commerce target:", error);
+            toast.error("Failed to load E-Commerce subscription target");
+            setFeatureBeauticianId("");
+            setFeatureStatus(null);
+          }
+        } finally {
+          if (!isCancelled) {
+            setLoading(false);
+          }
+        }
+        return;
+      }
+
+      if (adminBeauticianId) {
+        setFeatureBeauticianId(adminBeauticianId);
+        await fetchFeatureStatus(adminBeauticianId);
+        return;
+      }
+
+      setFeatureBeauticianId("");
+      setFeatureStatus(null);
+      setLoading(false);
+    };
+
+    loadFeatureTarget();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [adminBeauticianId, isSuperAdmin]);
+
+  const fetchFeatureStatus = async (targetBeauticianId = beauticianId) => {
+    if (!targetBeauticianId) return;
     try {
       setLoading(true);
       // Get feature status
-      const statusRes = await api.get(`/features/${beauticianId}`);
+      const statusRes = await api.get(`/features/${targetBeauticianId}`);
       setFeatureStatus(statusRes.data);
     } catch (error) {
       console.error("Error fetching feature status:", error);
@@ -85,6 +127,10 @@ export default function Features() {
       if (res.data.checkoutUrl) {
         // Redirect to Stripe Checkout
         window.location.href = res.data.checkoutUrl;
+      } else {
+        toast.success(res.data.message || "Subscription updated");
+        await fetchFeatureStatus();
+        setProcessing(false);
       }
     } catch (error) {
       console.error("Error creating subscription:", error);
@@ -130,6 +176,10 @@ export default function Features() {
       if (res.data.checkoutUrl) {
         // Redirect to Stripe Checkout
         window.location.href = res.data.checkoutUrl;
+      } else {
+        toast.success(res.data.message || "SMS subscription updated");
+        await fetchFeatureStatus();
+        setProcessingSms(false);
       }
     } catch (error) {
       console.error("Error creating SMS subscription:", error);
@@ -137,6 +187,58 @@ export default function Features() {
         error.response?.data?.error || "Failed to start SMS subscription"
       );
       setProcessingSms(false);
+    }
+  };
+
+  const handleEcommerceSubscribe = async () => {
+    if (!beauticianId) return;
+    try {
+      setProcessingEcommerce(true);
+      const res = await api.post(
+        `/features/${beauticianId}/subscribe-ecommerce`
+      );
+      if (res.data.checkoutUrl) {
+        window.location.href = res.data.checkoutUrl;
+      } else {
+        toast.success(res.data.message || "E-Commerce subscription updated");
+        await fetchFeatureStatus();
+        setProcessingEcommerce(false);
+      }
+    } catch (error) {
+      console.error("Error creating E-Commerce subscription:", error);
+      toast.error(
+        error.response?.data?.error ||
+          "Failed to start E-Commerce subscription"
+      );
+      setProcessingEcommerce(false);
+    }
+  };
+
+  const handleCancelEcommerce = async () => {
+    if (!beauticianId) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to cancel your E-Commerce subscription? It will remain active until the end of the current billing period."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setProcessingEcommerce(true);
+      await api.post(`/features/${beauticianId}/cancel-ecommerce`);
+      toast.success(
+        "E-Commerce subscription cancelled. It will remain active until the end of your billing period."
+      );
+      fetchFeatureStatus();
+    } catch (error) {
+      console.error("Error cancelling E-Commerce subscription:", error);
+      toast.error(
+        error.response?.data?.error ||
+          "Failed to cancel E-Commerce subscription"
+      );
+    } finally {
+      setProcessingEcommerce(false);
     }
   };
 
@@ -234,6 +336,26 @@ export default function Features() {
   const smsFullyCanceled =
     featureStatus?.smsConfirmations?.status === "canceled" &&
     (smsPeriodEnd ? smsHasExpired : true);
+
+  // E-Commerce subscription status
+  const ecommerceCancelAtPeriodEnd =
+    featureStatus?.ecommerceStore?.cancelAtPeriodEnd === true;
+  const ecommerceActive =
+    featureStatus?.ecommerceStore?.enabled &&
+    featureStatus?.ecommerceStore?.status === "active" &&
+    !ecommerceCancelAtPeriodEnd;
+  const ecommerceCanceled =
+    featureStatus?.ecommerceStore?.status === "canceled" ||
+    ecommerceCancelAtPeriodEnd;
+  const ecommercePeriodEnd = featureStatus?.ecommerceStore?.currentPeriodEnd;
+  const ecommerceHasExpired =
+    ecommercePeriodEnd && new Date(ecommercePeriodEnd) <= new Date();
+  const ecommerceFullyCanceled =
+    featureStatus?.ecommerceStore?.status === "canceled" &&
+    (ecommercePeriodEnd ? ecommerceHasExpired : true);
+  const canDisplayEcommerce =
+    admin?.role === "super_admin" ||
+    featureStatus?.ecommerceStore?.eligibleForBeautician === true;
 
   return (
     <div className="max-w-4xl mx-auto py-4 sm:py-8 px-4">
@@ -428,6 +550,180 @@ export default function Features() {
             </div>
           </div>
         </div>
+
+        {/* E-Commerce Store Feature Card */}
+        {canDisplayEcommerce && (
+          <div className="mt-6 sm:mt-8 bg-white rounded-lg shadow-lg overflow-hidden border-2 border-brand-200">
+            <div className="bg-brand-500 p-4 sm:p-6 text-gray-900">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                <CrownIcon className="w-6 h-6 sm:w-8 sm:h-8" />
+                <h2 className="text-xl sm:text-2xl font-bold">
+                  E-Commerce Subscription
+                </h2>
+              </div>
+              <p className="text-sm sm:text-base text-gray-800">
+                Enable online product sales and order management for your
+                account.
+              </p>
+            </div>
+
+            <div className="p-4 sm:p-6">
+              {ecommerceActive && (
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 border border-green-300 rounded-lg">
+                  <div className="flex items-center gap-2 text-green-900 font-semibold text-xs sm:text-sm mb-1">
+                    <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span>Active Subscription</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-green-800">
+                    E-Commerce access is active for your product store.
+                  </p>
+                  {ecommercePeriodEnd && (
+                    <p className="text-xs text-green-700 mt-1">
+                      Next billing:{" "}
+                      {new Date(ecommercePeriodEnd).toLocaleDateString(
+                        "en-GB"
+                      )}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {ecommerceCanceled && !ecommerceFullyCanceled && (
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-amber-50 border border-amber-300 rounded-lg">
+                  <div className="flex items-center gap-2 text-amber-900 font-semibold text-xs sm:text-sm mb-1">
+                    <TimesIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span>Subscription Ending</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-amber-800">
+                    Your E-Commerce subscription is canceled but active until{" "}
+                    {ecommercePeriodEnd
+                      ? new Date(ecommercePeriodEnd).toLocaleDateString(
+                          "en-GB"
+                        )
+                      : "the end of the current billing period"}
+                    .
+                  </p>
+                </div>
+              )}
+
+              {ecommerceFullyCanceled && (
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 border border-gray-300 rounded-lg">
+                  <div className="flex items-center gap-2 text-gray-900 font-semibold text-xs sm:text-sm mb-1">
+                    <TimesIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span>Subscription Expired</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-700">
+                    Your E-Commerce subscription has ended. Resubscribe to keep
+                    selling products online.
+                  </p>
+                </div>
+              )}
+
+              {!ecommerceActive && !ecommerceCanceled && (
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                  <p className="text-sm sm:text-base text-gray-700">
+                    This subscription is required to access online product
+                    sales, product checkout, and order management.
+                  </p>
+                </div>
+              )}
+
+              <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs sm:text-sm text-gray-700">
+                    Online product catalogue and product listings
+                  </span>
+                </div>
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs sm:text-sm text-gray-700">
+                    Shopping cart and Stripe checkout for product orders
+                  </span>
+                </div>
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs sm:text-sm text-gray-700">
+                    Product order management and customer order tracking
+                  </span>
+                </div>
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs sm:text-sm text-gray-700">
+                    Product revenue analytics and reporting
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-4 sm:mb-6">
+                <div className="text-center">
+                  <div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">
+                    GBP 19
+                    <span className="text-base sm:text-lg text-gray-600 font-normal">
+                      /month
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-600">
+                    Required plan for E-Commerce access
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                {!ecommerceActive && !ecommerceCanceled && (
+                  <button
+                    onClick={handleEcommerceSubscribe}
+                    disabled={processingEcommerce}
+                    className="w-full sm:flex-1 bg-brand-500 text-gray-900 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold hover:bg-brand-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {processingEcommerce ? "Processing..." : "Subscribe Now"}
+                  </button>
+                )}
+
+                {ecommerceFullyCanceled && (
+                  <button
+                    onClick={handleEcommerceSubscribe}
+                    disabled={processingEcommerce}
+                    className="w-full sm:flex-1 bg-brand-500 text-gray-900 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold hover:bg-brand-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {processingEcommerce ? "Processing..." : "Resubscribe"}
+                  </button>
+                )}
+
+                {ecommerceActive && (
+                  <button
+                    onClick={handleCancelEcommerce}
+                    disabled={processingEcommerce}
+                    className="w-full sm:flex-1 bg-gray-200 text-gray-700 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold hover:bg-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {processingEcommerce
+                      ? "Processing..."
+                      : "Cancel Subscription"}
+                  </button>
+                )}
+
+                {ecommerceCanceled && !ecommerceFullyCanceled && (
+                  <button
+                    onClick={handleEcommerceSubscribe}
+                    disabled={processingEcommerce}
+                    className="w-full sm:flex-1 bg-brand-500 text-gray-900 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold hover:bg-brand-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {processingEcommerce
+                      ? "Processing..."
+                      : "Reactivate Subscription"}
+                  </button>
+                )}
+              </div>
+
+              <div className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600">
+                <p>
+                  <strong>Note:</strong> E-Commerce access is billed monthly via
+                  Stripe and is managed from Premium Features.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* SMS Confirmations Feature Card */}
         <div className="mt-6 sm:mt-8 bg-white rounded-lg shadow-lg overflow-hidden border-2 border-brand-200">

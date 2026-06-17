@@ -9,6 +9,7 @@ import logo from "../assets/logo.svg";
 import { useLanguage } from "../contexts/LanguageContext";
 import { t } from "../locales/adminTranslations";
 import NoFeeBookingsOverlayModal from "./components/NoFeeBookingsOverlayModal";
+import EcommerceSubscriptionOverlayModal from "./components/EcommerceSubscriptionOverlayModal";
 
 // Icon components for cleaner, more professional look
 const Icon = ({ name, className = "w-5 h-5" }) => {
@@ -470,6 +471,13 @@ export default function AdminLayout() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [salonName, setSalonName] = useState("Beauty Salon");
   const [showNoFeeOverlay, setShowNoFeeOverlay] = useState(false);
+  const [showEcommerceOverlay, setShowEcommerceOverlay] = useState(false);
+  const [ecommerceOverlayBeauticianId, setEcommerceOverlayBeauticianId] =
+    useState("");
+  const adminBeauticianId = admin?.beauticianId?._id || admin?.beauticianId;
+  const adminIdentity = admin?._id || admin?.id || admin?.email || "unknown";
+  const getEcommerceDismissKey = (beauticianId) =>
+    `ecommerce-overlay-dismissed-v3:${adminIdentity}:${beauticianId}`;
 
   // Memoize role check for performance
   const isSuperAdmin = useMemo(
@@ -484,7 +492,7 @@ export default function AdminLayout() {
       if (item.divider || item.external) return true;
 
       // If item requires beautician, only show if admin has beauticianId
-      if (item.requiresBeautician && !admin?.beauticianId) {
+      if (item.requiresBeautician && !adminBeauticianId) {
         return false;
       }
 
@@ -496,7 +504,7 @@ export default function AdminLayout() {
       // Show all other items to everyone
       return true;
     });
-  }, [isSuperAdmin, admin?.beauticianId]);
+  }, [isSuperAdmin, adminBeauticianId]);
 
   // Debug logging for menu filtering
   useEffect(() => {
@@ -525,66 +533,140 @@ export default function AdminLayout() {
   }, []);
 
   useEffect(() => {
-    const beauticianId = admin?.beauticianId;
-    if (!beauticianId) {
-      setShowNoFeeOverlay(false);
-      return;
-    }
+    const beauticianId = adminBeauticianId;
+    const isAdminSuper = admin?.role === "super_admin";
 
     if (pathname.startsWith("/admin/features")) {
       setShowNoFeeOverlay(false);
+      setShowEcommerceOverlay(false);
+      return;
+    }
+
+    if (!beauticianId && !isAdminSuper) {
+      setShowNoFeeOverlay(false);
+      setShowEcommerceOverlay(false);
+      setEcommerceOverlayBeauticianId("");
       return;
     }
 
     let isCancelled = false;
-    const dismissKey = `no-fee-overlay-dismissed:${beauticianId}`;
-    const dismissedForSession = sessionStorage.getItem(dismissKey) === "1";
 
-    const checkNoFeeStatus = async () => {
-      if (dismissedForSession) {
-        setShowNoFeeOverlay(false);
-        return;
-      }
-
+    const checkFeatureStatus = async () => {
       try {
+        if (isAdminSuper) {
+          const response = await api.get("/features/ecommerce-target");
+          if (isCancelled) return;
+
+          const targetBeauticianId = response.data?.beauticianId;
+          const ecommerceStatus = response.data?.ecommerceStore;
+          const ecommerceDismissedForSession =
+            sessionStorage.getItem(getEcommerceDismissKey(targetBeauticianId)) ===
+            "1";
+          const isEcommerceSubscribed =
+            ecommerceStatus?.enabled === true &&
+            ecommerceStatus?.status === "active" &&
+            ecommerceStatus?.cancelAtPeriodEnd !== true;
+
+          setShowNoFeeOverlay(false);
+          setEcommerceOverlayBeauticianId(targetBeauticianId || "");
+          setShowEcommerceOverlay(
+            !!targetBeauticianId &&
+              ecommerceStatus?.eligibleForBeautician === true &&
+              !isEcommerceSubscribed &&
+              !ecommerceDismissedForSession,
+          );
+          return;
+        }
+
+        const noFeeDismissKey = `no-fee-overlay-dismissed:${beauticianId}`;
+        const ecommerceDismissKey = getEcommerceDismissKey(beauticianId);
+        const noFeeDismissedForSession =
+          sessionStorage.getItem(noFeeDismissKey) === "1";
+        const ecommerceDismissedForSession =
+          sessionStorage.getItem(ecommerceDismissKey) === "1";
+
         const response = await api.get(`/features/${beauticianId}`);
         if (isCancelled) return;
 
-        const noFeeStatus = response.data?.noFeeBookings;
-        const isSubscribed =
-          noFeeStatus?.enabled === true && noFeeStatus?.status === "active";
+        const ecommerceStatus = response.data?.ecommerceStore;
+        const canDisplayEcommerce =
+          ecommerceStatus?.eligibleForBeautician === true;
+        const isEcommerceSubscribed =
+          ecommerceStatus?.enabled === true &&
+          ecommerceStatus?.status === "active" &&
+          ecommerceStatus?.cancelAtPeriodEnd !== true;
 
-        setShowNoFeeOverlay(!isSubscribed);
+        if (
+          canDisplayEcommerce &&
+          !isEcommerceSubscribed &&
+          !ecommerceDismissedForSession
+        ) {
+          setShowNoFeeOverlay(false);
+          setEcommerceOverlayBeauticianId(beauticianId);
+          setShowEcommerceOverlay(true);
+          return;
+        }
+
+        const noFeeStatus = response.data?.noFeeBookings;
+        const isPlatformSubscribed =
+          noFeeStatus?.enabled === true &&
+          noFeeStatus?.status === "active" &&
+          noFeeStatus?.cancelAtPeriodEnd !== true;
+
+        if (!isPlatformSubscribed && !noFeeDismissedForSession) {
+          setShowNoFeeOverlay(true);
+          setShowEcommerceOverlay(false);
+          return;
+        }
+
+        setShowNoFeeOverlay(false);
+        setEcommerceOverlayBeauticianId(beauticianId);
+        setShowEcommerceOverlay(false);
       } catch (error) {
         if (!isCancelled) {
           console.error(
-            "[NoFeeOverlay] Failed to load feature status:",
+            "[SubscriptionOverlay] Failed to load feature status:",
             error?.message || error,
           );
           setShowNoFeeOverlay(false);
+          setShowEcommerceOverlay(false);
         }
       }
     };
 
-    checkNoFeeStatus();
+    checkFeatureStatus();
 
     return () => {
       isCancelled = true;
     };
-  }, [admin?.beauticianId, pathname]);
+  }, [adminBeauticianId, admin?.role, adminIdentity, pathname]);
 
   const handleDismissNoFeeOverlay = () => {
-    if (admin?.beauticianId) {
+    if (adminBeauticianId) {
       sessionStorage.setItem(
-        `no-fee-overlay-dismissed:${admin.beauticianId}`,
+        `no-fee-overlay-dismissed:${adminBeauticianId}`,
         "1",
       );
     }
     setShowNoFeeOverlay(false);
   };
 
+  const handleDismissEcommerceOverlay = () => {
+    const dismissBeauticianId =
+      ecommerceOverlayBeauticianId || adminBeauticianId;
+
+    if (dismissBeauticianId) {
+      sessionStorage.setItem(
+        getEcommerceDismissKey(dismissBeauticianId),
+        "1",
+      );
+    }
+    setShowEcommerceOverlay(false);
+  };
+
   const handleOpenPremiumFeatures = () => {
     setShowNoFeeOverlay(false);
+    setShowEcommerceOverlay(false);
     navigate("/admin/features");
   };
 
@@ -618,10 +700,15 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="flex h-dvh flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
       <NoFeeBookingsOverlayModal
         open={showNoFeeOverlay}
         onClose={handleDismissNoFeeOverlay}
+        onGoToFeatures={handleOpenPremiumFeatures}
+      />
+      <EcommerceSubscriptionOverlayModal
+        open={showEcommerceOverlay}
+        onClose={handleDismissEcommerceOverlay}
         onGoToFeatures={handleOpenPremiumFeatures}
       />
 
@@ -789,7 +876,7 @@ export default function AdminLayout() {
         />
       )}
 
-      <div className="lg:grid lg:grid-cols-[260px_1fr]">
+      <div className="min-h-0 flex-1 lg:grid lg:grid-cols-[260px_1fr]">
         {/* Sidebar */}
         <aside
           className={`
@@ -977,7 +1064,7 @@ export default function AdminLayout() {
         </aside>
 
         {/* Main Content */}
-        <section className="p-4 lg:p-6 pb-20 lg:pb-6 min-h-screen overflow-x-hidden">
+        <section className="min-h-0 overflow-y-auto overflow-x-hidden p-4 pb-20 lg:p-6 lg:pb-6">
           <Outlet />
         </section>
       </div>
