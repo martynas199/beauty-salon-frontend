@@ -876,7 +876,7 @@ export default function AdminLayout() {
         />
       )}
 
-      <div className="min-h-0 flex-1 lg:grid lg:grid-cols-[260px_1fr]">
+      <div className="min-h-0 flex-1 overflow-hidden lg:grid lg:grid-cols-[260px_1fr]">
         {/* Sidebar */}
         <aside
           className={`
@@ -1064,7 +1064,10 @@ export default function AdminLayout() {
         </aside>
 
         {/* Main Content */}
-        <section className="min-h-0 overflow-y-auto overflow-x-hidden p-4 pb-20 lg:p-6 lg:pb-6">
+        <section
+          className="h-full min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-4 pb-20 lg:p-6 lg:pb-6"
+          style={{ WebkitOverflowScrolling: "touch", overscrollBehaviorY: "contain" }}
+        >
           <Outlet />
         </section>
       </div>
