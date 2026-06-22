@@ -700,7 +700,7 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="flex min-h-dvh flex-col bg-gradient-to-br from-gray-50 to-gray-100 lg:h-dvh lg:overflow-hidden">
       <NoFeeBookingsOverlayModal
         open={showNoFeeOverlay}
         onClose={handleDismissNoFeeOverlay}
@@ -876,7 +876,7 @@ export default function AdminLayout() {
         />
       )}
 
-      <div className="min-h-0 flex-1 overflow-hidden lg:grid lg:grid-cols-[260px_1fr]">
+      <div className="flex-1 lg:min-h-0 lg:overflow-hidden lg:grid lg:grid-cols-[260px_1fr]">
         {/* Sidebar */}
         <aside
           className={`
@@ -1065,8 +1065,7 @@ export default function AdminLayout() {
 
         {/* Main Content */}
         <section
-          className="h-full min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-4 pb-20 lg:p-6 lg:pb-6"
-          style={{ WebkitOverflowScrolling: "touch", overscrollBehaviorY: "contain" }}
+          className="min-h-0 flex-1 p-4 pb-20 lg:h-full lg:overflow-y-auto lg:overflow-x-hidden lg:p-6 lg:pb-6"
         >
           <Outlet />
         </section>
